@@ -25,3 +25,8 @@ Completed implementation:
 - Added mock schema and response API routes.
 - Added an embeddable form preview route.
 - Added a Python OpenClio worker dry run.
+- Added local persistence.
+- Added PPIO-backed schema generation with local fallback.
+- Added the embeddable `/gadget.js` script and `/demo-host`.
+- Added local analysis API with basic PII redaction.
+- Connected the dashboard to the local store and latest insight.

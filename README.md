@@ -18,18 +18,25 @@ Implemented:
 - Dynamic form renderer.
 - `/projects/new` builder stub.
 - `/embed/[projectId]` embedded form preview.
+- `/gadget.js` script embed.
+- `/demo-host` mock host product page.
+- Local file-backed persistence in `data/app-store.json`.
+- PPIO-backed schema generation with local fallback.
+- Local privacy-preserving analysis fallback with PII redaction.
 - Mock collection APIs:
   - `GET /api/projects/[projectId]/schema`
   - `POST /api/projects/[projectId]/responses`
+- Analysis APIs:
+  - `POST /api/projects/[projectId]/analyze`
+  - `GET /api/projects/[projectId]/insights`
 - Python OpenClio worker dry-run adapter.
 
 Not implemented yet:
 
-- Real database storage.
-- LLM schema generation from briefs.
+- Production database storage.
 - Real OpenClio dependency setup.
 - Authentication and permission management.
-- Production gadget script at `/gadget.js`.
+- Vercel deployment.
 
 ## Run the App
 
@@ -48,6 +55,27 @@ Open:
 ## Environment
 
 Copy `.env.example` to `.env.local` and set `PPIO_API_KEY` to enable real LLM schema generation. Without a key, Atpio falls back to the local deterministic schema generator.
+
+Do not commit `.env.local`.
+
+## MVP Flow
+
+1. Open `/projects/new`.
+2. Enter or edit a research brief.
+3. Generate a schema.
+4. Save the project.
+5. Open `/demo-host` or `/embed/[projectId]`.
+6. Submit feedback.
+7. Return to `/` and click `Analyze responses`.
+8. Review aggregate themes and recommendations.
+
+## Remaining Production Work
+
+- Replace `data/app-store.json` with Supabase, Postgres, or another production database.
+- Install the full OpenClio stack and replace the local analysis fallback when the runtime supports it.
+- Add authentication and per-project access control.
+- Deploy to Vercel and configure production environment variables.
+- Add privacy hardening beyond basic PII redaction, including minimum group thresholds and audit logs.
 
 ## Validate
 
