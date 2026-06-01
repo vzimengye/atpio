@@ -1,0 +1,30 @@
+[
+  {
+    "id": "response_001",
+    "projectId": "project_onboarding_feedback",
+    "answers": {
+      "dropoff_reason": "The permissions step did not explain why access was needed.",
+      "stuck_step": "Permissions",
+      "confidence": "2"
+    }
+  },
+  {
+    "id": "response_002",
+    "projectId": "project_onboarding_feedback",
+    "answers": {
+      "dropoff_reason": "The tour felt long and I wanted to see the product working first.",
+      "stuck_step": "Product tour",
+      "confidence": "3"
+    }
+  },
+  {
+    "id": "response_003",
+    "projectId": "project_onboarding_feedback",
+    "answers": {
+      "dropoff_reason": "I hit an account verification error and did not know how to retry.",
+      "stuck_step": "Account setup",
+      "confidence": "1"
+    }
+  }
+]
+
