@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Clio Data Gathering App
 
-## Getting Started
+This project is a prototype for collecting product feedback through embeddable gadgets and sending the collected responses into OpenClio for aggregate analysis.
 
-First, run the development server:
+The app does not redesign Clio. The intended architecture is:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```text
+Next.js app -> response storage -> Python OpenClio worker -> dashboard output
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Current Status
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Implemented:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Next.js + TypeScript + Tailwind app scaffold.
+- Project dashboard shell.
+- Mock project and insight data.
+- Dynamic form renderer.
+- `/projects/new` builder stub.
+- `/embed/[projectId]` embedded form preview.
+- Mock collection APIs:
+  - `GET /api/projects/[projectId]/schema`
+  - `POST /api/projects/[projectId]/responses`
+- Python OpenClio worker dry-run adapter.
 
-## Learn More
+Not implemented yet:
 
-To learn more about Next.js, take a look at the following resources:
+- Real database storage.
+- LLM schema generation from briefs.
+- Real OpenClio dependency setup.
+- Authentication and permission management.
+- Production gadget script at `/gadget.js`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Run the App
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm install
+npm run dev
+```
 
-## Deploy on Vercel
+Open:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `http://127.0.0.1:3000`
+- `http://127.0.0.1:3000/projects/new`
+- `http://127.0.0.1:3000/embed/project_onboarding_feedback`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Validate
+
+```bash
+npm run lint
+npm run build
+```
+
+## OpenClio Worker Dry Run
+
+```bash
+python workers/openclio_worker.py \
+  --project-id project_onboarding_feedback \
+  --responses data/mock-responses.json \
+  --output outputs/project_onboarding_feedback \
+  --dry-run
+```
+
+This writes:
+
+```text
+outputs/project_onboarding_feedback/openclio-input.json
+```
+
+`outputs/` is ignored because it is generated analysis output.
+
+## Git Rule
+
+Keep commits small:
+
+- Commit each meaningful feature addition.
+- Commit each decision or documentation update.
+- Check `git diff` before committing.
+

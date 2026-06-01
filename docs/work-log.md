@@ -11,7 +11,17 @@ Initial setup:
 
 Current next steps:
 
-- Replace the default Next.js homepage with a project dashboard shell.
-- Add static project creation / schema preview UI.
-- Define shared TypeScript types for projects, schemas, responses, and insight runs.
+- Replace mock responses with real persistence.
+- Add LLM schema generation from a natural-language brief.
+- Turn the embed preview into a production `/gadget.js` script.
+- Install and test the real OpenClio dependency stack.
 
+Completed implementation:
+
+- Replaced the default Next.js homepage with a project dashboard shell.
+- Added static project creation and schema preview UI.
+- Defined shared TypeScript types for projects, schemas, responses, and insight runs.
+- Added a dynamic form renderer.
+- Added mock schema and response API routes.
+- Added an embeddable form preview route.
+- Added a Python OpenClio worker dry run.
