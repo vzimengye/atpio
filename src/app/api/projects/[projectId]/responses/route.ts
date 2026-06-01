@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { addResponse } from "@/lib/store";
+import type { ProjectResponse } from "@/lib/types";
 
 export async function POST(
   request: Request,
@@ -6,15 +8,17 @@ export async function POST(
 ) {
   const { projectId } = await params;
   const body = await request.json();
+  const now = new Date().toISOString();
+  const response: ProjectResponse = {
+    id: `response_${Date.now()}`,
+    projectId,
+    answers: body.answers ?? {},
+    sourceUrl: request.headers.get("referer") ?? undefined,
+    userAgent: request.headers.get("user-agent") ?? undefined,
+    createdAt: now,
+  };
 
-  return NextResponse.json(
-    {
-      id: `response_${Date.now()}`,
-      projectId,
-      answers: body.answers,
-      status: "accepted",
-    },
-    { status: 201 },
-  );
+  await addResponse(response);
+
+  return NextResponse.json({ response, status: "accepted" }, { status: 201 });
 }
-
