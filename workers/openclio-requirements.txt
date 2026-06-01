@@ -1,0 +1,4 @@
+git+https://github.com/Phylliida/OpenClio.git
+sentence-transformers
+vllm
+
