@@ -8,7 +8,7 @@ Use OpenClio as the first analysis backend instead of redesigning Clio from scra
 
 Reason:
 
-Anthropic's original Clio is not exposed as a public API, while OpenClio provides an open-source implementation that can be called from a Python worker. This lets the project focus on data collection, product integration, and dashboard UX.
+Anthropic's original Clio is not exposed as a public API, while OpenClio provides an open-source implementation that can be called from a Python worker. This lets Atpio focus on data collection, product integration, and dashboard UX.
 
 Impact:
 
@@ -31,4 +31,3 @@ Impact:
 - Documentation changes get their own commits.
 - UI, API, worker, and experiment changes should not be bundled together when avoidable.
 - Commit messages should describe the specific change.
-

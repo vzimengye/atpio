@@ -57,7 +57,7 @@ export function DynamicForm({ projectId, schema, compact }: DynamicFormProps) {
           Thanks for the feedback.
         </h2>
         <p className="mt-2 text-sm leading-6 text-emerald-800">
-          This response is ready to be included in the next OpenClio run.
+          This response is ready to be included in the next Atpio analysis run.
         </p>
       </div>
     );
@@ -181,4 +181,3 @@ export function DynamicForm({ projectId, schema, compact }: DynamicFormProps) {
     </form>
   );
 }
-

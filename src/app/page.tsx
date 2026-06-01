@@ -48,13 +48,13 @@ export default function Home() {
         <header className="flex flex-col gap-5 border-b border-slate-200 pb-6 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-medium text-emerald-700">
-              Clio data gathering console
+              Atpio console
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-slate-950">
               Collect feedback, then send it to OpenClio.
             </h1>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-              This first screen turns the project plan into a working product
+              This first screen turns the Atpio plan into a working product
               shell: create a data gathering project, preview the generated
               schema, embed the gadget, and prepare an OpenClio analysis run.
             </p>

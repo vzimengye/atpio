@@ -1,6 +1,6 @@
-# Clio Data Gathering App
+# Atpio
 
-This project is a prototype for collecting product feedback through embeddable gadgets and sending the collected responses into OpenClio for aggregate analysis.
+Atpio is a prototype for collecting product feedback through embeddable gadgets and sending the collected responses into OpenClio for aggregate analysis.
 
 The app does not redesign Clio. The intended architecture is:
 
@@ -76,4 +76,3 @@ Keep commits small:
 - Commit each meaningful feature addition.
 - Commit each decision or documentation update.
 - Check `git diff` before committing.
-

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Clio Data Gathering",
+  title: "Atpio",
   description: "Collect product feedback and analyze it with OpenClio.",
 };
 

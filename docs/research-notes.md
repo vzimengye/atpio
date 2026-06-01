@@ -22,9 +22,9 @@ Implications:
 - Start with `genericSummaryFacets` for non-conversation data such as form responses.
 - Later, generate or configure custom facets per project when the product needs deeper analysis.
 
-## Product Direction
+## Atpio Product Direction
 
-The product layer should solve the pieces OpenClio does not provide:
+Atpio should solve the pieces OpenClio does not provide:
 
 - Data gathering project creation.
 - Natural-language brief to form schema generation.
@@ -49,4 +49,3 @@ Success criteria:
 - The worker can transform responses into the data format expected by OpenClio.
 - The analysis run produces a static report or output files.
 - The app can link to or embed the generated output.
-
