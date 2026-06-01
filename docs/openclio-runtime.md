@@ -1,11 +1,14 @@
-# OpenClio Runtime
+# OpenClio Reference Runtime
 
-Atpio has two analysis paths:
+OpenClio is reference material for future analysis work. It is not required for the current Atpio MVP.
 
-1. `atpio-local`: local fallback analysis for demos and development.
-2. `openclio`: full OpenClio analysis through `workers/openclio_worker.py`.
+The current Atpio plan is TypeScript-first:
 
-The full OpenClio path requires a Python environment with OpenClio, vLLM, and sentence-transformers. This is best run in a Linux/GPU environment because vLLM is not a normal Windows desktop dependency.
+```text
+natural-language brief -> PPIO schema generation -> gadget rendering -> response collection -> basic TS aggregation
+```
+
+The full OpenClio path, if revisited later, requires a Python environment with OpenClio, vLLM, and sentence-transformers. This is best run in a Linux/GPU environment because vLLM is not a normal Windows desktop dependency.
 
 ## Check Runtime
 
@@ -54,5 +57,4 @@ The worker uses:
 - `vllm.LLM(model="Qwen/Qwen3-8B")`
 - `SentenceTransformer("sentence-transformers/all-mpnet-base-v2")`
 
-The Next.js app can keep using the local analysis API until this runtime is available, then swap the `/api/projects/[projectId]/analyze` handler to spawn the worker or call a worker service.
-
+The Next.js app should keep using the TypeScript local analysis API for now. If analysis becomes a priority later, use OpenClio as reference or reimplement the needed ideas in TypeScript.

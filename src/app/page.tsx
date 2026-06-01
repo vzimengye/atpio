@@ -57,12 +57,12 @@ export default async function Home() {
               Atpio console
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-slate-950">
-              Collect feedback, then send it to OpenClio.
+              Generate data gathering gadgets from natural-language briefs.
             </h1>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
               This first screen turns the Atpio plan into a working product
               shell: create a data gathering project, preview the generated
-              schema, embed the gadget, and prepare an OpenClio analysis run.
+              schema, embed the gadget, and review basic aggregate output.
             </p>
           </div>
           <a
@@ -77,7 +77,7 @@ export default async function Home() {
           {[
             ["Projects", "1"],
             ["Responses", String(project.responseCount)],
-            ["Analysis engine", "OpenClio"],
+            ["Analysis engine", "Atpio TS"],
             ["Status", statusLabels[project.status]],
           ].map(([label, value]) => (
             <div
@@ -144,12 +144,12 @@ export default async function Home() {
             </div>
 
             <div className="rounded-lg border border-slate-200 bg-white p-6">
-              <h2 className="text-lg font-semibold">OpenClio adapter</h2>
+              <h2 className="text-lg font-semibold">Analysis path</h2>
               <ol className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
                 <li>1. Load project responses from storage.</li>
-                <li>2. Convert answers into OpenClio input records.</li>
-                <li>3. Run `clio.runClio` in a Python worker.</li>
-                <li>4. Save output files and expose the report.</li>
+                <li>2. Redact basic PII.</li>
+                <li>3. Aggregate themes in TypeScript.</li>
+                <li>4. Save latest insight for the dashboard.</li>
               </ol>
               <div className="mt-5">
                 <AnalyzeButton projectId={project.id} />

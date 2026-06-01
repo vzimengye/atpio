@@ -14,7 +14,7 @@ Current next steps:
 - Replace mock responses with real persistence.
 - Add LLM schema generation from a natural-language brief.
 - Turn the embed preview into a production `/gadget.js` script.
-- Install and test the real OpenClio dependency stack.
+- Keep OpenClio as future reference; focus current work on data gathering.
 
 Completed implementation:
 
@@ -24,7 +24,7 @@ Completed implementation:
 - Added a dynamic form renderer.
 - Added mock schema and response API routes.
 - Added an embeddable form preview route.
-- Added a Python OpenClio worker dry run.
+- Added OpenClio worker dry run as reference material; it is not on the current critical path.
 - Added local persistence.
 - Added PPIO-backed schema generation with local fallback.
 - Added the embeddable `/gadget.js` script and `/demo-host`.

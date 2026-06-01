@@ -49,7 +49,7 @@ export type InsightRun = {
   id: string;
   projectId: string;
   status: "queued" | "running" | "completed" | "failed";
-  engine: "openclio" | "atpio-local";
+  engine: "atpio-local";
   inputCount: number;
   themes: InsightTheme[];
   summary?: string;

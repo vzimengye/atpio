@@ -38,7 +38,7 @@ export const sampleInsightRun: InsightRun = {
   id: "run_mock_001",
   projectId: sampleProject.id,
   status: "completed",
-  engine: "openclio",
+  engine: "atpio-local",
   inputCount: 37,
   themes: [
     {
@@ -61,4 +61,3 @@ export const sampleInsightRun: InsightRun = {
     },
   ],
 };
-

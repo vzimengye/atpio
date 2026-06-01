@@ -1,12 +1,14 @@
 # Atpio
 
-Atpio is a prototype for collecting product feedback through embeddable gadgets and sending the collected responses into OpenClio for aggregate analysis.
+Atpio is a TypeScript-first prototype for collecting product feedback through embeddable gadgets. Product teams describe the data they want in natural language, and Atpio generates a lightweight form/questionnaire gadget that can run inside another product.
 
-The app does not redesign Clio. The intended architecture is:
+The current architecture is intentionally a solo TypeScript codebase:
 
 ```text
-Next.js app -> response storage -> Python OpenClio worker -> dashboard output
+Next.js app -> PPIO schema generation -> script/iframe gadget -> response storage -> local aggregate analysis
 ```
+
+OpenClio is only a research reference for later analysis work. It is not required for the current data gathering MVP.
 
 ## Current Status
 
@@ -29,12 +31,12 @@ Implemented:
 - Analysis APIs:
   - `POST /api/projects/[projectId]/analyze`
   - `GET /api/projects/[projectId]/insights`
-- Python OpenClio worker dry-run adapter.
+- OpenClio reference notes and optional dry-run adapter for future analysis exploration.
 
 Not implemented yet:
 
 - Production database storage.
-- Real OpenClio dependency setup.
+- Production-grade analysis beyond the local TypeScript fallback.
 - Authentication and permission management.
 - Vercel deployment.
 
@@ -100,7 +102,7 @@ The mock product is a separate static app in `mock-product/`. It loads Atpio fro
 ## Remaining Production Work
 
 - Replace `data/app-store.json` with Supabase, Postgres, or another production database.
-- Install the full OpenClio stack and replace the local analysis fallback when the runtime supports it. See `docs/openclio-runtime.md`.
+- Revisit OpenClio or a custom TS analysis pipeline after the data gathering product flow is stable. See `docs/openclio-runtime.md` for reference only.
 - Add user login and per-project access control beyond the admin-token API guard.
 - Deploy to Vercel and configure production environment variables. See `docs/deployment.md`.
 - Add privacy hardening beyond basic PII redaction, including minimum group thresholds and audit logs.
@@ -112,23 +114,9 @@ npm run lint
 npm run build
 ```
 
-## OpenClio Worker Dry Run
+## OpenClio Reference
 
-```bash
-python workers/openclio_worker.py \
-  --project-id project_onboarding_feedback \
-  --responses data/mock-responses.json \
-  --output outputs/project_onboarding_feedback \
-  --dry-run
-```
-
-This writes:
-
-```text
-outputs/project_onboarding_feedback/openclio-input.json
-```
-
-`outputs/` is ignored because it is generated analysis output.
+OpenClio is not on the current critical path. The worker files are retained only as reference material for future analysis work. Atpio should stay TypeScript-first while the data gathering flow is being developed.
 
 ## Git Rule
 

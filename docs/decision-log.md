@@ -1,20 +1,20 @@
 # Decision Log
 
-## 2026-06-01: Use OpenClio as the analysis engine
+## 2026-06-01: Keep OpenClio as a reference, not a dependency
 
 Decision:
 
-Use OpenClio as the first analysis backend instead of redesigning Clio from scratch.
+Keep OpenClio as a research reference and focus the current implementation on TypeScript-first data gathering.
 
 Reason:
 
-Anthropic's original Clio is not exposed as a public API, while OpenClio provides an open-source implementation that can be called from a Python worker. This lets Atpio focus on data collection, product integration, and dashboard UX.
+OpenClio's completeness, scenario fit, runtime requirements, and Python/vLLM style may not fit Atpio's current repo. The current stage only needs to prove product-side data gathering: natural-language brief to gadget schema, standard script embed, response collection, and basic local aggregation.
 
 Impact:
 
-- The main app can remain TypeScript / Next.js.
-- A Python worker will handle OpenClio runs.
-- The first adapter will use `genericSummaryFacets` for form and questionnaire responses.
+- The main app remains a solo TypeScript / Next.js codebase.
+- OpenClio worker files are reference material only.
+- Analysis beyond local aggregation is future work after the data gathering flow is stable.
 
 ## 2026-06-01: Keep commits small and meaningful
 
