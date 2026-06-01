@@ -99,8 +99,8 @@ The mock product is a separate static app in `mock-product/`. It loads Atpio fro
 
 - Replace `data/app-store.json` with Supabase, Postgres, or another production database.
 - Install the full OpenClio stack and replace the local analysis fallback when the runtime supports it.
-- Add authentication and per-project access control.
-- Deploy to Vercel and configure production environment variables.
+- Add user login and per-project access control beyond the admin-token API guard.
+- Deploy to Vercel and configure production environment variables. See `docs/deployment.md`.
 - Add privacy hardening beyond basic PII redaction, including minimum group thresholds and audit logs.
 
 ## Validate
