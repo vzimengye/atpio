@@ -30,3 +30,4 @@ Completed implementation:
 - Added the embeddable `/gadget.js` script and `/demo-host`.
 - Added local analysis API with basic PII redaction.
 - Connected the dashboard to the local store and latest insight.
+- Verified the PPIO-backed UI flow: `/projects/new` can generate a schema and save a project using the configured local API key.
