@@ -52,6 +52,7 @@ export function analyzeResponsesLocally(
   projectId: string,
   responses: ProjectResponse[],
 ): InsightRun {
+  const minThemeCount = Number(process.env.ATPIO_MIN_THEME_COUNT ?? 2);
   const grouped = new Map<string, { count: number; samples: string[]; rule: ThemeRule }>();
 
   for (const response of responses) {
@@ -65,7 +66,10 @@ export function analyzeResponsesLocally(
     grouped.set(rule.name, current);
   }
 
-  const themes = [...grouped.entries()]
+  const rawThemes = [...grouped.entries()].sort((a, b) => b[1].count - a[1].count);
+  const hiddenThemeCount = rawThemes.filter(([, value]) => value.count < minThemeCount).length;
+  const themes = rawThemes
+    .filter(([, value]) => value.count >= minThemeCount)
     .sort((a, b) => b[1].count - a[1].count)
     .map(([name, value]) => ({
       name,
@@ -76,7 +80,7 @@ export function analyzeResponsesLocally(
           : "No representative sample available.",
     }));
 
-  const recommendations = [...grouped.values()].map(
+  const recommendations = [...rawThemes.map(([, value]) => value)].map(
     (value) => value.rule.recommendation,
   );
 
@@ -92,9 +96,14 @@ export function analyzeResponsesLocally(
         ? "No responses have been collected yet."
         : `Atpio analyzed ${responses.length} response${
             responses.length === 1 ? "" : "s"
-          } with local privacy-preserving aggregation.`,
+          } with local privacy-preserving aggregation. ${
+            hiddenThemeCount
+              ? `${hiddenThemeCount} theme${
+                  hiddenThemeCount === 1 ? " was" : "s were"
+                } hidden because they were below the minimum group threshold.`
+              : ""
+          }`.trim(),
     recommendations: [...new Set(recommendations)],
     createdAt: new Date().toISOString(),
   };
 }
-

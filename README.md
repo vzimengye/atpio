@@ -58,6 +58,8 @@ Copy `.env.example` to `.env.local` and set `PPIO_API_KEY` to enable real LLM sc
 
 Do not commit `.env.local`.
 
+Set `ATPIO_ADMIN_TOKEN` to require `x-atpio-admin-token` for admin APIs such as project creation, schema generation, analysis, and audit logs. Leave it unset for local demos without auth.
+
 ## MVP Flow
 
 1. Open `/projects/new`.

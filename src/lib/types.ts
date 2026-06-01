@@ -61,4 +61,14 @@ export type AppStore = {
   projects: DataProject[];
   responses: ProjectResponse[];
   insights: InsightRun[];
+  auditEvents: AuditEvent[];
+};
+
+export type AuditEvent = {
+  id: string;
+  action: string;
+  projectId?: string;
+  actor: "admin" | "public" | "system";
+  metadata?: Record<string, string | number | boolean>;
+  createdAt: string;
 };

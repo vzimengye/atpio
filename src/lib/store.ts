@@ -3,7 +3,13 @@ import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { sampleInsightRun, sampleProject } from "@/lib/mock-data";
-import type { AppStore, DataProject, InsightRun, ProjectResponse } from "./types";
+import type {
+  AppStore,
+  AuditEvent,
+  DataProject,
+  InsightRun,
+  ProjectResponse,
+} from "./types";
 
 const storePath = path.join(process.cwd(), "data", "app-store.json");
 
@@ -11,6 +17,7 @@ const initialStore: AppStore = {
   projects: [sampleProject],
   responses: [],
   insights: [sampleInsightRun],
+  auditEvents: [],
 };
 
 async function ensureStore() {
@@ -26,7 +33,14 @@ async function ensureStore() {
 export async function readStore(): Promise<AppStore> {
   await ensureStore();
   const raw = await fs.readFile(storePath, "utf-8");
-  return JSON.parse(raw) as AppStore;
+  const parsed = JSON.parse(raw) as Partial<AppStore>;
+
+  return {
+    projects: parsed.projects ?? initialStore.projects,
+    responses: parsed.responses ?? [],
+    insights: parsed.insights ?? [],
+    auditEvents: parsed.auditEvents ?? [],
+  };
 }
 
 export async function writeStore(store: AppStore) {
@@ -60,6 +74,12 @@ export async function saveProject(project: DataProject): Promise<DataProject> {
   }
 
   await writeStore(store);
+  await addAuditEvent({
+    action: "project.saved",
+    actor: "admin",
+    projectId: project.id,
+    metadata: { status: project.status },
+  });
   return project;
 }
 
@@ -76,6 +96,11 @@ export async function addResponse(
   }
 
   await writeStore(store);
+  await addAuditEvent({
+    action: "response.created",
+    actor: "public",
+    projectId: response.projectId,
+  });
   return response;
 }
 
@@ -98,6 +123,12 @@ export async function saveInsight(insight: InsightRun): Promise<InsightRun> {
   }
 
   await writeStore(store);
+  await addAuditEvent({
+    action: "insight.saved",
+    actor: "system",
+    projectId: insight.projectId,
+    metadata: { inputCount: insight.inputCount, engine: insight.engine },
+  });
   return insight;
 }
 
@@ -106,5 +137,26 @@ export async function getLatestInsight(
 ): Promise<InsightRun | null> {
   const store = await readStore();
   return store.insights.find((insight) => insight.projectId === projectId) ?? null;
+}
+
+export async function addAuditEvent(
+  event: Omit<AuditEvent, "id" | "createdAt">,
+): Promise<AuditEvent> {
+  const store = await readStore();
+  const auditEvent: AuditEvent = {
+    ...event,
+    id: `audit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    createdAt: new Date().toISOString(),
+  };
+  store.auditEvents.unshift(auditEvent);
+  await writeStore(store);
+  return auditEvent;
+}
+
+export async function listAuditEvents(projectId?: string): Promise<AuditEvent[]> {
+  const store = await readStore();
+  return projectId
+    ? store.auditEvents.filter((event) => event.projectId === projectId)
+    : store.auditEvents;
 }
 
