@@ -1,5 +1,9 @@
 import { sampleInsightRun, sampleProject } from "@/lib/mock-data";
 import type { FormField } from "@/lib/types";
+import { AnalyzeButton } from "@/components/analyze-button";
+import { getLatestInsight, listProjects } from "@/lib/store";
+
+export const dynamic = "force-dynamic";
 
 const statusLabels = {
   draft: "Draft",
@@ -38,9 +42,10 @@ function FieldPreview({ field }: { field: FormField }) {
   );
 }
 
-export default function Home() {
-  const project = sampleProject;
-  const insightRun = sampleInsightRun;
+export default async function Home() {
+  const projects = await listProjects();
+  const project = projects[0] ?? sampleProject;
+  const insightRun = (await getLatestInsight(project.id)) ?? sampleInsightRun;
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950">
@@ -127,6 +132,12 @@ export default function Home() {
   data-project-id="${project.id}">
 </script>`}
               </pre>
+              <a
+                className="mt-4 inline-flex text-sm font-medium text-emerald-700"
+                href={`/embed/${project.id}`}
+              >
+                Open embed preview
+              </a>
             </div>
 
             <div className="rounded-lg border border-slate-200 bg-white p-6">
@@ -137,6 +148,9 @@ export default function Home() {
                 <li>3. Run `clio.runClio` in a Python worker.</li>
                 <li>4. Save output files and expose the report.</li>
               </ol>
+              <div className="mt-5">
+                <AnalyzeButton projectId={project.id} />
+              </div>
             </div>
           </div>
         </section>
@@ -150,6 +164,11 @@ export default function Home() {
               <h2 className="mt-1 text-2xl font-semibold">
                 Themes from {insightRun.inputCount} collected responses
               </h2>
+              {insightRun.summary ? (
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                  {insightRun.summary}
+                </p>
+              ) : null}
             </div>
             <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
               {insightRun.engine}
@@ -173,6 +192,18 @@ export default function Home() {
               </article>
             ))}
           </div>
+          {insightRun.recommendations?.length ? (
+            <div className="mt-6 rounded-lg bg-slate-50 p-4">
+              <h3 className="text-sm font-semibold text-slate-950">
+                Recommendations
+              </h3>
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
+                {insightRun.recommendations.map((recommendation) => (
+                  <li key={recommendation}>{recommendation}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </section>
       </div>
     </main>

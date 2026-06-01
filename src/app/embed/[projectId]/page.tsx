@@ -1,5 +1,8 @@
 import { DynamicForm } from "@/components/dynamic-form";
 import { sampleProject } from "@/lib/mock-data";
+import { getProject } from "@/lib/store";
+
+export const dynamic = "force-dynamic";
 
 export default async function EmbedPage({
   params,
@@ -7,6 +10,7 @@ export default async function EmbedPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
+  const project = (await getProject(projectId)) ?? sampleProject;
 
   return (
     <main className="min-h-screen bg-white p-4 text-slate-950">
@@ -17,10 +21,9 @@ export default async function EmbedPage({
         <DynamicForm
           compact
           projectId={projectId}
-          schema={sampleProject.schema}
+          schema={project.schema}
         />
       </div>
     </main>
   );
 }
-
