@@ -60,6 +60,8 @@ Do not commit `.env.local`.
 
 Set `ATPIO_ADMIN_TOKEN` to require `x-atpio-admin-token` for admin APIs such as project creation, schema generation, analysis, and audit logs. Leave it unset for local demos without auth.
 
+When auth is enabled, paste the token into the Admin token panel in the Atpio UI. The browser stores it in localStorage and sends it as `x-atpio-admin-token`.
+
 ## MVP Flow
 
 1. Open `/projects/new`.

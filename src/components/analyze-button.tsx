@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { getAdminHeaders } from "@/lib/admin-client";
 
 export function AnalyzeButton({ projectId }: { projectId: string }) {
   const [status, setStatus] = useState<"idle" | "running" | "done">("idle");
 
   async function runAnalysis() {
     setStatus("running");
-    await fetch(`/api/projects/${projectId}/analyze`, { method: "POST" });
+    await fetch(`/api/projects/${projectId}/analyze`, {
+      method: "POST",
+      headers: getAdminHeaders(),
+    });
     setStatus("done");
     window.location.reload();
   }
@@ -22,4 +26,3 @@ export function AnalyzeButton({ projectId }: { projectId: string }) {
     </button>
   );
 }
-

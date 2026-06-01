@@ -1,6 +1,7 @@
 import { sampleInsightRun, sampleProject } from "@/lib/mock-data";
 import type { FormField } from "@/lib/types";
 import { AnalyzeButton } from "@/components/analyze-button";
+import { AdminTokenPanel } from "@/components/admin-token-panel";
 import { getLatestInsight, listProjects } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -90,6 +91,8 @@ export default async function Home() {
             </div>
           ))}
         </section>
+
+        <AdminTokenPanel />
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-lg border border-slate-200 bg-white p-6">
