@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import {
-  generateSchemaFromBrief,
-  projectNameFromBrief,
-} from "@/lib/schema-generator";
+import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -12,9 +9,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Brief is required." }, { status: 400 });
   }
 
-  return NextResponse.json({
-    name: projectNameFromBrief(brief),
-    schema: generateSchemaFromBrief(brief),
-  });
+  return NextResponse.json(await generateSchemaWithPpio(brief));
 }
-

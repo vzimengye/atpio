@@ -44,6 +44,10 @@ Open:
 - `http://127.0.0.1:3000/projects/new`
 - `http://127.0.0.1:3000/embed/project_onboarding_feedback`
 
+## Environment
+
+Copy `.env.example` to `.env.local` and set `PPIO_API_KEY` to enable real LLM schema generation. Without a key, Atpio falls back to the local deterministic schema generator.
+
 ## Validate
 
 ```bash

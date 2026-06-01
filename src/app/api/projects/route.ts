@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
-import {
-  generateSchemaFromBrief,
-  projectIdFromName,
-  projectNameFromBrief,
-} from "@/lib/schema-generator";
+import { generateSchemaWithPpio } from "@/lib/ppio-schema";
+import { projectIdFromName, projectNameFromBrief } from "@/lib/schema-generator";
 import { listProjects, saveProject } from "@/lib/store";
 import type { DataProject } from "@/lib/types";
 
@@ -20,12 +17,13 @@ export async function POST(request: Request) {
   }
 
   const name = String(body.name ?? projectNameFromBrief(brief)).trim();
+  const generated = await generateSchemaWithPpio(brief);
   const now = new Date().toISOString();
   const project: DataProject = {
     id: projectIdFromName(name),
     name,
     brief,
-    schema: generateSchemaFromBrief(brief),
+    schema: generated.schema,
     responseCount: 0,
     status: "draft",
     updatedAt: now.slice(0, 10),
@@ -35,4 +33,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ project }, { status: 201 });
 }
-
