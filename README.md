@@ -69,6 +69,30 @@ Do not commit `.env.local`.
 7. Return to `/` and click `Analyze responses`.
 8. Review aggregate themes and recommendations.
 
+## Local Two-Project Integration Test
+
+This verifies that Atpio can run inside another product locally.
+
+Terminal 1:
+
+```bash
+npm run dev
+```
+
+Terminal 2:
+
+```bash
+npm run mock-product
+```
+
+Open:
+
+```text
+http://127.0.0.1:4000
+```
+
+The mock product is a separate static app in `mock-product/`. It loads Atpio from `http://127.0.0.1:3000/gadget.js`, then opens the feedback form in an iframe. This is the local equivalent of another product calling Atpio's gadget API.
+
 ## Remaining Production Work
 
 - Replace `data/app-store.json` with Supabase, Postgres, or another production database.
