@@ -1,65 +1,180 @@
-import Image from "next/image";
+import { sampleInsightRun, sampleProject } from "@/lib/mock-data";
+import type { FormField } from "@/lib/types";
+
+const statusLabels = {
+  draft: "Draft",
+  collecting: "Collecting",
+  analyzing: "Analyzing",
+  ready: "Ready",
+};
+
+function FieldPreview({ field }: { field: FormField }) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-medium text-slate-950">{field.label}</p>
+          <p className="mt-1 text-xs uppercase text-slate-500">{field.type}</p>
+        </div>
+        {field.required ? (
+          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+            Required
+          </span>
+        ) : null}
+      </div>
+      {field.options ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {field.options.map((option) => (
+            <span
+              key={option}
+              className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600"
+            >
+              {option}
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 export default function Home() {
+  const project = sampleProject;
+  const insightRun = sampleInsightRun;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
+    <main className="min-h-screen bg-slate-50 text-slate-950">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-8 lg:px-8">
+        <header className="flex flex-col gap-5 border-b border-slate-200 pb-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm font-medium text-emerald-700">
+              Clio data gathering console
+            </p>
+            <h1 className="mt-2 text-3xl font-semibold text-slate-950">
+              Collect feedback, then send it to OpenClio.
+            </h1>
+            <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
+              This first screen turns the project plan into a working product
+              shell: create a data gathering project, preview the generated
+              schema, embed the gadget, and prepare an OpenClio analysis run.
+            </p>
+          </div>
           <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-medium text-white"
+            href="/projects/new"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
+            New project
           </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        </header>
+
+        <section className="grid gap-4 md:grid-cols-4">
+          {[
+            ["Projects", "1"],
+            ["Responses", String(project.responseCount)],
+            ["Analysis engine", "OpenClio"],
+            ["Status", statusLabels[project.status]],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="rounded-lg border border-slate-200 bg-white p-4"
+            >
+              <p className="text-sm text-slate-500">{label}</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-950">
+                {value}
+              </p>
+            </div>
+          ))}
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="rounded-lg border border-slate-200 bg-white p-6">
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">
+                  Active project
+                </p>
+                <h2 className="mt-1 text-2xl font-semibold">{project.name}</h2>
+              </div>
+              <span className="w-fit rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
+                {statusLabels[project.status]}
+              </span>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-slate-600">
+              {project.brief}
+            </p>
+
+            <div className="mt-6 grid gap-3">
+              <h3 className="text-sm font-semibold text-slate-950">
+                Generated schema preview
+              </h3>
+              {project.schema.fields.map((field) => (
+                <FieldPreview key={field.id} field={field} />
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-6">
+            <div className="rounded-lg border border-slate-200 bg-white p-6">
+              <h2 className="text-lg font-semibold">Embed gadget</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Other products can mount the collection form with a project id.
+                The next implementation step is to expose this through
+                `/embed/[projectId]` and `/gadget.js`.
+              </p>
+              <pre className="mt-4 overflow-x-auto rounded-md bg-slate-950 p-4 text-xs leading-6 text-slate-50">
+                {`<script
+  src="https://your-domain.com/gadget.js"
+  data-project-id="${project.id}">
+</script>`}
+              </pre>
+            </div>
+
+            <div className="rounded-lg border border-slate-200 bg-white p-6">
+              <h2 className="text-lg font-semibold">OpenClio adapter</h2>
+              <ol className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
+                <li>1. Load project responses from storage.</li>
+                <li>2. Convert answers into OpenClio input records.</li>
+                <li>3. Run `clio.runClio` in a Python worker.</li>
+                <li>4. Save output files and expose the report.</li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-slate-200 bg-white p-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500">
+                Mock analysis output
+              </p>
+              <h2 className="mt-1 text-2xl font-semibold">
+                Themes from {insightRun.inputCount} collected responses
+              </h2>
+            </div>
+            <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+              {insightRun.engine}
+            </span>
+          </div>
+          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+            {insightRun.themes.map((theme) => (
+              <article
+                key={theme.name}
+                className="rounded-lg border border-slate-200 p-4"
+              >
+                <p className="text-sm font-medium text-emerald-700">
+                  {theme.count} responses
+                </p>
+                <h3 className="mt-2 font-semibold text-slate-950">
+                  {theme.name}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  {theme.summary}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
   );
 }
