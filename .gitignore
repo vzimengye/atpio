@@ -24,6 +24,7 @@
 .DS_Store
 *.pem
 outputs/
+data/app-store.json
 
 # debug
 npm-debug.log*

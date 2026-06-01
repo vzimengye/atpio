@@ -30,6 +30,15 @@ export type DataProject = {
   updatedAt: string;
 };
 
+export type ProjectResponse = {
+  id: string;
+  projectId: string;
+  answers: Record<string, string | string[] | boolean>;
+  sourceUrl?: string;
+  userAgent?: string;
+  createdAt: string;
+};
+
 export type InsightTheme = {
   name: string;
   count: number;
@@ -40,8 +49,16 @@ export type InsightRun = {
   id: string;
   projectId: string;
   status: "queued" | "running" | "completed" | "failed";
-  engine: "openclio";
+  engine: "openclio" | "atpio-local";
   inputCount: number;
   themes: InsightTheme[];
+  summary?: string;
+  recommendations?: string[];
+  createdAt?: string;
 };
 
+export type AppStore = {
+  projects: DataProject[];
+  responses: ProjectResponse[];
+  insights: InsightRun[];
+};
