@@ -1,4 +1,4 @@
-import type { DataProject, InsightRun } from "./types";
+import type { DataProject } from "./types";
 
 export const sampleProject: DataProject = {
   id: "project_onboarding_feedback",
@@ -32,32 +32,4 @@ export const sampleProject: DataProject = {
       },
     ],
   },
-};
-
-export const sampleInsightRun: InsightRun = {
-  id: "run_mock_001",
-  projectId: sampleProject.id,
-  status: "completed",
-  engine: "atpio-local",
-  inputCount: 37,
-  themes: [
-    {
-      name: "Users do not understand what permissions unlock",
-      count: 14,
-      summary:
-        "Several responses mention uncertainty around why permissions are needed before the product value is clear.",
-    },
-    {
-      name: "The product tour is too long before first value",
-      count: 9,
-      summary:
-        "Users want to skip explanatory steps and see a working example earlier.",
-    },
-    {
-      name: "Account setup has unclear error recovery",
-      count: 6,
-      summary:
-        "Some users report not knowing how to recover after verification or setup errors.",
-    },
-  ],
 };

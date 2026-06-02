@@ -26,7 +26,7 @@ export type DataProject = {
   brief: string;
   schema: ProjectSchema;
   responseCount: number;
-  status: "draft" | "collecting" | "analyzing" | "ready";
+  status: "draft" | "collecting" | "ready";
   updatedAt: string;
 };
 
@@ -39,28 +39,9 @@ export type ProjectResponse = {
   createdAt: string;
 };
 
-export type InsightTheme = {
-  name: string;
-  count: number;
-  summary: string;
-};
-
-export type InsightRun = {
-  id: string;
-  projectId: string;
-  status: "queued" | "running" | "completed" | "failed";
-  engine: "atpio-local";
-  inputCount: number;
-  themes: InsightTheme[];
-  summary?: string;
-  recommendations?: string[];
-  createdAt?: string;
-};
-
 export type AppStore = {
   projects: DataProject[];
   responses: ProjectResponse[];
-  insights: InsightRun[];
   auditEvents: AuditEvent[];
 };
 

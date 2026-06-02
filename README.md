@@ -5,7 +5,7 @@ Atpio is a TypeScript-first prototype for collecting product feedback through em
 The current architecture is intentionally a solo TypeScript codebase:
 
 ```text
-Next.js app -> PPIO schema generation -> script/iframe gadget -> response storage -> local aggregate analysis
+Next.js app -> PPIO schema generation -> script/iframe gadget -> response storage -> collection summary
 ```
 
 OpenClio is only a research reference for later analysis work. It is not required for the current data gathering MVP.
@@ -16,7 +16,7 @@ Implemented:
 
 - Next.js + TypeScript + Tailwind app scaffold.
 - Project dashboard shell.
-- Mock project and insight data.
+- Mock project data.
 - Dynamic form renderer.
 - `/projects/new` builder stub.
 - `/embed/[projectId]` embedded form preview.
@@ -24,19 +24,15 @@ Implemented:
 - `/demo-host` mock host product page.
 - Local file-backed persistence in `data/app-store.json`.
 - PPIO-backed schema generation with local fallback.
-- Local privacy-preserving analysis fallback with PII redaction.
 - Mock collection APIs:
   - `GET /api/projects/[projectId]/schema`
   - `POST /api/projects/[projectId]/responses`
-- Analysis APIs:
-  - `POST /api/projects/[projectId]/analyze`
-  - `GET /api/projects/[projectId]/insights`
 - OpenClio concept notes for future analysis exploration.
 
 Not implemented yet:
 
 - Production database storage.
-- Production-grade analysis beyond the local TypeScript fallback.
+- Basic aggregate reporting beyond response and schema counts.
 - Authentication and permission management.
 - Vercel deployment.
 
@@ -60,7 +56,7 @@ Copy `.env.example` to `.env.local` and set `PPIO_API_KEY` to enable real LLM sc
 
 Do not commit `.env.local`.
 
-Set `ATPIO_ADMIN_TOKEN` to require `x-atpio-admin-token` for admin APIs such as project creation, schema generation, analysis, and audit logs. Leave it unset for local demos without auth.
+Set `ATPIO_ADMIN_TOKEN` to require `x-atpio-admin-token` for admin APIs such as project creation, schema generation, and audit logs. Leave it unset for local demos without auth.
 
 When auth is enabled, paste the token into the Admin token panel in the Atpio UI. The browser stores it in localStorage and sends it as `x-atpio-admin-token`.
 
@@ -72,8 +68,8 @@ When auth is enabled, paste the token into the Admin token panel in the Atpio UI
 4. Save the project.
 5. Open `/demo-host` or `/embed/[projectId]`.
 6. Submit feedback.
-7. Return to `/` and click `Analyze responses`.
-8. Review aggregate themes and recommendations.
+7. Return to `/`.
+8. Review response and schema counts.
 
 ## Local Two-Project Integration Test
 
@@ -105,7 +101,7 @@ The mock product is a separate static app in `mock-product/`. It loads Atpio fro
 - Revisit advanced analysis after the data gathering product flow is stable. If needed, use OpenClio only as conceptual reference and prefer a TypeScript implementation first.
 - Add user login and per-project access control beyond the admin-token API guard.
 - Deploy to Vercel and configure production environment variables. See `docs/deployment.md`.
-- Add privacy hardening beyond basic PII redaction, including minimum group thresholds and audit logs.
+- Add privacy hardening before advanced analysis work, including PII redaction and minimum group thresholds.
 
 ## Validate
 

@@ -2,12 +2,11 @@ import "server-only";
 
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { sampleInsightRun, sampleProject } from "@/lib/mock-data";
+import { sampleProject } from "@/lib/mock-data";
 import type {
   AppStore,
   AuditEvent,
   DataProject,
-  InsightRun,
   ProjectResponse,
 } from "./types";
 
@@ -16,7 +15,6 @@ const storePath = path.join(process.cwd(), "data", "app-store.json");
 const initialStore: AppStore = {
   projects: [sampleProject],
   responses: [],
-  insights: [sampleInsightRun],
   auditEvents: [],
 };
 
@@ -38,7 +36,6 @@ export async function readStore(): Promise<AppStore> {
   return {
     projects: parsed.projects ?? initialStore.projects,
     responses: parsed.responses ?? [],
-    insights: parsed.insights ?? [],
     auditEvents: parsed.auditEvents ?? [],
   };
 }
@@ -107,36 +104,6 @@ export async function addResponse(
 export async function listResponses(projectId: string): Promise<ProjectResponse[]> {
   const store = await readStore();
   return store.responses.filter((response) => response.projectId === projectId);
-}
-
-export async function saveInsight(insight: InsightRun): Promise<InsightRun> {
-  const store = await readStore();
-  store.insights = [
-    insight,
-    ...store.insights.filter((item) => item.projectId !== insight.projectId),
-  ];
-
-  const project = store.projects.find((item) => item.id === insight.projectId);
-  if (project) {
-    project.status = "ready";
-    project.updatedAt = new Date().toISOString().slice(0, 10);
-  }
-
-  await writeStore(store);
-  await addAuditEvent({
-    action: "insight.saved",
-    actor: "system",
-    projectId: insight.projectId,
-    metadata: { inputCount: insight.inputCount, engine: insight.engine },
-  });
-  return insight;
-}
-
-export async function getLatestInsight(
-  projectId: string,
-): Promise<InsightRun | null> {
-  const store = await readStore();
-  return store.insights.find((insight) => insight.projectId === projectId) ?? null;
 }
 
 export async function addAuditEvent(

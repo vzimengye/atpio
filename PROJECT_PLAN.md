@@ -188,13 +188,10 @@ POST /api/projects/[projectId]/responses
 
 当前已实现：
 
-- email / phone / url redaction
-- minimum theme count
-- 小样本 theme 隐藏
 - audit log
 - admin token guard
 
-这只是基础 privacy layer，不是完整合规系统。
+当前只保留 data gathering 所需的基础 guard，不做 analysis privacy layer。
 
 ## 6. 当前不做的内容
 
@@ -295,6 +292,6 @@ OpenClio 只作为参考，不是当前必须接入的依赖。
 5. 打开 mock product `localhost:4000`。
 6. mock product 通过 `gadget.js` 渲染 Atpio gadget。
 7. 用户提交 response。
-8. Atpio dashboard 显示 response count 和基础 aggregate result。
+8. Atpio dashboard 显示 response count、schema fields 和基础 collection summary。
 
 这个 demo 已经足够证明当前阶段的核心价值。
