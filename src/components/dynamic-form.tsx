@@ -7,11 +7,19 @@ type DynamicFormProps = {
   projectId: string;
   schema: ProjectSchema;
   compact?: boolean;
+  metadata?: Record<string, string>;
+  successMessage?: string;
 };
 
 type FormState = Record<string, string | string[] | boolean>;
 
-export function DynamicForm({ projectId, schema, compact }: DynamicFormProps) {
+export function DynamicForm({
+  projectId,
+  schema,
+  compact,
+  metadata,
+  successMessage = "This response is saved and ready for the project dashboard.",
+}: DynamicFormProps) {
   const pages = useMemo(() => getPages(schema), [schema]);
   const initialState = useMemo(
     () =>
@@ -56,9 +64,13 @@ export function DynamicForm({ projectId, schema, compact }: DynamicFormProps) {
     await fetch(`/api/projects/${projectId}/responses`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers }),
+      body: JSON.stringify({ answers, metadata }),
     });
     setStatus("submitted");
+    window.parent?.postMessage(
+      { type: "atpio:submitted", projectId, metadata },
+      "*",
+    );
   }
 
   if (status === "submitted") {
@@ -68,7 +80,7 @@ export function DynamicForm({ projectId, schema, compact }: DynamicFormProps) {
           Thanks for the feedback.
         </h2>
         <p className="mt-2 text-sm leading-6 text-emerald-800">
-          This response is saved and ready for the project dashboard.
+          {successMessage}
         </p>
       </div>
     );
