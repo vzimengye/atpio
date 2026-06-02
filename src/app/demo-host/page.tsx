@@ -3,7 +3,7 @@ import { sampleProject } from "@/lib/mock-data";
 
 export default function DemoHostPage() {
   return (
-    <main className="min-h-screen bg-slate-100 text-slate-950">
+    <main className="min-h-screen bg-[#f7f1e8] text-slate-950">
       <section className="mx-auto max-w-4xl px-6 py-16">
         <p className="text-sm font-medium text-emerald-700">
           Mock host product
@@ -18,11 +18,44 @@ export default function DemoHostPage() {
         <pre className="mt-8 overflow-x-auto rounded-lg bg-slate-950 p-5 text-sm leading-6 text-white">
           {`<script
   src="http://127.0.0.1:3000/gadget.js"
-  data-project-id="${sampleProject.id}">
+  data-project-id="${sampleProject.id}"
+  data-atpio-position="bottom-right"
+  data-atpio-theme="light"
+  data-atpio-label="Share feedback"
+  data-atpio-meta-page="demo-host"
+  data-atpio-meta-user-segment="trial"
+  data-atpio-meta-experiment-id="onboarding-v1"
+  data-atpio-success-callback="onAtpioSuccess">
 </script>`}
         </pre>
       </section>
-      <Script src="/gadget.js" data-project-id={sampleProject.id} />
+      <Script id="atpio-demo-events">
+        {`
+          window.onAtpioSuccess = function (detail) {
+            console.log("Atpio success callback", detail);
+          };
+          window.addEventListener("atpio:open", function (event) {
+            console.log("Atpio opened", event.detail);
+          });
+          window.addEventListener("atpio:close", function (event) {
+            console.log("Atpio closed", event.detail);
+          });
+          window.addEventListener("atpio:success", function (event) {
+            console.log("Atpio success event", event.detail);
+          });
+        `}
+      </Script>
+      <Script
+        src="/gadget.js"
+        data-atpio-label="Share feedback"
+        data-atpio-meta-experiment-id="onboarding-v1"
+        data-atpio-meta-page="demo-host"
+        data-atpio-meta-user-segment="trial"
+        data-atpio-position="bottom-right"
+        data-atpio-success-callback="onAtpioSuccess"
+        data-atpio-theme="light"
+        data-project-id={sampleProject.id}
+      />
     </main>
   );
 }
