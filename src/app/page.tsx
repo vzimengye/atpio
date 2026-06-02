@@ -14,7 +14,7 @@ const statusLabels = {
 
 function FieldPreview({ field }: { field: FormField }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
+    <div className="rounded-2xl border border-stone-200 bg-white/80 p-4 shadow-sm backdrop-blur">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-slate-950">{field.label}</p>
@@ -31,7 +31,7 @@ function FieldPreview({ field }: { field: FormField }) {
           {field.options.map((option) => (
             <span
               key={option}
-              className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600"
+              className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs text-slate-600"
             >
               {option}
             </span>
@@ -50,14 +50,14 @@ export default async function Home() {
     .length;
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-950">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-8 lg:px-8">
-        <header className="flex flex-col gap-5 border-b border-slate-200 pb-6 md:flex-row md:items-end md:justify-between">
+    <main className="min-h-screen bg-[#f7f1e8] text-slate-950">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-10 lg:px-8">
+        <header className="flex flex-col gap-5 border-b border-stone-300 pb-8 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-medium text-emerald-700">
               Atpio console
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-950">
+            <h1 className="mt-2 max-w-4xl text-5xl font-semibold leading-tight tracking-tight text-slate-950">
               Generate data gathering gadgets from natural-language briefs.
             </h1>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
@@ -67,7 +67,7 @@ export default async function Home() {
             </p>
           </div>
           <Link
-            className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-medium text-white"
+            className="inline-flex h-11 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-medium text-white shadow-sm"
             href="/projects/new"
           >
             New project
@@ -83,7 +83,7 @@ export default async function Home() {
           ].map(([label, value]) => (
             <div
               key={label}
-              className="rounded-lg border border-slate-200 bg-white p-4"
+              className="rounded-2xl border border-stone-200 bg-white/80 p-4 shadow-sm backdrop-blur"
             >
               <p className="text-sm text-slate-500">{label}</p>
               <p className="mt-2 text-2xl font-semibold text-slate-950">
@@ -96,7 +96,7 @@ export default async function Home() {
         <AdminTokenPanel />
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-lg border border-slate-200 bg-white p-6">
+          <div className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">
@@ -123,14 +123,14 @@ export default async function Home() {
           </div>
 
           <div className="flex flex-col gap-6">
-            <div className="rounded-lg border border-slate-200 bg-white p-6">
+            <div className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
               <h2 className="text-lg font-semibold">Embed gadget</h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Other products can mount the collection form with a project id.
                 The next implementation step is to expose this through
                 `/embed/[projectId]` and `/gadget.js`.
               </p>
-              <pre className="mt-4 overflow-x-auto rounded-md bg-slate-950 p-4 text-xs leading-6 text-slate-50">
+              <pre className="mt-4 overflow-x-auto rounded-2xl bg-slate-950 p-4 text-xs leading-6 text-slate-50">
                 {`<script
   src="https://your-domain.com/gadget.js"
   data-project-id="${project.id}">
@@ -144,7 +144,7 @@ export default async function Home() {
               </a>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-white p-6">
+            <div className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
               <h2 className="text-lg font-semibold">Collection path</h2>
               <ol className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
                 <li>1. Create or generate a project schema.</li>
@@ -156,7 +156,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-6">
+        <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">
@@ -177,17 +177,17 @@ export default async function Home() {
             </span>
           </div>
           <div className="mt-6 grid gap-4 md:grid-cols-3">
-            <article className="rounded-lg border border-slate-200 p-4">
+            <article className="rounded-2xl border border-stone-200 bg-stone-50/70 p-4">
               <p className="text-sm text-slate-500">Total responses</p>
               <p className="mt-2 text-2xl font-semibold">{responses.length}</p>
             </article>
-            <article className="rounded-lg border border-slate-200 p-4">
+            <article className="rounded-2xl border border-stone-200 bg-stone-50/70 p-4">
               <p className="text-sm text-slate-500">Schema fields</p>
               <p className="mt-2 text-2xl font-semibold">
                 {project.schema.fields.length}
               </p>
             </article>
-            <article className="rounded-lg border border-slate-200 p-4">
+            <article className="rounded-2xl border border-stone-200 bg-stone-50/70 p-4">
               <p className="text-sm text-slate-500">Required fields</p>
               <p className="mt-2 text-2xl font-semibold">{requiredFields}</p>
             </article>
