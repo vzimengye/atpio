@@ -118,6 +118,8 @@ npm run build
 
 OpenClio is not on the current critical path. The worker files are retained only as reference material for future analysis work. Atpio should stay TypeScript-first while the data gathering flow is being developed.
 
+Current rule: do not integrate or adapt OpenClio before the data gathering flow is stable. Use it only as conceptual reference for later analysis work.
+
 ## Git Rule
 
 Keep commits small:

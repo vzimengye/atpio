@@ -16,6 +16,10 @@ Impact:
 - OpenClio worker files are reference material only.
 - Analysis beyond local aggregation is future work after the data gathering flow is stable.
 
+Additional instruction:
+
+Do not make OpenClio part of the current implementation path. It was only reviewed as a reference. Atpio should first make the data gathering product flow work end to end, then decide whether analysis should be implemented in TypeScript or split into a separate service later.
+
 ## 2026-06-01: Keep commits small and meaningful
 
 Decision:

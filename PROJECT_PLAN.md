@@ -60,6 +60,14 @@ OpenClio 只作为 reference，不作为当前 repo 的主依赖。
 
 所以当前 plan 不要求真正跑 OpenClio。`workers/` 里的 OpenClio 文件只保留为 future reference。
 
+执行指示：
+
+- 不要把 OpenClio 放在当前开发前置路径里。
+- 不要为了适配 OpenClio 改 Atpio 的 repo 结构。
+- 不要因为线上已有 open-source project 就默认接入或 fork 它。
+- 当前更推荐把 OpenClio 当成 reference，看懂概念后按 Atpio 的真实场景和 TypeScript repo 重新实现需要的部分。
+- 只有当 data gathering flow 跑通后，且分析能力成为明确需求时，才重新评估是 TypeScript 自研、参考 OpenClio 重写，还是单独接 Python service。
+
 ## 4. 当前推荐架构
 
 ```text
