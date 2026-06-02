@@ -40,6 +40,10 @@ export type GadgetSettings = {
   theme: "light" | "dark";
   buttonLabel: string;
   successMessage: string;
+  brandColor: string;
+  accentColor: string;
+  buttonShape: "pill" | "rounded" | "square";
+  fontFamily: string;
 };
 
 export type DataProject = {

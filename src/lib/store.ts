@@ -24,6 +24,10 @@ const defaultGadget: GadgetSettings = {
   theme: "light",
   buttonLabel: "Feedback",
   successMessage: "Thanks. Your feedback was saved.",
+  brandColor: "#020617",
+  accentColor: "#10b981",
+  buttonShape: "pill",
+  fontFamily: "Inter, Arial, sans-serif",
 };
 
 function withProjectDefaults(project: DataProject): DataProject {

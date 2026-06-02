@@ -52,9 +52,13 @@ export function ProjectDetailEditor({
   );
   const embedCode = useMemo(
     () =>
-      `<script src="http://127.0.0.1:3000/gadget.js" data-project-id="${project.id}" data-atpio-position="${project.gadget.position}" data-atpio-theme="${project.gadget.theme}" data-atpio-label="${project.gadget.buttonLabel}"></script>`,
+      `<script src="http://127.0.0.1:3000/gadget.js" data-project-id="${project.id}" data-atpio-position="${project.gadget.position}" data-atpio-theme="${project.gadget.theme}" data-atpio-label="${project.gadget.buttonLabel}" data-atpio-brand-color="${project.gadget.brandColor}" data-atpio-accent-color="${project.gadget.accentColor}" data-atpio-button-shape="${project.gadget.buttonShape}" data-atpio-font-family="${project.gadget.fontFamily}"></script>`,
     [
+      project.gadget.accentColor,
+      project.gadget.brandColor,
       project.gadget.buttonLabel,
+      project.gadget.buttonShape,
+      project.gadget.fontFamily,
       project.gadget.position,
       project.gadget.theme,
       project.id,
@@ -298,6 +302,49 @@ export function ProjectDetailEditor({
                 onChange={(event) =>
                   updateGadget("successMessage", event.target.value)
                 }
+              />
+            </label>
+            <label className="text-sm">
+              <span className="font-medium text-slate-800">Brand color</span>
+              <input
+                className="mt-2 h-10 w-full rounded-md border border-stone-300 px-2"
+                type="color"
+                value={project.gadget.brandColor}
+                onChange={(event) => updateGadget("brandColor", event.target.value)}
+              />
+            </label>
+            <label className="text-sm">
+              <span className="font-medium text-slate-800">Accent color</span>
+              <input
+                className="mt-2 h-10 w-full rounded-md border border-stone-300 px-2"
+                type="color"
+                value={project.gadget.accentColor}
+                onChange={(event) => updateGadget("accentColor", event.target.value)}
+              />
+            </label>
+            <label className="text-sm">
+              <span className="font-medium text-slate-800">Button shape</span>
+              <select
+                className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
+                value={project.gadget.buttonShape}
+                onChange={(event) =>
+                  updateGadget(
+                    "buttonShape",
+                    event.target.value as GadgetSettings["buttonShape"],
+                  )
+                }
+              >
+                <option value="pill">Pill</option>
+                <option value="rounded">Rounded</option>
+                <option value="square">Square</option>
+              </select>
+            </label>
+            <label className="text-sm">
+              <span className="font-medium text-slate-800">Font family</span>
+              <input
+                className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
+                value={project.gadget.fontFamily}
+                onChange={(event) => updateGadget("fontFamily", event.target.value)}
               />
             </label>
           </div>

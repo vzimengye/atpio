@@ -6,6 +6,10 @@ export async function GET() {
   var position = currentScript && currentScript.getAttribute("data-atpio-position") || "bottom-right";
   var theme = currentScript && currentScript.getAttribute("data-atpio-theme") || "light";
   var label = currentScript && currentScript.getAttribute("data-atpio-label") || "Feedback";
+  var brandColor = currentScript && currentScript.getAttribute("data-atpio-brand-color") || (theme === "dark" ? "#f7f1e8" : "#020617");
+  var accentColor = currentScript && currentScript.getAttribute("data-atpio-accent-color") || "#10b981";
+  var buttonShape = currentScript && currentScript.getAttribute("data-atpio-button-shape") || "pill";
+  var fontFamily = currentScript && currentScript.getAttribute("data-atpio-font-family") || "Inter, Arial, sans-serif";
   var successCallback = currentScript && currentScript.getAttribute("data-atpio-success-callback");
   var metadata = {};
   if (currentScript) {
@@ -32,15 +36,15 @@ export async function GET() {
   if (position.indexOf("top") >= 0) root.style.top = "20px";
   if (position.indexOf("bottom") >= 0) root.style.bottom = "20px";
   root.style.zIndex = "2147483647";
-  root.style.fontFamily = "Arial, sans-serif";
+  root.style.fontFamily = fontFamily;
 
   var button = document.createElement("button");
   button.type = "button";
   button.textContent = label;
   button.style.height = "44px";
   button.style.border = "0";
-  button.style.borderRadius = "999px";
-  button.style.background = theme === "dark" ? "#f7f1e8" : "#020617";
+  button.style.borderRadius = buttonShape === "square" ? "4px" : buttonShape === "rounded" ? "12px" : "999px";
+  button.style.background = brandColor;
   button.style.color = theme === "dark" ? "#020617" : "#fff";
   button.style.padding = "0 18px";
   button.style.fontSize = "14px";
@@ -59,7 +63,8 @@ export async function GET() {
   panel.style.height = "620px";
   panel.style.maxHeight = "calc(100vh - 96px)";
   panel.style.border = "1px solid #e2e8f0";
-  panel.style.borderRadius = "12px";
+  panel.style.borderTop = "3px solid " + accentColor;
+  panel.style.borderRadius = buttonShape === "square" ? "6px" : "16px";
   panel.style.overflow = "hidden";
   panel.style.background = theme === "dark" ? "#020617" : "#fff";
   panel.style.boxShadow = "0 24px 60px rgba(15, 23, 42, 0.22)";
