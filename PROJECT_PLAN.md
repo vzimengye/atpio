@@ -58,7 +58,7 @@ OpenClio 只作为 reference，不作为当前 repo 的主依赖。
 4. 当前阶段最重要的是把 data gathering gadget 跑通。
 5. 后续如果需要高级分析，可以参考 OpenClio 的概念，在 TypeScript 里重新实现需要的部分，或再单独接 Python service。
 
-所以当前 plan 不要求真正跑 OpenClio。`workers/` 里的 OpenClio 文件只保留为 future reference。
+所以当前 plan 不要求真正跑 OpenClio，也不保留 Python/OpenClio worker 作为当前 repo 的一部分。
 
 执行指示：
 
@@ -205,7 +205,7 @@ OpenClio 当前只作为 reference。
 暂时不做：
 
 - 安装 OpenClio
-- 跑 vLLM
+- 跑 vLLM 或其他 Python-only runtime
 - 用 Python worker 做正式 analysis backend
 - 把 OpenClio output 嵌入 dashboard
 

@@ -13,7 +13,7 @@ OpenClio's completeness, scenario fit, runtime requirements, and Python/vLLM sty
 Impact:
 
 - The main app remains a solo TypeScript / Next.js codebase.
-- OpenClio worker files are reference material only.
+- OpenClio implementation files are not part of the current repo path.
 - Analysis beyond local aggregation is future work after the data gathering flow is stable.
 
 Additional instruction:

@@ -31,7 +31,7 @@ Implemented:
 - Analysis APIs:
   - `POST /api/projects/[projectId]/analyze`
   - `GET /api/projects/[projectId]/insights`
-- OpenClio reference notes and optional dry-run adapter for future analysis exploration.
+- OpenClio concept notes for future analysis exploration.
 
 Not implemented yet:
 
@@ -102,7 +102,7 @@ The mock product is a separate static app in `mock-product/`. It loads Atpio fro
 ## Remaining Production Work
 
 - Replace `data/app-store.json` with Supabase, Postgres, or another production database.
-- Revisit OpenClio or a custom TS analysis pipeline after the data gathering product flow is stable. See `docs/openclio-runtime.md` for reference only.
+- Revisit advanced analysis after the data gathering product flow is stable. If needed, use OpenClio only as conceptual reference and prefer a TypeScript implementation first.
 - Add user login and per-project access control beyond the admin-token API guard.
 - Deploy to Vercel and configure production environment variables. See `docs/deployment.md`.
 - Add privacy hardening beyond basic PII redaction, including minimum group thresholds and audit logs.
@@ -116,7 +116,7 @@ npm run build
 
 ## OpenClio Reference
 
-OpenClio is not on the current critical path. The worker files are retained only as reference material for future analysis work. Atpio should stay TypeScript-first while the data gathering flow is being developed.
+OpenClio is not on the current critical path. Atpio should stay TypeScript-first while the data gathering flow is being developed.
 
 Current rule: do not integrate or adapt OpenClio before the data gathering flow is stable. Use it only as conceptual reference for later analysis work.
 
