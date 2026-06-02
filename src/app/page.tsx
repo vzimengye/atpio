@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { sampleProject } from "@/lib/mock-data";
 import type { FormField } from "@/lib/types";
 import { AdminTokenPanel } from "@/components/admin-token-panel";
@@ -65,12 +66,12 @@ export default async function Home() {
               schema, embed the gadget, and verify response collection.
             </p>
           </div>
-          <a
+          <Link
             className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-medium text-white"
             href="/projects/new"
           >
             New project
-          </a>
+          </Link>
         </header>
 
         <section className="grid gap-4 md:grid-cols-4">
