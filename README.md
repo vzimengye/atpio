@@ -28,8 +28,9 @@ Implemented:
 - PPIO-backed schema generation with local fallback.
 - Multi-page questionnaire rendering.
 - Field validation metadata.
-- Editable generated schema JSON.
-- Configurable gadget position, theme, label, and success message.
+- Visual schema builder with an advanced JSON fallback.
+- Visual validation controls for text length and rating ranges.
+- Configurable gadget position, theme, label, success message, brand color, accent color, button shape, and font family.
 - Host metadata, open/close/success events, and success callback.
 - Mock collection APIs:
   - `GET /api/projects/[projectId]/schema`

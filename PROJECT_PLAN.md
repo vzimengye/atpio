@@ -288,3 +288,21 @@ OpenClio 只作为参考，不是当前必须接入的依赖。
 8. Atpio dashboard 显示 response count、schema fields 和基础 collection summary。
 
 这个 demo 已经足够证明当前阶段的核心价值。
+
+## 9. 2026-06-02 最新完成状态
+
+本轮把之前“部分完成”的 data gathering 增强项补完：
+
+- schema editor：已从纯 JSON textarea 升级为可视化 schema builder，并保留 Advanced JSON 作为兜底。
+- validation：builder 里已支持 text 字段的 min/max length 和 rating 字段的 min/max 可视化配置。
+- PPIO prompt：已增强 prompt，并在服务端补了 field type 归一化，继续保证 `source: "ppio"` 可用，失败时回退 local generator。
+- gadget branding：已支持 position、theme、label、success message、brand color、accent color、button shape、font family，并同步到 embed code 和 `gadget.js`。
+
+当前仍然不直接接入 OpenClio。它只作为后续 analysis 的概念参考；现阶段完成重点是 Atpio 的 TypeScript-first data gathering flow。
+
+当前剩余的主要工作已经从 MVP 功能补齐转向生产化：
+
+- 切换到真实数据库。
+- 部署到 Vercel。
+- 增加更完整的 aggregate reporting。
+- 在高级 analysis 前增加隐私保护能力。

@@ -34,3 +34,7 @@ Completed implementation:
 - Updated the UI toward the Atpio warm research-workspace style.
 - Added local `.env.local` PPIO key support without committing secrets.
 - Verified the PPIO-backed UI flow: `/projects/new` can generate a schema and save a project using the configured local API key.
+- Replaced the project detail JSON-only schema editor with a visual schema builder plus Advanced JSON fallback.
+- Added visual validation controls for text length and rating range fields.
+- Improved the PPIO schema prompt and field type normalization.
+- Added full gadget branding controls for brand color, accent color, button shape, and font family.
