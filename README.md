@@ -19,11 +19,18 @@ Implemented:
 - Mock project data.
 - Dynamic form renderer.
 - `/projects/new` builder stub.
+- `/projects` project list.
+- `/projects/[projectId]` project detail editor.
 - `/embed/[projectId]` embedded form preview.
 - `/gadget.js` script embed.
 - `/demo-host` mock host product page.
 - Local file-backed persistence in `data/app-store.json`.
 - PPIO-backed schema generation with local fallback.
+- Multi-page questionnaire rendering.
+- Field validation metadata.
+- Editable generated schema JSON.
+- Configurable gadget position, theme, label, and success message.
+- Host metadata, open/close/success events, and success callback.
 - Mock collection APIs:
   - `GET /api/projects/[projectId]/schema`
   - `POST /api/projects/[projectId]/responses`
@@ -66,10 +73,11 @@ When auth is enabled, paste the token into the Admin token panel in the Atpio UI
 2. Enter or edit a research brief.
 3. Generate a schema.
 4. Save the project.
-5. Open `/demo-host` or `/embed/[projectId]`.
-6. Submit feedback.
-7. Return to `/`.
-8. Review response and schema counts.
+5. Open `/projects` or `/projects/[projectId]` to edit schema and gadget settings.
+6. Open `/demo-host` or `/embed/[projectId]`.
+7. Submit feedback.
+8. Return to `/`.
+9. Review response and schema counts.
 
 ## Local Two-Project Integration Test
 

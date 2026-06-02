@@ -28,4 +28,9 @@ Completed implementation:
 - Added PPIO-backed schema generation with local fallback.
 - Added the embeddable `/gadget.js` script and `/demo-host`.
 - Connected the dashboard to the local store and response counts.
+- Added project list, project detail, and schema editor pages.
+- Added multi-page forms and field validation metadata.
+- Added configurable gadget settings, host metadata, lifecycle events, and success callback support.
+- Updated the UI toward the Atpio warm research-workspace style.
+- Added local `.env.local` PPIO key support without committing secrets.
 - Verified the PPIO-backed UI flow: `/projects/new` can generate a schema and save a project using the configured local API key.

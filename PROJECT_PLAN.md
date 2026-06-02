@@ -190,6 +190,14 @@ POST /api/projects/[projectId]/responses
 
 - audit log
 - admin token guard
+- project list / project detail
+- editable generated schema
+- configurable gadget position / theme / label / success message
+- host metadata capture
+- gadget open / close / success events
+- success callback
+- multi-page questionnaire rendering
+- field validation metadata
 
 当前只保留 data gathering 所需的基础 guard，不做 analysis privacy layer。
 
@@ -239,11 +247,9 @@ OpenClio 当前只作为 reference。
 
 任务：
 
-- 改进 PPIO prompt。
-- 支持更多字段类型和 validation。
-- 支持多页 questionnaire。
-- 支持 project list 和 project detail 页面。
-- 支持编辑已生成 schema。
+- 继续改进 PPIO prompt。
+- 支持更丰富的 validation UI。
+- 支持更友好的 schema editor。
 
 ### Phase 2: Gadget 接入增强
 
@@ -251,11 +257,8 @@ OpenClio 当前只作为 reference。
 
 任务：
 
-- 支持配置 gadget 位置。
-- 支持 light/dark theme。
-- 支持 host product 传 metadata，例如 page、user segment、experiment id。
-- 支持 close/open events。
-- 支持 success callback。
+- 支持更多 gadget 动画和品牌样式。
+- 支持 host product 读取更多 lifecycle event detail。
 
 ### Phase 3: Data Storage
 
