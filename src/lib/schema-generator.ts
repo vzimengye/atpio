@@ -31,6 +31,9 @@ export function generateSchemaFromBrief(brief: string): ProjectSchema {
       type: "long_text",
       label: "What is the most important thing you want us to know?",
       required: true,
+      pageId: "core",
+      placeholder: "Share the main issue, request, or observation.",
+      validation: { minLength: 8, maxLength: 800 },
     },
   ];
 
@@ -40,6 +43,9 @@ export function generateSchemaFromBrief(brief: string): ProjectSchema {
       type: "long_text",
       label: "What was the main reason behind this?",
       required: true,
+      pageId: "core",
+      placeholder: "Add context that would help the product team act.",
+      validation: { minLength: 6, maxLength: 600 },
     });
   }
 
@@ -49,6 +55,7 @@ export function generateSchemaFromBrief(brief: string): ProjectSchema {
       type: "single_select",
       label: "Where did you get stuck?",
       options: ["Account setup", "Permissions", "Product tour", "Other"],
+      pageId: "details",
     });
   }
 
@@ -61,6 +68,8 @@ export function generateSchemaFromBrief(brief: string): ProjectSchema {
       id: "rating",
       type: "rating",
       label: "How would you rate this experience?",
+      pageId: "details",
+      validation: { min: 1, max: 5 },
     });
   }
 
@@ -68,12 +77,30 @@ export function generateSchemaFromBrief(brief: string): ProjectSchema {
     id: "follow_up",
     type: "boolean",
     label: "May we follow up if we need more detail?",
+    pageId: "follow_up",
   });
 
   return {
     title,
     description:
-      "A lightweight Atpio form generated from the project brief. Responses will be analyzed in aggregate.",
+      "A lightweight Atpio form generated from the project brief.",
+    pages: [
+      {
+        id: "core",
+        title: "Core feedback",
+        description: "Collect the most important signal first.",
+      },
+      {
+        id: "details",
+        title: "Details",
+        description: "Add structured context when useful.",
+      },
+      {
+        id: "follow_up",
+        title: "Follow-up",
+        description: "Ask whether the team can ask for more context.",
+      },
+    ],
     fields,
   };
 }

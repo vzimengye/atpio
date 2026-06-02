@@ -15,6 +15,15 @@ export async function POST(
     answers: body.answers ?? {},
     sourceUrl: request.headers.get("referer") ?? undefined,
     userAgent: request.headers.get("user-agent") ?? undefined,
+    metadata:
+      body.metadata && typeof body.metadata === "object"
+        ? Object.fromEntries(
+            Object.entries(body.metadata).map(([key, value]) => [
+              key,
+              String(value),
+            ]),
+          )
+        : undefined,
     createdAt: now,
   };
 

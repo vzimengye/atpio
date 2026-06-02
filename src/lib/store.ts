@@ -7,6 +7,7 @@ import type {
   AppStore,
   AuditEvent,
   DataProject,
+  GadgetSettings,
   ProjectResponse,
 } from "./types";
 
@@ -17,6 +18,23 @@ const initialStore: AppStore = {
   responses: [],
   auditEvents: [],
 };
+
+const defaultGadget: GadgetSettings = {
+  position: "bottom-right",
+  theme: "light",
+  buttonLabel: "Feedback",
+  successMessage: "Thanks. Your feedback was saved.",
+};
+
+function withProjectDefaults(project: DataProject): DataProject {
+  return {
+    ...project,
+    gadget: {
+      ...defaultGadget,
+      ...(project.gadget ?? {}),
+    },
+  };
+}
 
 async function ensureStore() {
   await fs.mkdir(path.dirname(storePath), { recursive: true });
@@ -34,7 +52,7 @@ export async function readStore(): Promise<AppStore> {
   const parsed = JSON.parse(raw) as Partial<AppStore>;
 
   return {
-    projects: parsed.projects ?? initialStore.projects,
+    projects: (parsed.projects ?? initialStore.projects).map(withProjectDefaults),
     responses: parsed.responses ?? [],
     auditEvents: parsed.auditEvents ?? [],
   };
@@ -62,12 +80,13 @@ export async function getProject(projectId: string): Promise<DataProject | null>
 
 export async function saveProject(project: DataProject): Promise<DataProject> {
   const store = await readStore();
+  const projectWithDefaults = withProjectDefaults(project);
   const existingIndex = store.projects.findIndex((item) => item.id === project.id);
 
   if (existingIndex >= 0) {
-    store.projects[existingIndex] = project;
+    store.projects[existingIndex] = projectWithDefaults;
   } else {
-    store.projects.unshift(project);
+    store.projects.unshift(projectWithDefaults);
   }
 
   await writeStore(store);
@@ -77,7 +96,7 @@ export async function saveProject(project: DataProject): Promise<DataProject> {
     projectId: project.id,
     metadata: { status: project.status },
   });
-  return project;
+  return projectWithDefaults;
 }
 
 export async function addResponse(

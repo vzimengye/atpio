@@ -12,12 +12,34 @@ export type FormField = {
   label: string;
   required?: boolean;
   options?: string[];
+  pageId?: string;
+  placeholder?: string;
+  validation?: {
+    minLength?: number;
+    maxLength?: number;
+    min?: number;
+    max?: number;
+  };
+};
+
+export type FormPage = {
+  id: string;
+  title: string;
+  description?: string;
 };
 
 export type ProjectSchema = {
   title: string;
   description: string;
+  pages?: FormPage[];
   fields: FormField[];
+};
+
+export type GadgetSettings = {
+  position: "bottom-right" | "bottom-left" | "top-right" | "top-left";
+  theme: "light" | "dark";
+  buttonLabel: string;
+  successMessage: string;
 };
 
 export type DataProject = {
@@ -25,6 +47,7 @@ export type DataProject = {
   name: string;
   brief: string;
   schema: ProjectSchema;
+  gadget: GadgetSettings;
   responseCount: number;
   status: "draft" | "collecting" | "ready";
   updatedAt: string;
@@ -36,6 +59,7 @@ export type ProjectResponse = {
   answers: Record<string, string | string[] | boolean>;
   sourceUrl?: string;
   userAgent?: string;
+  metadata?: Record<string, string>;
   createdAt: string;
 };
 

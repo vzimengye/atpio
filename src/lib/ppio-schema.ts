@@ -28,14 +28,28 @@ function validateSchema(schema: ProjectSchema): ProjectSchema {
     throw new Error("Invalid schema shape.");
   }
 
+  const pages = Array.isArray(schema.pages)
+    ? schema.pages.slice(0, 5).map((page) => ({
+        id: String(page.id).replace(/[^a-zA-Z0-9_]/g, "_"),
+        title: String(page.title),
+        description: page.description ? String(page.description) : undefined,
+      }))
+    : undefined;
+
   return {
     title: String(schema.title),
     description: String(schema.description),
+    pages,
     fields: schema.fields.slice(0, 8).map((field) => ({
       id: String(field.id).replace(/[^a-zA-Z0-9_]/g, "_"),
       type: field.type,
       label: String(field.label),
       required: Boolean(field.required),
+      pageId: field.pageId
+        ? String(field.pageId).replace(/[^a-zA-Z0-9_]/g, "_")
+        : undefined,
+      placeholder: field.placeholder ? String(field.placeholder) : undefined,
+      validation: field.validation,
       options: Array.isArray(field.options)
         ? field.options.map((option) => String(option)).slice(0, 8)
         : undefined,
@@ -72,7 +86,7 @@ export async function generateSchemaWithPpio(
           {
             role: "system",
             content:
-              "You generate compact JSON form schemas for Atpio. Return only JSON with keys name and schema. schema.fields must use type short_text, long_text, single_select, multi_select, rating, or boolean.",
+              "You generate compact JSON form schemas for Atpio. Return only JSON with keys name and schema. schema may include pages. schema.fields must use type short_text, long_text, single_select, multi_select, rating, or boolean, and may include pageId, placeholder, and validation.",
           },
           {
             role: "user",
