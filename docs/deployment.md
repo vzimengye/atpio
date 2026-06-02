@@ -10,8 +10,6 @@ Required environment variables:
 PPIO_API_KEY=...
 PPIO_BASE_URL=https://api.ppinfra.com/v3/openai
 PPIO_MODEL=deepseek/deepseek-v3-turbo
-ATPIO_ADMIN_TOKEN=...
-ATPIO_MIN_THEME_COUNT=2
 ```
 
 Deploy from a machine logged in to Vercel:

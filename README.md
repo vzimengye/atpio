@@ -40,7 +40,6 @@ Not implemented yet:
 
 - Production database storage.
 - Basic aggregate reporting beyond response and schema counts.
-- Authentication and permission management.
 - Vercel deployment.
 
 ## Run the App
@@ -62,10 +61,6 @@ Open:
 Copy `.env.example` to `.env.local` and set `PPIO_API_KEY` to enable real LLM schema generation. Without a key, Atpio falls back to the local deterministic schema generator.
 
 Do not commit `.env.local`.
-
-Set `ATPIO_ADMIN_TOKEN` to require `x-atpio-admin-token` for admin APIs such as project creation, schema generation, and audit logs. Leave it unset for local demos without auth.
-
-When auth is enabled, paste the token into the Admin token panel in the Atpio UI. The browser stores it in localStorage and sends it as `x-atpio-admin-token`.
 
 ## MVP Flow
 
@@ -107,7 +102,6 @@ The mock product is a separate static app in `mock-product/`. It loads Atpio fro
 
 - Replace `data/app-store.json` with Supabase, Postgres, or another production database.
 - Revisit advanced analysis after the data gathering product flow is stable. If needed, use OpenClio only as conceptual reference and prefer a TypeScript implementation first.
-- Add user login and per-project access control beyond the admin-token API guard.
 - Deploy to Vercel and configure production environment variables. See `docs/deployment.md`.
 - Add privacy hardening before advanced analysis work, including PII redaction and minimum group thresholds.
 

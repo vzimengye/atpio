@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { getAdminHeaders } from "@/lib/admin-client";
 import type { DataProject, GadgetSettings, ProjectResponse } from "@/lib/types";
 
 type ProjectDetailEditorProps = {
@@ -42,7 +41,7 @@ export function ProjectDetailEditor({
       const parsedSchema = JSON.parse(schemaText);
       const response = await fetch(`/api/projects/${project.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", ...getAdminHeaders() },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: project.name,
           brief: project.brief,
@@ -188,4 +187,3 @@ function Metric({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
-

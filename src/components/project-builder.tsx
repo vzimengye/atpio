@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { DynamicForm } from "@/components/dynamic-form";
-import { AdminTokenPanel } from "@/components/admin-token-panel";
 import { sampleProject } from "@/lib/mock-data";
-import { getAdminHeaders } from "@/lib/admin-client";
 import type { ProjectSchema } from "@/lib/types";
 
 const defaultBrief =
@@ -21,7 +19,7 @@ export function ProjectBuilder() {
     setStatus("loading");
     const response = await fetch("/api/projects/generate-schema", {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...getAdminHeaders() },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ brief }),
     });
     const payload = await response.json();
@@ -34,7 +32,7 @@ export function ProjectBuilder() {
     setStatus("loading");
     const response = await fetch("/api/projects", {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...getAdminHeaders() },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ brief, name }),
     });
     const payload = await response.json();
@@ -46,9 +44,7 @@ export function ProjectBuilder() {
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
       <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
-        <AdminTokenPanel />
-
-        <div className="mt-6">
+        <div>
           <p className="text-sm font-medium text-emerald-700">
             Project creator
           </p>

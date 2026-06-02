@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth";
 import { getProject, listResponses, saveProject } from "@/lib/store";
 import type { DataProject, GadgetSettings, ProjectSchema } from "@/lib/types";
 
@@ -7,9 +6,6 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ projectId: string }> },
 ) {
-  const unauthorized = await requireAdmin(request);
-  if (unauthorized) return unauthorized;
-
   const { projectId } = await params;
   const project = await getProject(projectId);
 
@@ -27,9 +23,6 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ projectId: string }> },
 ) {
-  const unauthorized = await requireAdmin(request);
-  if (unauthorized) return unauthorized;
-
   const { projectId } = await params;
   const existing = await getProject(projectId);
 
@@ -58,4 +51,3 @@ export async function PATCH(
 
   return NextResponse.json({ project });
 }
-

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { sampleProject } from "@/lib/mock-data";
 import type { FormField } from "@/lib/types";
-import { AdminTokenPanel } from "@/components/admin-token-panel";
 import { listProjects, listResponses } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -92,8 +91,6 @@ export default async function Home() {
             </div>
           ))}
         </section>
-
-        <AdminTokenPanel />
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">

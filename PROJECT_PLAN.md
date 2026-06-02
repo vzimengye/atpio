@@ -189,7 +189,6 @@ POST /api/projects/[projectId]/responses
 当前已实现：
 
 - audit log
-- admin token guard
 - project list / project detail
 - editable generated schema
 - configurable gadget position / theme / label / success message
@@ -198,6 +197,7 @@ POST /api/projects/[projectId]/responses
 - success callback
 - multi-page questionnaire rendering
 - field validation metadata
+- no temporary admin token gate
 
 当前只保留 data gathering 所需的基础 guard，不做 analysis privacy layer。
 
@@ -219,17 +219,7 @@ OpenClio 当前只作为 reference。
 1. 参考 OpenClio，在 TypeScript 里重写需要的 analysis pipeline。
 2. 或者把 OpenClio 单独做成 Python service。
 
-### 5.2 不做完整 production auth
-
-当前只有 admin token guard。
-
-后续可接：
-
-- Clerk
-- Auth.js
-- Supabase Auth
-
-### 5.3 不做生产数据库
+### 5.2 不做生产数据库
 
 当前只用 local JSON store。
 
