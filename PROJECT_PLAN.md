@@ -15,7 +15,38 @@ Atpio 是一个 TypeScript-first 的 data gathering gadget 项目。
 
 当前阶段的重点是 **data gathering flow**，不是完整 Clio/OpenClio analysis。
 
-## 2. OpenClio 的位置
+## 2. 2026-06-02 新指示后的执行原则
+
+根据新的 mentor 指示，Atpio 当前阶段的执行原则调整为：
+
+1. **OpenClio 只看概念，不直接接入。**
+   OpenClio 可以作为参考资料，帮助理解 privacy-preserving analysis 的方向，但当前 repo 不以它作为依赖，也不把跑通 OpenClio 当成当前阶段目标。
+
+2. **保持 solo TypeScript codebase。**
+   当前 repo 最好保持一套语言和一套工程方式：Next.js + TypeScript + React。除非后续高级分析明确需要 Python，否则不新增 Python service 作为主路径。
+
+3. **先把 data gathering 部分跑通。**
+   当前最重要的是证明：
+   - 其他产品可以标准化接入 Atpio。
+   - Atpio 可以在别的产品页面渲染 gadget。
+   - 用户可以用自然语言配置想收集的数据。
+   - Atpio 可以调用 LLM 生成 form/questionnaire。
+   - responses 可以被保存，并在 dashboard 中看到基础状态。
+
+4. **分析能力后置。**
+   当前只保留基础 TypeScript aggregation。等 data gathering flow 稳定后，再决定是否做更复杂的 taxonomy、facet、summary、clustering，届时可以参考 OpenClio，也可以直接用 TypeScript 重新实现。
+
+因此，当前优先级不是“跑 OpenClio”，而是：
+
+```text
+standard embed API
+→ dynamic gadget UI
+→ natural-language brief to schema
+→ response collection
+→ local mock product integration
+```
+
+## 3. OpenClio 的位置
 
 OpenClio 只作为 reference，不作为当前 repo 的主依赖。
 
@@ -29,7 +60,7 @@ OpenClio 只作为 reference，不作为当前 repo 的主依赖。
 
 所以当前 plan 不要求真正跑 OpenClio。`workers/` 里的 OpenClio 文件只保留为 future reference。
 
-## 3. 当前推荐架构
+## 4. 当前推荐架构
 
 ```text
 Other product
@@ -61,7 +92,7 @@ Atpio dashboard
 - Local JSON store for MVP
 - Future production database: Supabase/Postgres/Vercel Postgres
 
-## 4. 已完成的 MVP 能力
+## 5. 已完成的 MVP 能力
 
 ### 4.1 标准接入方式
 
@@ -157,7 +188,7 @@ POST /api/projects/[projectId]/responses
 
 这只是基础 privacy layer，不是完整合规系统。
 
-## 5. 当前不做的内容
+## 6. 当前不做的内容
 
 ### 5.1 不直接接 OpenClio
 
@@ -195,7 +226,7 @@ OpenClio 当前只作为 reference。
 - Vercel Postgres
 - Neon
 
-## 6. 下一步开发计划
+## 7. 下一步开发计划
 
 ### Phase 1: Data Gathering 产品流增强
 
@@ -245,7 +276,7 @@ OpenClio 当前只作为 reference。
 
 OpenClio 只作为参考，不是当前必须接入的依赖。
 
-## 7. Demo 标准
+## 8. Demo 标准
 
 一个完整本地 demo 应该展示：
 
@@ -259,4 +290,3 @@ OpenClio 只作为参考，不是当前必须接入的依赖。
 8. Atpio dashboard 显示 response count 和基础 aggregate result。
 
 这个 demo 已经足够证明当前阶段的核心价值。
-
