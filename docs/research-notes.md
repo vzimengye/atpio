@@ -30,7 +30,7 @@ Atpio should solve the data gathering product flow first:
 - Natural-language brief to form schema generation.
 - Embeddable gadget / widget for other products.
 - Response storage.
-- Triggering analysis runs.
+- Reviewing collection status and basic aggregate counts.
 - Displaying collected response status and basic aggregate output.
 
 ## First Local Experiment

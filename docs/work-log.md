@@ -14,7 +14,7 @@ Current next steps:
 - Replace mock responses with real persistence.
 - Add LLM schema generation from a natural-language brief.
 - Turn the embed preview into a production `/gadget.js` script.
-- Keep OpenClio as future reference; focus current work on data gathering.
+- Keep OpenClio as concept reference only; focus current work on data gathering.
 
 Completed implementation:
 
