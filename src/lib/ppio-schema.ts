@@ -1,7 +1,7 @@
 import "server-only";
 
 import { generateSchemaFromBrief, projectNameFromBrief } from "./schema-generator";
-import type { ProjectSchema } from "./types";
+import type { FieldType, ProjectSchema } from "./types";
 
 type PpioSchemaResult = {
   name: string;
@@ -27,6 +27,22 @@ function labelFromFieldId(fieldId: string) {
   return fieldId
     .replace(/_/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function normalizeFieldType(type: unknown): FieldType {
+  const value = String(type);
+  if (
+    value === "short_text" ||
+    value === "long_text" ||
+    value === "single_select" ||
+    value === "multi_select" ||
+    value === "rating" ||
+    value === "boolean"
+  ) {
+    return value;
+  }
+
+  return "short_text";
 }
 
 function validateSchema(schema: ProjectSchema): ProjectSchema {
@@ -70,7 +86,7 @@ function validateSchema(schema: ProjectSchema): ProjectSchema {
 
       return {
         id,
-        type: field.type,
+        type: normalizeFieldType(field.type),
         label:
           rawLabel && String(rawLabel) !== "undefined"
             ? String(rawLabel)
@@ -119,7 +135,7 @@ export async function generateSchemaWithPpio(
           {
             role: "system",
             content:
-              "You generate compact JSON form schemas for Atpio. Return a valid JSON object only, with no markdown and no explanation. The object must have keys name and schema. schema must have title, description, optional pages, and fields. schema.fields must use type short_text, long_text, single_select, multi_select, rating, or boolean, and may include pageId, placeholder, validation, required, and options.",
+              'You design embedded data-gathering forms for Atpio. Return a valid JSON object only, with no markdown and no explanation. The top-level object must have "name" and "schema". schema must have "title", "description", optional "pages", and "fields". Use 3-6 fields for normal briefs and at most 8 fields. Every field must include a stable snake_case "id", a user-facing "label", "type", and "required". Allowed types are short_text, long_text, single_select, multi_select, rating, and boolean. Choice fields must include concise "options". Text fields should include helpful "placeholder" and validation.minLength or validation.maxLength when useful. Rating fields should use validation.min and validation.max, usually 1 and 5. If pages are used, every page needs id/title/description and every field pageId must match one page id. Example shape: {"name":"Onboarding Feedback","schema":{"title":"Onboarding Feedback","description":"Understand where users get stuck.","pages":[{"id":"experience","title":"Experience","description":"Where the user got stuck."}],"fields":[{"id":"dropoff_reason","type":"long_text","label":"What stopped you from completing onboarding?","required":true,"pageId":"experience","placeholder":"Tell us what felt unclear, slow, or blocked.","validation":{"minLength":8,"maxLength":600}}]}}',
           },
           {
             role: "user",
