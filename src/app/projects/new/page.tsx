@@ -18,6 +18,7 @@ export default async function NewProjectPage({
   const aiResult = generated ? await generateSchemaWithPpio(brief) : undefined;
   const initialBrief = brief ?? undefined;
   const initialName = firstParam(params.name) ?? undefined;
+  const savedProjectId = firstParam(params.saved) ?? undefined;
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-slate-950">
@@ -27,6 +28,7 @@ export default async function NewProjectPage({
         initialName={aiResult?.name ?? initialName}
         initialSchema={aiResult?.schema}
         initialSource={aiResult?.source}
+        savedProjectId={savedProjectId}
       />
     </main>
   );

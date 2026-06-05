@@ -84,10 +84,7 @@ export function DynamicForm({
   function advancePreview() {
     if (!isLastPage) {
       setPageIndex((current) => Math.min(current + 1, pages.length - 1));
-      return;
     }
-
-    setPageIndex(0);
   }
 
   if (status === "submitted") {
@@ -153,22 +150,23 @@ export function DynamicForm({
             Back
           </button>
         ) : null}
-        {previewMode ? (
+        {previewMode && !isLastPage ? (
           <button
             className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-medium text-white"
             onClick={advancePreview}
             type="button"
           >
-            {isLastPage ? "Restart preview" : "Next"}
+            Next
           </button>
-        ) : (
+        ) : null}
+        {!previewMode ? (
           <button
             className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-medium text-white"
             type="submit"
           >
             {isLastPage ? "Submit feedback" : "Next"}
           </button>
-        )}
+        ) : null}
       </div>
     </form>
   );

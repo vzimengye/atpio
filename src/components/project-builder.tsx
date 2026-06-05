@@ -21,6 +21,7 @@ type ProjectBuilderProps = {
   initialName?: string;
   initialSchema?: ProjectSchema;
   initialSource?: "ppio" | "local";
+  savedProjectId?: string;
 };
 
 export function ProjectBuilder({
@@ -28,23 +29,34 @@ export function ProjectBuilder({
   initialBrief = "",
   initialName = "",
   initialSchema = emptyPreviewSchema,
+  savedProjectId,
 }: ProjectBuilderProps) {
   const [brief, setBrief] = useState(initialBrief);
   const [name, setName] = useState(initialName);
   const [schema, setSchema] = useState<ProjectSchema>(initialSchema);
-  const [projectId, setProjectId] = useState("preview_project");
+  const [projectId, setProjectId] = useState(savedProjectId ?? "preview_project");
   const [status, setStatus] = useState<
     "idle" | "generating" | "saving" | "saved"
-  >("idle");
+  >(savedProjectId ? "saved" : "idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [sourceMessage, setSourceMessage] = useState(
-    generatedFromUrl
-      ? "Form generated. Review the questions, then save it as a project."
-      : "",
+    savedProjectId
+      ? ""
+      : generatedFromUrl
+        ? "Form generated. Review the questions, then save it as a project."
+        : "",
   );
 
-  function handleGenerateSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleProjectSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const submitter = (event.nativeEvent as SubmitEvent)
+      .submitter as HTMLButtonElement | null;
+
+    if (submitter?.name === "intent" && submitter.value === "save") {
+      void saveProject();
+      return;
+    }
+
     void generateSchema();
   }
 
@@ -146,12 +158,40 @@ export function ProjectBuilder({
           </div>
         </div>
       ) : null}
+      {status === "saved" ? (
+        <div
+          className="fixed left-1/2 top-6 z-50 w-[min(92vw,520px)] -translate-x-1/2 rounded-2xl border border-emerald-200 bg-white px-5 py-4 text-slate-950 shadow-xl"
+          role="status"
+        >
+          <div className="flex items-start gap-3">
+            <span
+              aria-hidden="true"
+              className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-emerald-700 text-xs font-semibold text-white"
+            >
+              OK
+            </span>
+            <div>
+              <p className="font-semibold">Project saved successfully.</p>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                It is now available in All projects and will be used by the
+                mock product on localhost:4000.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <form
-        action="/projects/new"
+        action="/projects/new/save"
         className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur"
-        method="get"
-        onSubmit={handleGenerateSubmit}
+        method="post"
+        onSubmit={handleProjectSubmit}
       >
+        <textarea
+          className="hidden"
+          name="schema"
+          readOnly
+          value={JSON.stringify(schema)}
+        />
         <div>
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-medium text-emerald-700">
@@ -206,6 +246,8 @@ export function ProjectBuilder({
           <button
             className="inline-flex h-10 items-center justify-center rounded-full border border-stone-300 bg-white/70 px-4 text-sm font-medium text-slate-800"
             disabled={status === "generating" || status === "saving"}
+            formAction="/projects/new"
+            formMethod="get"
             name="generate"
             type="submit"
             value="1"
@@ -222,8 +264,9 @@ export function ProjectBuilder({
           <button
             className="inline-flex h-10 items-center justify-center rounded-full bg-slate-950 px-4 text-sm font-medium text-white"
             disabled={status === "saving"}
-            onClick={saveProject}
-            type="button"
+            name="intent"
+            type="submit"
+            value="save"
           >
             {status === "saving" ? (
               <>
@@ -268,7 +311,7 @@ export function ProjectBuilder({
                 aria-hidden="true"
                 className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-emerald-700 text-sm font-semibold text-white"
               >
-                ✓
+                OK
               </span>
               <div>
                 <p className="font-semibold">Project saved successfully.</p>
