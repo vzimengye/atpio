@@ -106,8 +106,14 @@
       });
 
       function loadAtpioGadget(projectId) {
+        var oldRoot = document.querySelector("[data-atpio-root]");
+        if (oldRoot) oldRoot.remove();
+        var oldScript = document.querySelector("[data-atpio-mock-script]");
+        if (oldScript) oldScript.remove();
+
         var script = document.createElement("script");
         script.src = "http://127.0.0.1:3000/gadget.js";
+        script.setAttribute("data-atpio-mock-script", "true");
         script.setAttribute("data-project-id", projectId);
         script.setAttribute("data-atpio-position", "bottom-right");
         script.setAttribute("data-atpio-theme", "light");
@@ -119,13 +125,15 @@
         document.body.appendChild(script);
       }
 
-      fetch("http://127.0.0.1:3000/api/projects")
+      fetch("http://127.0.0.1:3000/api/projects/latest?t=" + Date.now(), {
+        cache: "no-store",
+      })
         .then(function (response) {
-          if (!response.ok) throw new Error("Could not load projects.");
+          if (!response.ok) throw new Error("Could not load latest project.");
           return response.json();
         })
         .then(function (payload) {
-          var latestProject = payload.projects && payload.projects[0];
+          var latestProject = payload.project;
           var projectId = latestProject
             ? latestProject.id
             : "project_onboarding_feedback";

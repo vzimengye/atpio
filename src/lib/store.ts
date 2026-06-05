@@ -88,7 +88,8 @@ export async function saveProject(project: DataProject): Promise<DataProject> {
   const existingIndex = store.projects.findIndex((item) => item.id === project.id);
 
   if (existingIndex >= 0) {
-    store.projects[existingIndex] = projectWithDefaults;
+    store.projects.splice(existingIndex, 1);
+    store.projects.unshift(projectWithDefaults);
   } else {
     store.projects.unshift(projectWithDefaults);
   }

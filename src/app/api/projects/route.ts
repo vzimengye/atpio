@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 import { projectIdFromName, projectNameFromBrief } from "@/lib/schema-generator";
 import { listProjects, saveProject } from "@/lib/store";
-import type { DataProject } from "@/lib/types";
+import type { DataProject, ProjectSchema } from "@/lib/types";
 
 const publicHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,8 +32,15 @@ export async function POST(request: Request) {
     );
   }
 
-  const name = String(body.name ?? projectNameFromBrief(brief)).trim();
-  const generated = await generateSchemaWithPpio(brief);
+  const providedSchema = body.schema as ProjectSchema | undefined;
+  const generated = providedSchema
+    ? {
+        name: projectNameFromBrief(brief),
+        schema: providedSchema,
+        source: "local" as const,
+      }
+    : await generateSchemaWithPpio(brief);
+  const name = String(body.name || generated.name || projectNameFromBrief(brief)).trim();
   const now = new Date().toISOString();
   const project: DataProject = {
     id: projectIdFromName(name),

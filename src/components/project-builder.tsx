@@ -108,7 +108,7 @@ export function ProjectBuilder({
       const response = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brief: trimmedBrief, name }),
+        body: JSON.stringify({ brief: trimmedBrief, name, schema }),
       });
 
       if (!response.ok) {
@@ -129,6 +129,28 @@ export function ProjectBuilder({
 
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+      {status === "generating" || status === "saving" ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-[#f7f1e8]/70 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4 rounded-2xl border border-stone-200 bg-white px-8 py-7 text-center shadow-xl">
+            <span
+              aria-hidden="true"
+              className="size-10 animate-spin rounded-full border-4 border-emerald-700 border-r-transparent"
+            />
+            <div>
+              <p className="text-base font-semibold text-slate-950">
+                {status === "generating"
+                  ? "Designing your form"
+                  : "Saving your project"}
+              </p>
+              <p className="mt-1 text-sm text-slate-600">
+                {status === "generating"
+                  ? "We are asking PPIO to choose the best questions and layout."
+                  : "We are making this project available to the mock product."}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <form
         action="/projects/new"
         className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur"
