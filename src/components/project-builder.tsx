@@ -144,7 +144,7 @@ export function ProjectBuilder({
               </p>
               <p className="mt-1 text-sm text-slate-600">
                 {status === "generating"
-                  ? "We are asking PPIO to choose the best questions and layout."
+                  ? "We are asking PPIO to choose the best questions, field types, validation, and layout."
                   : "We are making this project available to the mock product."}
               </p>
             </div>
