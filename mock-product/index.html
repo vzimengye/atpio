@@ -57,6 +57,12 @@
         padding: 24px;
       }
 
+      .status {
+        color: #047857;
+        font-size: 14px;
+        margin-top: 12px;
+      }
+
       code {
         background: #f1f5f9;
         border-radius: 6px;
@@ -79,8 +85,9 @@
           <strong>Local integration test</strong>
           <p>
             Click the feedback button in the bottom-right corner. It should open
-            an Atpio iframe form served by the other local project.
+            the latest saved Atpio project in an iframe.
           </p>
+          <p class="status" id="atpio-status">Loading latest Atpio project...</p>
         </section>
       </div>
     </main>
@@ -97,18 +104,48 @@
       window.addEventListener("atpio:success", function (event) {
         console.log("Atpio success event", event.detail);
       });
+
+      function loadAtpioGadget(projectId) {
+        var script = document.createElement("script");
+        script.src = "http://127.0.0.1:3000/gadget.js";
+        script.setAttribute("data-project-id", projectId);
+        script.setAttribute("data-atpio-position", "bottom-right");
+        script.setAttribute("data-atpio-theme", "light");
+        script.setAttribute("data-atpio-label", "Share feedback");
+        script.setAttribute("data-atpio-meta-page", "mock-product");
+        script.setAttribute("data-atpio-meta-user-segment", "trial");
+        script.setAttribute("data-atpio-meta-experiment-id", "latest-project");
+        script.setAttribute("data-atpio-success-callback", "onAtpioSuccess");
+        document.body.appendChild(script);
+      }
+
+      fetch("http://127.0.0.1:3000/api/projects")
+        .then(function (response) {
+          if (!response.ok) throw new Error("Could not load projects.");
+          return response.json();
+        })
+        .then(function (payload) {
+          var latestProject = payload.projects && payload.projects[0];
+          var projectId = latestProject
+            ? latestProject.id
+            : "project_onboarding_feedback";
+          var status = document.getElementById("atpio-status");
+          if (status) {
+            status.textContent = latestProject
+              ? "Loaded latest saved project: " + latestProject.name
+              : "Loaded fallback sample project.";
+          }
+          loadAtpioGadget(projectId);
+        })
+        .catch(function (error) {
+          console.warn("Atpio mock product: falling back to sample project.", error);
+          var status = document.getElementById("atpio-status");
+          if (status) {
+            status.textContent = "Could not load latest project. Using fallback sample.";
+          }
+          loadAtpioGadget("project_onboarding_feedback");
+        });
     </script>
-    <script
-      src="http://127.0.0.1:3000/gadget.js"
-      data-project-id="project_onboarding_feedback"
-      data-atpio-position="bottom-right"
-      data-atpio-theme="light"
-      data-atpio-label="Share feedback"
-      data-atpio-meta-page="mock-product"
-      data-atpio-meta-user-segment="trial"
-      data-atpio-meta-experiment-id="onboarding-v1"
-      data-atpio-success-callback="onAtpioSuccess"
-    ></script>
   </body>
 </html>
 

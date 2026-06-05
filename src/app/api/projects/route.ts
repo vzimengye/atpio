@@ -4,8 +4,21 @@ import { projectIdFromName, projectNameFromBrief } from "@/lib/schema-generator"
 import { listProjects, saveProject } from "@/lib/store";
 import type { DataProject } from "@/lib/types";
 
+const publicHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
 export async function GET() {
-  return NextResponse.json({ projects: await listProjects() });
+  return NextResponse.json(
+    { projects: await listProjects() },
+    { headers: publicHeaders },
+  );
+}
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: publicHeaders });
 }
 
 export async function POST(request: Request) {
@@ -13,7 +26,10 @@ export async function POST(request: Request) {
   const brief = String(body.brief ?? "").trim();
 
   if (!brief) {
-    return NextResponse.json({ error: "Brief is required." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Brief is required." },
+      { headers: publicHeaders, status: 400 },
+    );
   }
 
   const name = String(body.name ?? projectNameFromBrief(brief)).trim();
@@ -41,5 +57,5 @@ export async function POST(request: Request) {
 
   await saveProject(project);
 
-  return NextResponse.json({ project }, { status: 201 });
+  return NextResponse.json({ project }, { headers: publicHeaders, status: 201 });
 }
