@@ -18,6 +18,10 @@ function titleFromBrief(brief: string) {
     return "Dashboard Feedback";
   }
 
+  if (/ai|model|assistant|llm|人工智能|模型|助手/i.test(normalized)) {
+    return "AI Selection Feedback";
+  }
+
   return "Product Feedback";
 }
 
@@ -55,6 +59,29 @@ export function generateSchemaFromBrief(brief: string): ProjectSchema {
       type: "single_select",
       label: "Where did you get stuck?",
       options: ["Account setup", "Permissions", "Product tour", "Other"],
+      pageId: "details",
+    });
+  }
+
+  if (
+    lowerBrief.includes("ai") ||
+    lowerBrief.includes("model") ||
+    lowerBrief.includes("人工智能") ||
+    lowerBrief.includes("模型") ||
+    lowerBrief.includes("助手")
+  ) {
+    fields.push({
+      id: "selection_criteria",
+      type: "multi_select",
+      label: "Which factors matter most when choosing an AI tool?",
+      options: [
+        "Accuracy",
+        "Speed",
+        "Price",
+        "Privacy",
+        "Ease of use",
+        "Brand trust",
+      ],
       pageId: "details",
     });
   }

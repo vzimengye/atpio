@@ -111,6 +111,7 @@ export async function generateSchemaWithPpio(
   const apiKey = process.env.PPIO_API_KEY;
   const baseUrl = process.env.PPIO_BASE_URL ?? "https://api.ppinfra.com/v3/openai";
   const model = process.env.PPIO_MODEL ?? "deepseek/deepseek-v3-turbo";
+  const timeoutMs = Number(process.env.PPIO_TIMEOUT_MS ?? 12000);
 
   if (!apiKey) {
     return {
@@ -121,29 +122,35 @@ export async function generateSchemaWithPpio(
   }
 
   try {
-    const response = await fetch(`${baseUrl.replace(/\/$/, "")}/chat/completions`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    const response = await fetch(
+      `${baseUrl.replace(/\/$/, "")}/chat/completions`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model,
+          response_format: { type: "json_object" },
+          temperature: 0.2,
+          messages: [
+            {
+              role: "system",
+              content:
+                'You design embedded data-gathering forms for Atpio. Return a valid JSON object only, with no markdown and no explanation. The top-level object must have "name" and "schema". schema must have "title", "description", optional "pages", and "fields". Use 3-6 fields for normal briefs and at most 8 fields. Every field must include a stable snake_case "id", a user-facing "label", "type", and "required". Allowed types are short_text, long_text, single_select, multi_select, rating, and boolean. Choice fields must include concise "options". Text fields should include helpful "placeholder" and validation.minLength or validation.maxLength when useful. Rating fields should use validation.min and validation.max, usually 1 and 5. If pages are used, every page needs id/title/description and every field pageId must match one page id. Example shape: {"name":"Onboarding Feedback","schema":{"title":"Onboarding Feedback","description":"Understand where users get stuck.","pages":[{"id":"experience","title":"Experience","description":"Where the user got stuck."}],"fields":[{"id":"dropoff_reason","type":"long_text","label":"What stopped you from completing onboarding?","required":true,"pageId":"experience","placeholder":"Tell us what felt unclear, slow, or blocked.","validation":{"minLength":8,"maxLength":600}}]}}',
+            },
+            {
+              role: "user",
+              content: `Create a data gathering form for this brief. Keep it concise, useful inside an embedded gadget, and split into pages only when helpful.\n\nBrief:\n${brief}`,
+            },
+          ],
+        }),
       },
-      body: JSON.stringify({
-        model,
-        response_format: { type: "json_object" },
-        temperature: 0.2,
-        messages: [
-          {
-            role: "system",
-            content:
-              'You design embedded data-gathering forms for Atpio. Return a valid JSON object only, with no markdown and no explanation. The top-level object must have "name" and "schema". schema must have "title", "description", optional "pages", and "fields". Use 3-6 fields for normal briefs and at most 8 fields. Every field must include a stable snake_case "id", a user-facing "label", "type", and "required". Allowed types are short_text, long_text, single_select, multi_select, rating, and boolean. Choice fields must include concise "options". Text fields should include helpful "placeholder" and validation.minLength or validation.maxLength when useful. Rating fields should use validation.min and validation.max, usually 1 and 5. If pages are used, every page needs id/title/description and every field pageId must match one page id. Example shape: {"name":"Onboarding Feedback","schema":{"title":"Onboarding Feedback","description":"Understand where users get stuck.","pages":[{"id":"experience","title":"Experience","description":"Where the user got stuck."}],"fields":[{"id":"dropoff_reason","type":"long_text","label":"What stopped you from completing onboarding?","required":true,"pageId":"experience","placeholder":"Tell us what felt unclear, slow, or blocked.","validation":{"minLength":8,"maxLength":600}}]}}',
-          },
-          {
-            role: "user",
-            content: `Create a data gathering form for this brief. Keep it concise, useful inside an embedded gadget, and split into pages only when helpful.\n\nBrief:\n${brief}`,
-          },
-        ],
-      }),
-    });
+    ).finally(() => clearTimeout(timeout));
 
     if (!response.ok) {
       throw new Error(`PPIO request failed with ${response.status}.`);

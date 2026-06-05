@@ -14,31 +14,58 @@ export function ProjectBuilder() {
   const [schema, setSchema] = useState<ProjectSchema>(sampleProject.schema);
   const [projectId, setProjectId] = useState(sampleProject.id);
   const [status, setStatus] = useState<"idle" | "loading" | "saved">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function generateSchema() {
     setStatus("loading");
-    const response = await fetch("/api/projects/generate-schema", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ brief }),
-    });
-    const payload = await response.json();
-    setName(payload.name);
-    setSchema(payload.schema);
-    setStatus("idle");
+    setErrorMessage("");
+    try {
+      const response = await fetch("/api/projects/generate-schema", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ brief }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Schema generation failed.");
+      }
+
+      const payload = await response.json();
+      setName(payload.name);
+      setSchema(payload.schema);
+      setStatus("idle");
+    } catch {
+      setErrorMessage(
+        "Could not generate a schema. Make sure the local Atpio server is running, then try again.",
+      );
+      setStatus("idle");
+    }
   }
 
   async function saveProject() {
     setStatus("loading");
-    const response = await fetch("/api/projects", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ brief, name }),
-    });
-    const payload = await response.json();
-    setProjectId(payload.project.id);
-    setSchema(payload.project.schema);
-    setStatus("saved");
+    setErrorMessage("");
+    try {
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ brief, name }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Project save failed.");
+      }
+
+      const payload = await response.json();
+      setProjectId(payload.project.id);
+      setSchema(payload.project.schema);
+      setStatus("saved");
+    } catch {
+      setErrorMessage(
+        "Could not save the project. Make sure the local Atpio server is running, then try again.",
+      );
+      setStatus("idle");
+    }
   }
 
   return (
@@ -61,7 +88,9 @@ export function ProjectBuilder() {
         <label className="mt-6 block">
           <span className="text-sm font-medium text-slate-900">Project name</span>
           <input
+            aria-label="Project name"
             className="mt-2 h-10 w-full rounded-xl border border-stone-300 bg-white/90 px-3 text-sm outline-none focus:border-emerald-600"
+            id="project-name"
             value={name}
             onChange={(event) => setName(event.target.value)}
           />
@@ -70,7 +99,9 @@ export function ProjectBuilder() {
         <label className="mt-4 block">
           <span className="text-sm font-medium text-slate-900">Brief</span>
           <textarea
+            aria-label="Brief"
             className="mt-2 min-h-40 w-full rounded-xl border border-stone-300 bg-white/90 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+            id="project-brief"
             value={brief}
             onChange={(event) => setBrief(event.target.value)}
           />
@@ -81,17 +112,25 @@ export function ProjectBuilder() {
             className="inline-flex h-10 items-center justify-center rounded-full border border-stone-300 bg-white/70 px-4 text-sm font-medium text-slate-800"
             disabled={status === "loading"}
             onClick={generateSchema}
+            type="button"
           >
-            Generate schema
+            {status === "loading" ? "Working..." : "Generate schema"}
           </button>
           <button
             className="inline-flex h-10 items-center justify-center rounded-full bg-slate-950 px-4 text-sm font-medium text-white"
             disabled={status === "loading"}
             onClick={saveProject}
+            type="button"
           >
-            Save project
+            {status === "loading" ? "Working..." : "Save project"}
           </button>
         </div>
+
+        {errorMessage ? (
+          <p className="mt-4 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
+            {errorMessage}
+          </p>
+        ) : null}
 
         {status === "saved" ? (
           <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
