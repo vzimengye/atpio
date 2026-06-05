@@ -263,15 +263,43 @@ export function ProjectBuilder({
         ) : null}
 
         {status === "saved" ? (
-          <div className="mt-4 rounded-xl bg-emerald-50 px-3 py-3 text-sm text-emerald-800">
-            <p>Saved. Embed path: /embed/{projectId}</p>
-            <div className="mt-3 flex flex-wrap gap-2">
+          <div
+            className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-900"
+            role="status"
+          >
+            <div className="flex gap-3">
+              <span
+                aria-hidden="true"
+                className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-emerald-700 text-sm font-semibold text-white"
+              >
+                ✓
+              </span>
+              <div>
+                <p className="font-semibold">Project saved successfully.</p>
+                <p className="mt-1 text-emerald-800">
+                  This is now the latest Atpio project. The mock product will
+                  load it automatically on localhost:4000.
+                </p>
+                <p className="mt-2 text-xs text-emerald-700">
+                  Embed path: /embed/{projectId}
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
               <Link
                 className="inline-flex h-9 items-center rounded-full bg-emerald-700 px-3 text-sm font-medium text-white"
                 href={`/projects/${projectId}`}
               >
                 Open project detail
               </Link>
+              <a
+                className="inline-flex h-9 items-center rounded-full border border-emerald-200 bg-white px-3 text-sm font-medium text-emerald-800"
+                href="http://127.0.0.1:4000"
+                rel="noreferrer"
+                target="_blank"
+              >
+                Test in mock product
+              </a>
               <Link
                 className="inline-flex h-9 items-center rounded-full border border-emerald-200 bg-white px-3 text-sm font-medium text-emerald-800"
                 href="/projects"
