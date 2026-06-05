@@ -111,7 +111,7 @@ export async function generateSchemaWithPpio(
   const apiKey = process.env.PPIO_API_KEY;
   const baseUrl = process.env.PPIO_BASE_URL ?? "https://api.ppinfra.com/v3/openai";
   const model = process.env.PPIO_MODEL ?? "deepseek/deepseek-v3-turbo";
-  const timeoutMs = Number(process.env.PPIO_TIMEOUT_MS ?? 12000);
+  const timeoutMs = Number(process.env.PPIO_TIMEOUT_MS ?? 6000);
 
   if (!apiKey) {
     return {
