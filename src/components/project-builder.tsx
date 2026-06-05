@@ -9,7 +9,7 @@ const projectNamePlaceholder = "Optional. We can name this for you.";
 const briefPlaceholder =
   "Describe the insight you want. We will choose the questions, field types, validation, and layout.";
 const emptyPreviewSchema: ProjectSchema = {
-  title: "Your AI-generated form will appear here",
+  title: "Your generated form will appear here",
   description:
     "Add a brief, then let Atpio design the best data-gathering flow.",
   fields: [],
@@ -28,7 +28,6 @@ export function ProjectBuilder({
   initialBrief = "",
   initialName = "",
   initialSchema = emptyPreviewSchema,
-  initialSource,
 }: ProjectBuilderProps) {
   const [brief, setBrief] = useState(initialBrief);
   const [name, setName] = useState(initialName);
@@ -40,9 +39,7 @@ export function ProjectBuilder({
   const [errorMessage, setErrorMessage] = useState("");
   const [sourceMessage, setSourceMessage] = useState(
     generatedFromUrl
-      ? initialSource === "ppio"
-        ? "Generated with PPIO. AI selected the form structure and questions."
-        : "PPIO was unavailable or slow, so Atpio generated a local fallback."
+      ? "Form generated. Review the questions, then save it as a project."
       : "",
   );
 
@@ -61,7 +58,7 @@ export function ProjectBuilder({
 
     setErrorMessage("");
     setSourceMessage(
-      "Asking PPIO to design the best form, questions, field types, and validation.",
+      "Designing the best form, questions, field types, and validation.",
     );
     setStatus("generating");
 
@@ -80,9 +77,7 @@ export function ProjectBuilder({
       setName(payload.name);
       setSchema(payload.schema);
       setSourceMessage(
-        payload.source === "ppio"
-          ? "Generated with PPIO. AI selected the form structure and questions."
-          : "PPIO was unavailable or slow, so Atpio generated a local fallback.",
+        "Form generated. Review the questions, then save it as a project.",
       );
       setStatus("idle");
     } catch {
@@ -144,7 +139,7 @@ export function ProjectBuilder({
               </p>
               <p className="mt-1 text-sm text-slate-600">
                 {status === "generating"
-                  ? "We are asking PPIO to choose the best questions, field types, validation, and layout."
+                  ? "Atpio is choosing the best questions, field types, validation, and layout."
                   : "We are making this project available to the mock product."}
               </p>
             </div>
@@ -173,8 +168,9 @@ export function ProjectBuilder({
             Turn a research brief into a collection form.
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Describe the insight you want. Atpio asks PPIO to choose the best
-            questions, field types, validation, and layout for the form.
+            Describe the insight you want. Atpio turns it into a structured
+            collection form with the right questions, field types, validation,
+            and layout.
           </p>
         </div>
 
@@ -217,10 +213,10 @@ export function ProjectBuilder({
             {status === "generating" ? (
               <>
                 <Spinner />
-                Asking AI...
+                Generating...
               </>
             ) : (
-              "Generate best form with AI"
+              "Generate best form"
             )}
           </button>
           <button
@@ -244,7 +240,7 @@ export function ProjectBuilder({
           <div className="mt-4 flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
             <Spinner />
             <span>
-              PPIO is choosing the best questions, fields, validation, and
+              Atpio is choosing the best questions, fields, validation, and
               layout. This can take a moment.
             </span>
           </div>

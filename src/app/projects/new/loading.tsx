@@ -9,8 +9,8 @@ export default function NewProjectLoading() {
         <div>
           <p className="text-base font-semibold">Designing your form</p>
           <p className="mt-1 max-w-sm text-sm leading-6 text-slate-600">
-            We are asking PPIO to choose the best questions, field types,
-            validation, and layout.
+            Atpio is choosing the best questions, field types, validation, and
+            layout.
           </p>
         </div>
       </div>

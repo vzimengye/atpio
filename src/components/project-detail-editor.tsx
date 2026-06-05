@@ -244,7 +244,7 @@ export function ProjectDetailEditor({
               className="rounded-full bg-slate-950 px-3 py-1.5 text-sm font-medium text-white"
               href="/projects/new"
             >
-              Generate with AI
+              Generate new form
             </Link>
           </div>
         </div>
