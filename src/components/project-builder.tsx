@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { DynamicForm } from "@/components/dynamic-form";
 import { sampleProject } from "@/lib/mock-data";
@@ -127,9 +128,17 @@ export function ProjectBuilder({
         onSubmit={handleGenerateSubmit}
       >
         <div>
-          <p className="text-sm font-medium text-emerald-700">
-            Project creator
-          </p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-medium text-emerald-700">
+              Project creator
+            </p>
+            <Link
+              className="rounded-full border border-stone-300 bg-white/70 px-3 py-1.5 text-sm font-medium text-slate-700"
+              href="/projects"
+            >
+              All projects
+            </Link>
+          </div>
           <h1 className="mt-2 text-4xl font-semibold leading-tight tracking-tight">
             Turn a research brief into a collection form.
           </h1>
@@ -222,9 +231,23 @@ export function ProjectBuilder({
         ) : null}
 
         {status === "saved" ? (
-          <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-            Saved. Embed path: /embed/{projectId}
-          </p>
+          <div className="mt-4 rounded-xl bg-emerald-50 px-3 py-3 text-sm text-emerald-800">
+            <p>Saved. Embed path: /embed/{projectId}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link
+                className="inline-flex h-9 items-center rounded-full bg-emerald-700 px-3 text-sm font-medium text-white"
+                href={`/projects/${projectId}`}
+              >
+                Open project detail
+              </Link>
+              <Link
+                className="inline-flex h-9 items-center rounded-full border border-emerald-200 bg-white px-3 text-sm font-medium text-emerald-800"
+                href="/projects"
+              >
+                View all projects
+              </Link>
+            </div>
+          </div>
         ) : null}
       </form>
 
