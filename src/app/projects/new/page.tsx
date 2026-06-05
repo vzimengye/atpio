@@ -1,5 +1,5 @@
 import { ProjectBuilder } from "@/components/project-builder";
-import { generateSchemaFromBrief, projectNameFromBrief } from "@/lib/schema-generator";
+import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 
 type NewProjectPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -15,19 +15,18 @@ export default async function NewProjectPage({
   const params = await searchParams;
   const brief = firstParam(params.brief);
   const generated = firstParam(params.generate) === "1" && brief;
+  const aiResult = generated ? await generateSchemaWithPpio(brief) : undefined;
   const initialBrief = brief ?? undefined;
   const initialName = firstParam(params.name) ?? undefined;
-  const initialSchema = generated ? generateSchemaFromBrief(brief) : undefined;
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-slate-950">
       <ProjectBuilder
         generatedFromUrl={Boolean(generated)}
         initialBrief={initialBrief}
-        initialName={
-          generated ? projectNameFromBrief(brief) : initialName
-        }
-        initialSchema={initialSchema}
+        initialName={aiResult?.name ?? initialName}
+        initialSchema={aiResult?.schema}
+        initialSource={aiResult?.source}
       />
     </main>
   );

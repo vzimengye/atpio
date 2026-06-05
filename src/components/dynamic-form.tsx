@@ -8,6 +8,7 @@ type DynamicFormProps = {
   schema: ProjectSchema;
   compact?: boolean;
   metadata?: Record<string, string>;
+  previewMode?: boolean;
   successMessage?: string;
 };
 
@@ -18,6 +19,7 @@ export function DynamicForm({
   schema,
   compact,
   metadata,
+  previewMode = false,
   successMessage = "This response is saved and ready for the project dashboard.",
 }: DynamicFormProps) {
   const pages = useMemo(() => getPages(schema), [schema]);
@@ -61,6 +63,12 @@ export function DynamicForm({
       setPageIndex((current) => Math.min(current + 1, pages.length - 1));
       return;
     }
+
+    if (previewMode) {
+      setPageIndex(0);
+      return;
+    }
+
     await fetch(`/api/projects/${projectId}/responses`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -71,6 +79,15 @@ export function DynamicForm({
       { type: "atpio:submitted", projectId, metadata },
       "*",
     );
+  }
+
+  function advancePreview() {
+    if (!isLastPage) {
+      setPageIndex((current) => Math.min(current + 1, pages.length - 1));
+      return;
+    }
+
+    setPageIndex(0);
   }
 
   if (status === "submitted") {
@@ -122,6 +139,7 @@ export function DynamicForm({
           field={field}
           onToggleMultiSelect={toggleMultiSelect}
           onUpdateAnswer={updateAnswer}
+          previewMode={previewMode}
         />
       ))}
 
@@ -135,12 +153,22 @@ export function DynamicForm({
             Back
           </button>
         ) : null}
-        <button
-          className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-medium text-white"
-          type="submit"
-        >
-          {isLastPage ? "Submit feedback" : "Next"}
-        </button>
+        {previewMode ? (
+          <button
+            className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-medium text-white"
+            onClick={advancePreview}
+            type="button"
+          >
+            {isLastPage ? "Restart preview" : "Next"}
+          </button>
+        ) : (
+          <button
+            className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-medium text-white"
+            type="submit"
+          >
+            {isLastPage ? "Submit feedback" : "Next"}
+          </button>
+        )}
       </div>
     </form>
   );
@@ -159,11 +187,13 @@ function FieldInput({
   field,
   onToggleMultiSelect,
   onUpdateAnswer,
+  previewMode,
 }: {
   answers: FormState;
   field: FormField;
   onToggleMultiSelect: (fieldId: string, option: string) => void;
   onUpdateAnswer: (fieldId: string, value: string | string[] | boolean) => void;
+  previewMode: boolean;
 }) {
   return (
     <label className="block">
@@ -178,7 +208,7 @@ function FieldInput({
           maxLength={field.validation?.maxLength}
           minLength={field.validation?.minLength}
           placeholder={field.placeholder}
-          required={field.required}
+          required={previewMode ? false : field.required}
           value={String(answers[field.id] ?? "")}
           onChange={(event) => onUpdateAnswer(field.id, event.target.value)}
         />
@@ -190,7 +220,7 @@ function FieldInput({
           maxLength={field.validation?.maxLength}
           minLength={field.validation?.minLength}
           placeholder={field.placeholder}
-          required={field.required}
+          required={previewMode ? false : field.required}
           value={String(answers[field.id] ?? "")}
           onChange={(event) => onUpdateAnswer(field.id, event.target.value)}
         />
@@ -199,7 +229,7 @@ function FieldInput({
       {field.type === "single_select" ? (
         <select
           className="mt-2 h-10 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-emerald-600"
-          required={field.required}
+          required={previewMode ? false : field.required}
           value={String(answers[field.id] ?? "")}
           onChange={(event) => onUpdateAnswer(field.id, event.target.value)}
         >

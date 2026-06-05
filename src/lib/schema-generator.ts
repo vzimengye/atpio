@@ -29,6 +29,98 @@ export function generateSchemaFromBrief(brief: string): ProjectSchema {
   const title = titleFromBrief(brief);
   const lowerBrief = brief.toLowerCase();
 
+  if (
+    lowerBrief.includes("ai") ||
+    lowerBrief.includes("model") ||
+    lowerBrief.includes("人工智能") ||
+    lowerBrief.includes("模型") ||
+    lowerBrief.includes("助手")
+  ) {
+    return {
+      title,
+      description:
+        "Understand how users choose AI tools and what tradeoffs matter most.",
+      pages: [
+        {
+          id: "current_use",
+          title: "Current AI use",
+          description: "Learn what the user uses today and the job it supports.",
+        },
+        {
+          id: "decision_factors",
+          title: "Decision factors",
+          description: "Capture the criteria behind the user's choice.",
+        },
+        {
+          id: "switching",
+          title: "Switching signals",
+          description: "Find out what would make the user try or switch tools.",
+        },
+      ],
+      fields: [
+        {
+          id: "current_ai_tool",
+          type: "short_text",
+          label: "Which AI tool do you use most often right now?",
+          required: true,
+          pageId: "current_use",
+          placeholder: "For example: ChatGPT, Claude, Gemini, Copilot, DeepSeek",
+          validation: { minLength: 2, maxLength: 80 },
+        },
+        {
+          id: "primary_use_case",
+          type: "single_select",
+          label: "What do you mainly use it for?",
+          required: true,
+          options: [
+            "Writing or editing",
+            "Coding",
+            "Research or learning",
+            "Work automation",
+            "Image or media generation",
+            "Personal questions",
+            "Other",
+          ],
+          pageId: "current_use",
+        },
+        {
+          id: "selection_criteria",
+          type: "multi_select",
+          label: "Which factors matter most when choosing an AI tool?",
+          required: true,
+          options: [
+            "Answer quality",
+            "Speed",
+            "Price",
+            "Privacy",
+            "Context length",
+            "Tool integrations",
+            "Brand trust",
+          ],
+          pageId: "decision_factors",
+        },
+        {
+          id: "main_reason",
+          type: "long_text",
+          label: "What is the main reason you prefer that AI tool?",
+          required: true,
+          pageId: "decision_factors",
+          placeholder: "Describe the tradeoff or moment that made it feel better.",
+          validation: { minLength: 8, maxLength: 500 },
+        },
+        {
+          id: "switch_trigger",
+          type: "long_text",
+          label: "What would make you switch to a different AI tool?",
+          required: false,
+          pageId: "switching",
+          placeholder: "Mention missing features, trust issues, pricing, quality, or workflow fit.",
+          validation: { maxLength: 500 },
+        },
+      ],
+    };
+  }
+
   const fields: ProjectSchema["fields"] = [
     {
       id: "main_feedback",
@@ -59,29 +151,6 @@ export function generateSchemaFromBrief(brief: string): ProjectSchema {
       type: "single_select",
       label: "Where did you get stuck?",
       options: ["Account setup", "Permissions", "Product tour", "Other"],
-      pageId: "details",
-    });
-  }
-
-  if (
-    lowerBrief.includes("ai") ||
-    lowerBrief.includes("model") ||
-    lowerBrief.includes("人工智能") ||
-    lowerBrief.includes("模型") ||
-    lowerBrief.includes("助手")
-  ) {
-    fields.push({
-      id: "selection_criteria",
-      type: "multi_select",
-      label: "Which factors matter most when choosing an AI tool?",
-      options: [
-        "Accuracy",
-        "Speed",
-        "Price",
-        "Privacy",
-        "Ease of use",
-        "Brand trust",
-      ],
       pageId: "details",
     });
   }

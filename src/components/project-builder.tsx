@@ -3,36 +3,47 @@
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { DynamicForm } from "@/components/dynamic-form";
-import { sampleProject } from "@/lib/mock-data";
 import type { ProjectSchema } from "@/lib/types";
 
 const projectNamePlaceholder = "Optional. AI can name this for you.";
 const briefPlaceholder =
   "Describe the insight you want. AI will choose the questions, field types, validation, and layout.";
+const emptyPreviewSchema: ProjectSchema = {
+  title: "Your AI-generated form will appear here",
+  description:
+    "Add a brief, then let Atpio design the best data-gathering flow.",
+  fields: [],
+};
 
 type ProjectBuilderProps = {
   generatedFromUrl?: boolean;
   initialBrief?: string;
   initialName?: string;
   initialSchema?: ProjectSchema;
+  initialSource?: "ppio" | "local";
 };
 
 export function ProjectBuilder({
   generatedFromUrl = false,
   initialBrief = "",
   initialName = "",
-  initialSchema = sampleProject.schema,
+  initialSchema = emptyPreviewSchema,
+  initialSource,
 }: ProjectBuilderProps) {
   const [brief, setBrief] = useState(initialBrief);
   const [name, setName] = useState(initialName);
   const [schema, setSchema] = useState<ProjectSchema>(initialSchema);
-  const [projectId, setProjectId] = useState(sampleProject.id);
+  const [projectId, setProjectId] = useState("preview_project");
   const [status, setStatus] = useState<
     "idle" | "generating" | "saving" | "saved"
   >("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [sourceMessage, setSourceMessage] = useState(
-    generatedFromUrl ? "Generated with the local page fallback." : "",
+    generatedFromUrl
+      ? initialSource === "ppio"
+        ? "Generated with PPIO. AI selected the form structure and questions."
+        : "PPIO was unavailable or slow, so Atpio generated a local fallback."
+      : "",
   );
 
   function handleGenerateSubmit(event: FormEvent<HTMLFormElement>) {
@@ -140,9 +151,8 @@ export function ProjectBuilder({
             Turn a research brief into a collection form.
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Atpio generates a structured feedback schema from a natural-language
-            brief. This local generator is deterministic, so the project works
-            without an API key.
+            Describe the insight you want. Atpio asks PPIO to choose the best
+            questions, field types, validation, and layout for the form.
           </p>
         </div>
 
@@ -255,7 +265,7 @@ export function ProjectBuilder({
         <p className="mb-4 text-sm font-medium text-slate-500">
           Generated form preview
         </p>
-        <DynamicForm projectId={projectId} schema={schema} />
+        <DynamicForm projectId={projectId} previewMode schema={schema} />
       </section>
     </div>
   );
