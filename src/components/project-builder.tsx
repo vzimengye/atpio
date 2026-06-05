@@ -4,12 +4,11 @@ import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { DynamicForm } from "@/components/dynamic-form";
 import { sampleProject } from "@/lib/mock-data";
-import { generateSchemaFromBrief, projectNameFromBrief } from "@/lib/schema-generator";
 import type { ProjectSchema } from "@/lib/types";
 
-const projectNamePlaceholder = "Name this data collection project";
+const projectNamePlaceholder = "Optional. AI can name this for you.";
 const briefPlaceholder =
-  "Describe what you want to learn from users, customers, or visitors.";
+  "Describe the insight you want. AI will choose the questions, field types, validation, and layout.";
 
 type ProjectBuilderProps = {
   generatedFromUrl?: boolean;
@@ -50,11 +49,9 @@ export function ProjectBuilder({
     }
 
     setErrorMessage("");
-    setSourceMessage("Generated a local preview. Checking PPIO for a better schema...");
-    const localSchema = generateSchemaFromBrief(trimmedBrief);
-    const localName = projectNameFromBrief(trimmedBrief);
-    setName(localName);
-    setSchema(localSchema);
+    setSourceMessage(
+      "Asking PPIO to design the best form, questions, field types, and validation.",
+    );
     setStatus("generating");
 
     try {
@@ -73,8 +70,8 @@ export function ProjectBuilder({
       setSchema(payload.schema);
       setSourceMessage(
         payload.source === "ppio"
-          ? "Generated with PPIO."
-          : "Generated with the local fallback because PPIO was unavailable or slow.",
+          ? "Generated with PPIO. AI selected the form structure and questions."
+          : "PPIO was unavailable or slow, so Atpio generated a local fallback.",
       );
       setStatus("idle");
     } catch {
@@ -150,7 +147,9 @@ export function ProjectBuilder({
         </div>
 
         <label className="mt-6 block">
-          <span className="text-sm font-medium text-slate-900">Project name</span>
+          <span className="text-sm font-medium text-slate-900">
+            Project name <span className="font-normal text-slate-500">(optional)</span>
+          </span>
           <input
             aria-label="Project name"
             className="mt-2 h-10 w-full rounded-xl border border-stone-300 bg-white/90 px-3 text-sm outline-none focus:border-emerald-600"
@@ -186,10 +185,10 @@ export function ProjectBuilder({
             {status === "generating" ? (
               <>
                 <Spinner />
-                Generating...
+                Asking AI...
               </>
             ) : (
-              "Generate schema"
+              "Generate best form with AI"
             )}
           </button>
           <button
@@ -213,7 +212,8 @@ export function ProjectBuilder({
           <div className="mt-4 flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
             <Spinner />
             <span>
-              Local preview is ready. Atpio is checking PPIO for a better schema.
+              PPIO is choosing the best questions, fields, validation, and
+              layout. This can take a moment.
             </span>
           </div>
         ) : null}

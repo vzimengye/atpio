@@ -17,7 +17,7 @@ export default async function ProjectDetailPage({
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f1e8] text-slate-950">
+    <main className="min-h-screen overflow-x-hidden bg-[#f7f1e8] text-slate-950">
       <ProjectDetailEditor
         initialProject={project}
         responses={await listResponses(project.id)}
@@ -25,4 +25,3 @@ export default async function ProjectDetailPage({
     </main>
   );
 }
-

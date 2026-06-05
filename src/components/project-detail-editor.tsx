@@ -228,8 +228,8 @@ export function ProjectDetailEditor({
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
-      <section className="rounded-2xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
+    <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-4 py-8 sm:px-6 xl:grid-cols-[0.95fr_1.05fr] xl:px-8">
+      <section className="min-w-0 overflow-hidden rounded-2xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
         <p className="text-sm font-medium text-emerald-700">Project detail</p>
         <input
           className="mt-3 w-full rounded-lg border border-stone-300 px-3 py-2 text-2xl font-semibold outline-none focus:border-emerald-600"
@@ -352,11 +352,13 @@ export function ProjectDetailEditor({
 
         <div className="mt-6 rounded-xl bg-slate-950 p-4 text-slate-50">
           <p className="text-sm font-medium">Embed code</p>
-          <pre className="mt-3 overflow-x-auto text-xs leading-6">{embedCode}</pre>
+          <pre className="mt-3 whitespace-pre-wrap break-all text-xs leading-6">
+            {embedCode}
+          </pre>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
+      <section className="min-w-0 overflow-hidden rounded-2xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium text-emerald-700">Schema editor</p>
