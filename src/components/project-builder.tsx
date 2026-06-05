@@ -6,8 +6,9 @@ import { sampleProject } from "@/lib/mock-data";
 import { generateSchemaFromBrief, projectNameFromBrief } from "@/lib/schema-generator";
 import type { ProjectSchema } from "@/lib/types";
 
-const defaultBrief =
-  "Find out why users do not finish onboarding and which step feels confusing.";
+const projectNamePlaceholder = "Name this data collection project";
+const briefPlaceholder =
+  "Describe what you want to learn from users, customers, or visitors.";
 
 type ProjectBuilderProps = {
   generatedFromUrl?: boolean;
@@ -18,8 +19,8 @@ type ProjectBuilderProps = {
 
 export function ProjectBuilder({
   generatedFromUrl = false,
-  initialBrief = defaultBrief,
-  initialName = "Onboarding Feedback Project",
+  initialBrief = "",
+  initialName = "",
   initialSchema = sampleProject.schema,
 }: ProjectBuilderProps) {
   const [brief, setBrief] = useState(initialBrief);
@@ -40,10 +41,17 @@ export function ProjectBuilder({
   }
 
   async function generateSchema() {
+    const trimmedBrief = brief.trim();
+    if (!trimmedBrief) {
+      setErrorMessage("Add a brief before generating a schema.");
+      setSourceMessage("");
+      return;
+    }
+
     setErrorMessage("");
     setSourceMessage("Generated a local preview. Checking PPIO for a better schema...");
-    const localSchema = generateSchemaFromBrief(brief);
-    const localName = projectNameFromBrief(brief);
+    const localSchema = generateSchemaFromBrief(trimmedBrief);
+    const localName = projectNameFromBrief(trimmedBrief);
     setName(localName);
     setSchema(localSchema);
     setStatus("generating");
@@ -52,7 +60,7 @@ export function ProjectBuilder({
       const response = await fetch("/api/projects/generate-schema", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brief }),
+        body: JSON.stringify({ brief: trimmedBrief }),
       });
 
       if (!response.ok) {
@@ -77,6 +85,13 @@ export function ProjectBuilder({
   }
 
   async function saveProject() {
+    const trimmedBrief = brief.trim();
+    if (!trimmedBrief) {
+      setErrorMessage("Add a brief before saving the project.");
+      setSourceMessage("");
+      return;
+    }
+
     setStatus("saving");
     setErrorMessage("");
     setSourceMessage("");
@@ -84,7 +99,7 @@ export function ProjectBuilder({
       const response = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brief, name }),
+        body: JSON.stringify({ brief: trimmedBrief, name }),
       });
 
       if (!response.ok) {
@@ -132,6 +147,7 @@ export function ProjectBuilder({
             className="mt-2 h-10 w-full rounded-xl border border-stone-300 bg-white/90 px-3 text-sm outline-none focus:border-emerald-600"
             id="project-name"
             name="name"
+            placeholder={projectNamePlaceholder}
             value={name}
             onChange={(event) => setName(event.target.value)}
           />
@@ -144,6 +160,7 @@ export function ProjectBuilder({
             className="mt-2 min-h-40 w-full rounded-xl border border-stone-300 bg-white/90 px-3 py-2 text-sm outline-none focus:border-emerald-600"
             id="project-brief"
             name="brief"
+            placeholder={briefPlaceholder}
             value={brief}
             onChange={(event) => setBrief(event.target.value)}
           />
