@@ -5,9 +5,9 @@ import { type FormEvent, useState } from "react";
 import { DynamicForm } from "@/components/dynamic-form";
 import type { ProjectSchema } from "@/lib/types";
 
-const projectNamePlaceholder = "Optional. AI can name this for you.";
+const projectNamePlaceholder = "Optional. We can name this for you.";
 const briefPlaceholder =
-  "Describe the insight you want. AI will choose the questions, field types, validation, and layout.";
+  "Describe the insight you want. We will choose the questions, field types, validation, and layout.";
 const emptyPreviewSchema: ProjectSchema = {
   title: "Your AI-generated form will appear here",
   description:
