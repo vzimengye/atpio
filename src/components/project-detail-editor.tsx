@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import type {
   DataProject,
@@ -230,7 +231,23 @@ export function ProjectDetailEditor({
   return (
     <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-4 py-8 sm:px-6 xl:grid-cols-[0.95fr_1.05fr] xl:px-8">
       <section className="min-w-0 overflow-hidden rounded-2xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
-        <p className="text-sm font-medium text-emerald-700">Project detail</p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm font-medium text-emerald-700">Project detail</p>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              className="rounded-full border border-stone-300 bg-white/70 px-3 py-1.5 text-sm font-medium text-slate-700"
+              href="/projects"
+            >
+              All projects
+            </Link>
+            <Link
+              className="rounded-full bg-slate-950 px-3 py-1.5 text-sm font-medium text-white"
+              href="/projects/new"
+            >
+              Generate with AI
+            </Link>
+          </div>
+        </div>
         <input
           className="mt-3 w-full rounded-lg border border-stone-300 px-3 py-2 text-2xl font-semibold outline-none focus:border-emerald-600"
           value={project.name}

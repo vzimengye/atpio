@@ -20,7 +20,7 @@ export default async function ProjectsPage() {
             className="inline-flex h-10 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-medium text-white"
             href="/projects/new"
           >
-            New project
+            Generate with AI
           </Link>
         </div>
 
@@ -63,4 +63,3 @@ function MiniMetric({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
-
