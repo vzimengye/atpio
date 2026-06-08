@@ -44,6 +44,7 @@ export type GadgetSettings = {
   accentColor: string;
   buttonShape: "pill" | "rounded" | "square";
   fontFamily: string;
+  allowedDomains?: string[];
 };
 
 export type DataProject = {
@@ -55,6 +56,7 @@ export type DataProject = {
   responseCount: number;
   status: "draft" | "collecting" | "ready";
   updatedAt: string;
+  ownerEmail?: string;
 };
 
 export type ProjectResponse = {

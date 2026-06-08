@@ -14,6 +14,7 @@ import {
 export async function createProjectAction(input: unknown) {
   const user = await requireAdmin();
   if (!user) return { error: "Unauthorized." };
+  const ownerEmail = user.email ?? undefined;
 
   const parsed = createProjectRequestSchema.safeParse(input);
 
@@ -48,6 +49,7 @@ export async function createProjectAction(input: unknown) {
     responseCount: 0,
     status: "draft",
     updatedAt: now.slice(0, 10),
+    ownerEmail,
   };
 
   const saved = await saveProject(project);
@@ -64,7 +66,7 @@ export async function updateProjectAction(projectId: string, input: unknown) {
   const user = await requireAdmin();
   if (!user) return { error: "Unauthorized." };
 
-  const existing = await getProject(projectId);
+  const existing = await getProject(projectId, user.email ?? undefined);
 
   if (!existing) {
     return { error: "Project not found." };

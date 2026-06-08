@@ -30,6 +30,7 @@ const defaultGadget: GadgetSettings = {
   accentColor: "#10b981",
   buttonShape: "pill",
   fontFamily: "Inter, Arial, sans-serif",
+  allowedDomains: [],
 };
 
 function withProjectDefaults(project: DataProject): DataProject {
@@ -64,15 +65,20 @@ export async function readStore(): Promise<AppStore> {
   };
 }
 
+function belongsToOwner(project: DataProject, ownerEmail?: string) {
+  return !ownerEmail || !project.ownerEmail || project.ownerEmail === ownerEmail;
+}
+
 export async function writeStore(store: AppStore) {
   await fs.mkdir(path.dirname(storePath), { recursive: true });
   await fs.writeFile(storePath, `${JSON.stringify(store, null, 2)}\n`, "utf-8");
 }
 
-export async function listProjects(): Promise<DataProject[]> {
+export async function listProjects(ownerEmail?: string): Promise<DataProject[]> {
   if (shouldUseDatabase) {
     const prisma = getPrisma();
     const projects = await prisma.project.findMany({
+      where: ownerEmail ? { ownerEmail } : undefined,
       orderBy: { updatedAt: "desc" },
       include: { _count: { select: { responses: true } } },
     });
@@ -87,21 +93,27 @@ export async function listProjects(): Promise<DataProject[]> {
         responseCount: project._count.responses,
         status: project.status as DataProject["status"],
         updatedAt: project.updatedAt.toISOString().slice(0, 10),
+        ownerEmail: project.ownerEmail ?? undefined,
       }),
     );
   }
 
   const store = await readStore();
-  return store.projects.map((project) => ({
-    ...project,
-    responseCount: store.responses.filter(
-      (response) => response.projectId === project.id,
-    ).length,
-  }));
+  return store.projects
+    .filter((project) => belongsToOwner(project, ownerEmail))
+    .map((project) => ({
+      ...project,
+      responseCount: store.responses.filter(
+        (response) => response.projectId === project.id,
+      ).length,
+    }));
 }
 
-export async function getProject(projectId: string): Promise<DataProject | null> {
-  const projects = await listProjects();
+export async function getProject(
+  projectId: string,
+  ownerEmail?: string,
+): Promise<DataProject | null> {
+  const projects = await listProjects(ownerEmail);
   return projects.find((project) => project.id === projectId) ?? null;
 }
 
@@ -117,6 +129,7 @@ export async function saveProject(project: DataProject): Promise<DataProject> {
         brief: projectWithDefaults.brief,
         schema: projectWithDefaults.schema,
         gadget: projectWithDefaults.gadget,
+        ownerEmail: projectWithDefaults.ownerEmail,
         status: projectWithDefaults.status,
         responseCount: projectWithDefaults.responseCount,
       },
@@ -125,6 +138,7 @@ export async function saveProject(project: DataProject): Promise<DataProject> {
         brief: projectWithDefaults.brief,
         schema: projectWithDefaults.schema,
         gadget: projectWithDefaults.gadget,
+        ownerEmail: projectWithDefaults.ownerEmail,
         status: projectWithDefaults.status,
       },
       include: { _count: { select: { responses: true } } },
@@ -146,6 +160,7 @@ export async function saveProject(project: DataProject): Promise<DataProject> {
       responseCount: saved._count.responses,
       status: saved.status as DataProject["status"],
       updatedAt: saved.updatedAt.toISOString().slice(0, 10),
+      ownerEmail: saved.ownerEmail ?? undefined,
     });
   }
 
@@ -312,8 +327,8 @@ export async function listAuditEvents(projectId?: string): Promise<AuditEvent[]>
     : store.auditEvents;
 }
 
-export async function exportProjectData(projectId: string) {
-  const project = await getProject(projectId);
+export async function exportProjectData(projectId: string, ownerEmail?: string) {
+  const project = await getProject(projectId, ownerEmail);
 
   if (!project) return null;
 

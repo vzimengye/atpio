@@ -47,7 +47,7 @@ export default async function Home() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const projects = await listProjects();
+  const projects = await listProjects(session.user.email ?? undefined);
   const project = projects[0] ?? sampleProject;
   const responses = await listResponses(project.id);
   const requiredFields = project.schema.fields.filter((field) => field.required)

@@ -12,11 +12,14 @@ model Project {
   brief         String
   schema        Json
   gadget        Json
+  ownerEmail    String?
   status        String     @default("draft")
   responseCount Int        @default(0)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   responses     Response[]
+
+  @@index([ownerEmail])
 }
 
 model Response {

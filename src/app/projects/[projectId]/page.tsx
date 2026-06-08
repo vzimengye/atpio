@@ -14,7 +14,7 @@ export default async function ProjectDetailPage({
   if (!session?.user) redirect("/login");
 
   const { projectId } = await params;
-  const project = await getProject(projectId);
+  const project = await getProject(projectId, session.user.email ?? undefined);
 
   if (!project) {
     notFound();

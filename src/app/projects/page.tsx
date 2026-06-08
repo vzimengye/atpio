@@ -10,7 +10,7 @@ export default async function ProjectsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const projects = await listProjects();
+  const projects = await listProjects(session.user.email ?? undefined);
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-slate-950">

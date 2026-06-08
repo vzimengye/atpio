@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdminResponse } from "@/lib/auth-guard";
+import { requireAdmin } from "@/lib/auth-guard";
 import { logger } from "@/lib/logger";
 import { getProject, listResponses, saveProject } from "@/lib/store";
 import type { DataProject } from "@/lib/types";
@@ -9,11 +9,11 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ projectId: string }> },
 ) {
-  const unauthorized = await requireAdminResponse();
-  if (unauthorized) return unauthorized;
+  const user = await requireAdmin();
+  if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
 
   const { projectId } = await params;
-  const project = await getProject(projectId);
+  const project = await getProject(projectId, user.email ?? undefined);
 
   if (!project) {
     return NextResponse.json({ error: "Project not found." }, { status: 404 });
@@ -29,11 +29,11 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ projectId: string }> },
 ) {
-  const unauthorized = await requireAdminResponse();
-  if (unauthorized) return unauthorized;
+  const user = await requireAdmin();
+  if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
 
   const { projectId } = await params;
-  const existing = await getProject(projectId);
+  const existing = await getProject(projectId, user.email ?? undefined);
 
   if (!existing) {
     return NextResponse.json({ error: "Project not found." }, { status: 404 });
