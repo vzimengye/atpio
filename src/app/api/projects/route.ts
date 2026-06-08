@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 import { projectIdFromName, projectNameFromBrief } from "@/lib/schema-generator";
 import { listProjects, saveProject } from "@/lib/store";
-import type { DataProject, ProjectSchema } from "@/lib/types";
+import type { DataProject } from "@/lib/types";
+import { createProjectRequestSchema, invalidInput } from "@/lib/validation";
 
 const publicHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,17 +23,17 @@ export async function OPTIONS() {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const brief = String(body.brief ?? "").trim();
+  const body = await request.json().catch(() => null);
+  const parsed = createProjectRequestSchema.safeParse(body);
 
-  if (!brief) {
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: "Brief is required." },
+      invalidInput(parsed.error),
       { headers: publicHeaders, status: 400 },
     );
   }
 
-  const providedSchema = body.schema as ProjectSchema | undefined;
+  const { brief, schema: providedSchema } = parsed.data;
   const generated = providedSchema
     ? {
         name: projectNameFromBrief(brief),
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
         source: "local" as const,
       }
     : await generateSchemaWithPpio(brief);
-  const name = String(body.name || generated.name || projectNameFromBrief(brief)).trim();
+  const name = (parsed.data.name || generated.name || projectNameFromBrief(brief)).trim();
   const now = new Date().toISOString();
   const project: DataProject = {
     id: projectIdFromName(name),
