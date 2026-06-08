@@ -1,5 +1,6 @@
 import Script from "next/script";
 import { sampleProject } from "@/lib/mock-data";
+import { publicAppUrl } from "@/lib/public-url";
 
 export default function DemoHostPage() {
   return (
@@ -17,7 +18,7 @@ export default function DemoHostPage() {
         </p>
         <pre className="mt-8 overflow-x-auto rounded-lg bg-slate-950 p-5 text-sm leading-6 text-white">
           {`<script
-  src="http://127.0.0.1:3000/gadget.js"
+  src="${publicAppUrl}/gadget.js"
   data-project-id="${sampleProject.id}"
   data-atpio-position="bottom-right"
   data-atpio-theme="light"

@@ -79,7 +79,7 @@
         <p>
           It simulates another product running on <code>localhost:4000</code>.
           The feedback button is injected by Atpio running on
-          <code>localhost:3000</code>.
+          <code id="atpio-origin-label">localhost:3000</code>.
         </p>
         <section class="panel">
           <strong>Local integration test</strong>
@@ -105,6 +105,14 @@
         console.log("Atpio success event", event.detail);
       });
 
+      var atpioAppUrl = (
+        window.ATPIO_APP_URL || "http://127.0.0.1:3000"
+      ).replace(/\/$/, "");
+      var atpioOriginLabel = document.getElementById("atpio-origin-label");
+      if (atpioOriginLabel) {
+        atpioOriginLabel.textContent = atpioAppUrl.replace(/^https?:\/\//, "");
+      }
+
       function loadAtpioGadget(projectId) {
         var oldRoot = document.querySelector("[data-atpio-root]");
         if (oldRoot) oldRoot.remove();
@@ -112,7 +120,7 @@
         if (oldScript) oldScript.remove();
 
         var script = document.createElement("script");
-        script.src = "http://127.0.0.1:3000/gadget.js";
+        script.src = atpioAppUrl + "/gadget.js";
         script.setAttribute("data-atpio-mock-script", "true");
         script.setAttribute("data-project-id", projectId);
         script.setAttribute("data-atpio-position", "bottom-right");
@@ -125,7 +133,7 @@
         document.body.appendChild(script);
       }
 
-      fetch("http://127.0.0.1:3000/api/projects/latest?t=" + Date.now(), {
+      fetch(atpioAppUrl + "/api/projects/latest?t=" + Date.now(), {
         cache: "no-store",
       })
         .then(function (response) {

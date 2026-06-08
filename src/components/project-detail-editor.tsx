@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { publicAppUrl } from "@/lib/public-url";
 import type {
   DataProject,
   FieldType,
@@ -53,7 +54,7 @@ export function ProjectDetailEditor({
   );
   const embedCode = useMemo(
     () =>
-      `<script src="http://127.0.0.1:3000/gadget.js" data-project-id="${project.id}" data-atpio-position="${project.gadget.position}" data-atpio-theme="${project.gadget.theme}" data-atpio-label="${project.gadget.buttonLabel}" data-atpio-brand-color="${project.gadget.brandColor}" data-atpio-accent-color="${project.gadget.accentColor}" data-atpio-button-shape="${project.gadget.buttonShape}" data-atpio-font-family="${project.gadget.fontFamily}"></script>`,
+      `<script src="${publicAppUrl}/gadget.js" data-project-id="${project.id}" data-atpio-position="${project.gadget.position}" data-atpio-theme="${project.gadget.theme}" data-atpio-label="${project.gadget.buttonLabel}" data-atpio-brand-color="${project.gadget.brandColor}" data-atpio-accent-color="${project.gadget.accentColor}" data-atpio-button-shape="${project.gadget.buttonShape}" data-atpio-font-family="${project.gadget.fontFamily}"></script>`,
     [
       project.gadget.accentColor,
       project.gadget.brandColor,

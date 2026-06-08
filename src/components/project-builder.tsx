@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { DynamicForm } from "@/components/dynamic-form";
+import { publicMockProductUrl } from "@/lib/public-url";
 import type { ProjectSchema } from "@/lib/types";
 
 const projectNamePlaceholder = "Optional. We can name this for you.";
@@ -174,7 +175,7 @@ export function ProjectBuilder({
               <p className="font-semibold">Project saved successfully.</p>
               <p className="mt-1 text-sm leading-6 text-slate-600">
                 It is now available in All projects and will be used by the
-                mock product on localhost:4000.
+                mock product at {publicMockProductUrl}.
               </p>
             </div>
           </div>
@@ -317,7 +318,7 @@ export function ProjectBuilder({
                 <p className="font-semibold">Project saved successfully.</p>
                 <p className="mt-1 text-emerald-800">
                   This is now the latest Atpio project. The mock product will
-                  load it automatically on localhost:4000.
+                  load it automatically at {publicMockProductUrl}.
                 </p>
                 <p className="mt-2 text-xs text-emerald-700">
                   Embed path: /embed/{projectId}
@@ -333,7 +334,7 @@ export function ProjectBuilder({
               </Link>
               <a
                 className="inline-flex h-9 items-center rounded-full border border-emerald-200 bg-white px-3 text-sm font-medium text-emerald-800"
-                href="http://127.0.0.1:4000"
+                href={publicMockProductUrl}
                 rel="noreferrer"
                 target="_blank"
               >
