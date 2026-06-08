@@ -1,4 +1,5 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { ProjectDetailEditor } from "@/components/project-detail-editor";
 import { getProject, listResponses } from "@/lib/store";
 
@@ -9,6 +10,9 @@ export default async function ProjectDetailPage({
 }: {
   params: Promise<{ projectId: string }>;
 }) {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+
   const { projectId } = await params;
   const project = await getProject(projectId);
 

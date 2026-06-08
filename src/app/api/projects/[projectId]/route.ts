@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAdminResponse } from "@/lib/auth-guard";
 import { logger } from "@/lib/logger";
 import { getProject, listResponses, saveProject } from "@/lib/store";
 import type { DataProject } from "@/lib/types";
@@ -8,6 +9,9 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ projectId: string }> },
 ) {
+  const unauthorized = await requireAdminResponse();
+  if (unauthorized) return unauthorized;
+
   const { projectId } = await params;
   const project = await getProject(projectId);
 
@@ -25,6 +29,9 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ projectId: string }> },
 ) {
+  const unauthorized = await requireAdminResponse();
+  if (unauthorized) return unauthorized;
+
   const { projectId } = await params;
   const existing = await getProject(projectId);
 

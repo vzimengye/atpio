@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAdminResponse } from "@/lib/auth-guard";
 import { logger } from "@/lib/logger";
 import { exportProjectData } from "@/lib/store";
 
@@ -6,6 +7,9 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ projectId: string }> },
 ) {
+  const unauthorized = await requireAdminResponse();
+  if (unauthorized) return unauthorized;
+
   const { projectId } = await params;
   const exported = await exportProjectData(projectId);
 

@@ -1,9 +1,15 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import { SignOutButton } from "@/components/sign-out-button";
 import { listProjects } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProjectsPage() {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+
   const projects = await listProjects();
 
   return (
@@ -22,6 +28,7 @@ export default async function ProjectsPage() {
           >
             Generate new form
           </Link>
+          <SignOutButton />
         </div>
 
         <section className="mt-8 grid gap-4">

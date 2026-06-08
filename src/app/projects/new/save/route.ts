@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-guard";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 import { projectIdFromName, projectNameFromBrief } from "@/lib/schema-generator";
 import { saveProject } from "@/lib/store";
@@ -19,6 +20,11 @@ function parseSchema(value: FormDataEntryValue | null): ProjectSchema | undefine
 }
 
 export async function POST(request: Request) {
+  const user = await requireAdmin();
+  if (!user) {
+    return NextResponse.redirect(new URL("/login", request.url), { status: 303 });
+  }
+
   const formData = await request.formData();
   const brief = String(formData.get("brief") ?? "").trim();
   const fallbackUrl = new URL("/projects/new", request.url);

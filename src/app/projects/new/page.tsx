@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { ProjectBuilder } from "@/components/project-builder";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 
@@ -12,6 +14,9 @@ function firstParam(value: string | string[] | undefined) {
 export default async function NewProjectPage({
   searchParams,
 }: NewProjectPageProps) {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+
   const params = await searchParams;
   const brief = firstParam(params.brief);
   const generated = firstParam(params.generate) === "1" && brief;

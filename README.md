@@ -63,6 +63,16 @@ Copy `.env.example` to `.env.local` and set `PPIO_API_KEY` to enable real LLM sc
 
 Do not commit `.env.local`.
 
+For admin access, set:
+
+- `AUTH_SECRET`
+- `ATPIO_ADMIN_EMAIL`
+- `ATPIO_ADMIN_PASSWORD`
+
+For production database storage on Vercel, set `DATABASE_URL` and use the
+`npm run vercel-build` build command so Prisma generates the client and applies
+migrations before `next build`.
+
 ## MVP Flow
 
 1. Open `/projects/new`.

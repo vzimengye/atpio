@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAdminResponse } from "@/lib/auth-guard";
 import { logger } from "@/lib/logger";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 import { projectIdFromName, projectNameFromBrief } from "@/lib/schema-generator";
@@ -7,10 +8,16 @@ import type { DataProject } from "@/lib/types";
 import { createProjectRequestSchema, invalidInput } from "@/lib/validation";
 
 export async function GET() {
+  const unauthorized = await requireAdminResponse();
+  if (unauthorized) return unauthorized;
+
   return NextResponse.json({ projects: await listProjects() });
 }
 
 export async function POST(request: Request) {
+  const unauthorized = await requireAdminResponse();
+  if (unauthorized) return unauthorized;
+
   const body = await request.json().catch(() => null);
   const parsed = createProjectRequestSchema.safeParse(body);
 

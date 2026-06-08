@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { sampleProject } from "@/lib/mock-data";
 import type { FormField } from "@/lib/types";
 import { listProjects, listResponses } from "@/lib/store";
@@ -42,6 +44,9 @@ function FieldPreview({ field }: { field: FormField }) {
 }
 
 export default async function Home() {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+
   const projects = await listProjects();
   const project = projects[0] ?? sampleProject;
   const responses = await listResponses(project.id);
