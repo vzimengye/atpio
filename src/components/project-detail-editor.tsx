@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { updateProjectAction } from "@/app/projects/actions";
+import { AdvancedJsonEditor } from "@/components/project-detail/advanced-json-editor";
+import { FieldEditor } from "@/components/project-detail/field-editor";
+import { GadgetSettingsPanel } from "@/components/project-detail/gadget-settings-panel";
 import { publicAppUrl } from "@/lib/public-url";
 import type {
   DataProject,
-  FieldType,
   FormField,
   FormPage,
   GadgetSettings,
@@ -19,15 +21,6 @@ type ProjectDetailEditorProps = {
   responses: ProjectResponse[];
 };
 
-const fieldTypes: FieldType[] = [
-  "short_text",
-  "long_text",
-  "single_select",
-  "multi_select",
-  "rating",
-  "boolean",
-];
-
 function slugify(value: string) {
   return (
     value
@@ -36,10 +29,6 @@ function slugify(value: string) {
       .replace(/[^a-z0-9_]+/g, "_")
       .replace(/^_+|_+$/g, "") || "field"
   );
-}
-
-function numberOrUndefined(value: string) {
-  return value === "" ? undefined : Number(value);
 }
 
 export function ProjectDetailEditor({
@@ -266,103 +255,7 @@ export function ProjectDetailEditor({
           <Metric label="Pages" value={project.schema.pages?.length ?? 1} />
         </div>
 
-        <div className="mt-6 rounded-xl bg-stone-50 p-4">
-          <h2 className="text-sm font-semibold text-slate-950">Gadget settings</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <label className="text-sm">
-              <span className="font-medium text-slate-800">Position</span>
-              <select
-                className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-                value={project.gadget.position}
-                onChange={(event) =>
-                  updateGadget(
-                    "position",
-                    event.target.value as GadgetSettings["position"],
-                  )
-                }
-              >
-                <option value="bottom-right">Bottom right</option>
-                <option value="bottom-left">Bottom left</option>
-                <option value="top-right">Top right</option>
-                <option value="top-left">Top left</option>
-              </select>
-            </label>
-            <label className="text-sm">
-              <span className="font-medium text-slate-800">Theme</span>
-              <select
-                className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-                value={project.gadget.theme}
-                onChange={(event) =>
-                  updateGadget("theme", event.target.value as GadgetSettings["theme"])
-                }
-              >
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
-            </label>
-            <label className="text-sm">
-              <span className="font-medium text-slate-800">Button label</span>
-              <input
-                className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-                value={project.gadget.buttonLabel}
-                onChange={(event) => updateGadget("buttonLabel", event.target.value)}
-              />
-            </label>
-            <label className="text-sm">
-              <span className="font-medium text-slate-800">Success message</span>
-              <input
-                className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-                value={project.gadget.successMessage}
-                onChange={(event) =>
-                  updateGadget("successMessage", event.target.value)
-                }
-              />
-            </label>
-            <label className="text-sm">
-              <span className="font-medium text-slate-800">Brand color</span>
-              <input
-                className="mt-2 h-10 w-full rounded-md border border-stone-300 px-2"
-                type="color"
-                value={project.gadget.brandColor}
-                onChange={(event) => updateGadget("brandColor", event.target.value)}
-              />
-            </label>
-            <label className="text-sm">
-              <span className="font-medium text-slate-800">Accent color</span>
-              <input
-                className="mt-2 h-10 w-full rounded-md border border-stone-300 px-2"
-                type="color"
-                value={project.gadget.accentColor}
-                onChange={(event) => updateGadget("accentColor", event.target.value)}
-              />
-            </label>
-            <label className="text-sm">
-              <span className="font-medium text-slate-800">Button shape</span>
-              <select
-                className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-                value={project.gadget.buttonShape}
-                onChange={(event) =>
-                  updateGadget(
-                    "buttonShape",
-                    event.target.value as GadgetSettings["buttonShape"],
-                  )
-                }
-              >
-                <option value="pill">Pill</option>
-                <option value="rounded">Rounded</option>
-                <option value="square">Square</option>
-              </select>
-            </label>
-            <label className="text-sm">
-              <span className="font-medium text-slate-800">Font family</span>
-              <input
-                className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-                value={project.gadget.fontFamily}
-                onChange={(event) => updateGadget("fontFamily", event.target.value)}
-              />
-            </label>
-          </div>
-        </div>
+        <GadgetSettingsPanel gadget={project.gadget} onUpdate={updateGadget} />
 
         <div className="mt-6 rounded-xl bg-slate-950 p-4 text-slate-50">
           <p className="text-sm font-medium">Embed code</p>
@@ -494,204 +387,30 @@ export function ProjectDetailEditor({
             </button>
           </div>
           <div className="mt-3 grid gap-4">
-            {project.schema.fields.map((field) => {
-              const isChoice =
-                field.type === "single_select" || field.type === "multi_select";
-              const isText =
-                field.type === "short_text" || field.type === "long_text";
-              const isRating = field.type === "rating";
-
-              return (
-                <div
-                  className="grid gap-3 rounded-xl border border-stone-200 bg-white p-4"
-                  key={field.id}
-                >
-                  <div className="grid gap-3 sm:grid-cols-[0.85fr_1.1fr_auto]">
-                    <label className="text-sm">
-                      <span className="font-medium text-slate-800">Field ID</span>
-                      <input
-                        className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-                        value={field.id}
-                        onChange={(event) =>
-                          updateField(field.id, {
-                            id: slugify(event.target.value),
-                          })
-                        }
-                      />
-                    </label>
-                    <label className="text-sm">
-                      <span className="font-medium text-slate-800">Label</span>
-                      <input
-                        className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-                        value={field.label}
-                        onChange={(event) =>
-                          updateField(field.id, { label: event.target.value })
-                        }
-                      />
-                    </label>
-                    <button
-                      className="mt-7 h-10 rounded-md border border-red-200 px-3 text-sm font-medium text-red-700"
-                      onClick={() => removeField(field.id)}
-                      type="button"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    <label className="text-sm">
-                      <span className="font-medium text-slate-800">Type</span>
-                      <select
-                        className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-                        value={field.type}
-                        onChange={(event) =>
-                          updateField(field.id, {
-                            type: event.target.value as FieldType,
-                          })
-                        }
-                      >
-                        {fieldTypes.map((type) => (
-                          <option key={type} value={type}>
-                            {type}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="text-sm">
-                      <span className="font-medium text-slate-800">Page</span>
-                      <select
-                        className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-                        value={field.pageId ?? ""}
-                        onChange={(event) =>
-                          updateField(field.id, {
-                            pageId: event.target.value || undefined,
-                          })
-                        }
-                      >
-                        <option value="">No page</option>
-                        {(project.schema.pages ?? []).map((page) => (
-                          <option key={page.id} value={page.id}>
-                            {page.title}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="flex items-center gap-2 pt-7 text-sm font-medium text-slate-800">
-                      <input
-                        checked={Boolean(field.required)}
-                        onChange={(event) =>
-                          updateField(field.id, {
-                            required: event.target.checked,
-                          })
-                        }
-                        type="checkbox"
-                      />
-                      Required
-                    </label>
-                  </div>
-                  <label className="text-sm">
-                    <span className="font-medium text-slate-800">Placeholder</span>
-                    <input
-                      className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-                      value={field.placeholder ?? ""}
-                      onChange={(event) =>
-                        updateField(field.id, {
-                          placeholder: event.target.value || undefined,
-                        })
-                      }
-                    />
-                  </label>
-                  {isChoice ? (
-                    <label className="text-sm">
-                      <span className="font-medium text-slate-800">
-                        Options, comma separated
-                      </span>
-                      <input
-                        className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-                        value={(field.options ?? []).join(", ")}
-                        onChange={(event) =>
-                          updateField(field.id, {
-                            options: event.target.value
-                              .split(",")
-                              .map((option) => option.trim())
-                              .filter(Boolean),
-                          })
-                        }
-                      />
-                    </label>
-                  ) : null}
-                  <div className="grid gap-3 rounded-lg bg-stone-50 p-3 sm:grid-cols-4">
-                    <p className="text-sm font-medium text-slate-800 sm:pt-2">
-                      Validation
-                    </p>
-                    {isText ? (
-                      <>
-                        <ValidationInput
-                          label="Min length"
-                          value={field.validation?.minLength}
-                          onChange={(value) =>
-                            updateValidation(field.id, "minLength", value)
-                          }
-                        />
-                        <ValidationInput
-                          label="Max length"
-                          value={field.validation?.maxLength}
-                          onChange={(value) =>
-                            updateValidation(field.id, "maxLength", value)
-                          }
-                        />
-                      </>
-                    ) : null}
-                    {isRating ? (
-                      <>
-                        <ValidationInput
-                          label="Min"
-                          value={field.validation?.min}
-                          onChange={(value) =>
-                            updateValidation(field.id, "min", value)
-                          }
-                        />
-                        <ValidationInput
-                          label="Max"
-                          value={field.validation?.max}
-                          onChange={(value) =>
-                            updateValidation(field.id, "max", value)
-                          }
-                        />
-                      </>
-                    ) : null}
-                    {!isText && !isRating ? (
-                      <p className="text-sm text-slate-500 sm:col-span-3">
-                        This field type does not need numeric validation.
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              );
-            })}
+            {project.schema.fields.map((field) => (
+              <FieldEditor
+                field={field}
+                key={field.id}
+                pages={project.schema.pages ?? []}
+                slugify={slugify}
+                onRemove={() => removeField(field.id)}
+                onUpdate={(patch) => updateField(field.id, patch)}
+                onUpdateValidation={(key, value) =>
+                  updateValidation(field.id, key, value)
+                }
+              />
+            ))}
           </div>
         </div>
 
-        <details className="mt-6 rounded-xl border border-stone-200 bg-stone-50 p-4">
-          <summary className="cursor-pointer text-sm font-semibold text-slate-950">
-            Advanced JSON
-          </summary>
-          <textarea
-            className="mt-4 min-h-72 w-full rounded-xl border border-stone-300 bg-white px-4 py-3 font-mono text-xs leading-6 outline-none focus:border-emerald-600"
-            spellCheck={false}
-            value={schemaText}
-            onChange={(event) => {
-              setSchemaText(event.target.value);
-              setStatus("idle");
-            }}
-          />
-          <button
-            className="mt-3 h-9 rounded-md border border-stone-300 bg-white px-3 text-sm font-medium"
-            onClick={applySchemaText}
-            type="button"
-          >
-            Apply JSON to builder
-          </button>
-        </details>
+        <AdvancedJsonEditor
+          value={schemaText}
+          onApply={applySchemaText}
+          onChange={(value) => {
+            setSchemaText(value);
+            setStatus("idle");
+          }}
+        />
         {status === "saved" ? (
           <p className="mt-3 text-sm text-emerald-700">Saved.</p>
         ) : null}
@@ -711,28 +430,5 @@ function Metric({ label, value }: { label: string; value: number }) {
       <p className="text-sm text-slate-500">{label}</p>
       <p className="mt-2 text-2xl font-semibold">{value}</p>
     </div>
-  );
-}
-
-function ValidationInput({
-  label,
-  onChange,
-  value,
-}: {
-  label: string;
-  onChange: (value: number | undefined) => void;
-  value?: number;
-}) {
-  return (
-    <label className="text-sm">
-      <span className="font-medium text-slate-700">{label}</span>
-      <input
-        className="mt-1 h-9 w-full rounded-md border border-stone-300 px-3"
-        min={0}
-        onChange={(event) => onChange(numberOrUndefined(event.target.value))}
-        type="number"
-        value={value ?? ""}
-      />
-    </label>
   );
 }
