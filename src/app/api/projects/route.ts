@@ -6,21 +6,8 @@ import { listProjects, saveProject } from "@/lib/store";
 import type { DataProject } from "@/lib/types";
 import { createProjectRequestSchema, invalidInput } from "@/lib/validation";
 
-const publicHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
-
 export async function GET() {
-  return NextResponse.json(
-    { projects: await listProjects() },
-    { headers: publicHeaders },
-  );
-}
-
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: publicHeaders });
+  return NextResponse.json({ projects: await listProjects() });
 }
 
 export async function POST(request: Request) {
@@ -28,10 +15,7 @@ export async function POST(request: Request) {
   const parsed = createProjectRequestSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json(
-      invalidInput(parsed.error),
-      { headers: publicHeaders, status: 400 },
-    );
+    return NextResponse.json(invalidInput(parsed.error), { status: 400 });
   }
 
   const { brief, schema: providedSchema } = parsed.data;
@@ -71,5 +55,5 @@ export async function POST(request: Request) {
     fieldCount: project.schema.fields.length,
   });
 
-  return NextResponse.json({ project }, { headers: publicHeaders, status: 201 });
+  return NextResponse.json({ project }, { status: 201 });
 }
