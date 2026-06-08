@@ -99,6 +99,20 @@ http://127.0.0.1:4000
 
 The mock product is a separate static app in `mock-product/`. It loads Atpio from `http://127.0.0.1:3000/gadget.js`, then opens the feedback form in an iframe. This is the local equivalent of another product calling Atpio's gadget API.
 
+For a reusable integration guide, see
+[`skills/mock-product-integration/SKILL.md`](skills/mock-product-integration/SKILL.md).
+
+## Download Project Data
+
+Project data can be exported as JSON:
+
+```text
+GET /api/projects/{projectId}/export
+```
+
+The response is returned as a downloadable file containing the project, schema,
+gadget settings, responses, audit events, and export timestamp.
+
 ## Remaining Production Work
 
 - Replace `data/app-store.json` with Supabase, Postgres, or another production database.
