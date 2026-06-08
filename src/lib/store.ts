@@ -151,3 +151,16 @@ export async function listAuditEvents(projectId?: string): Promise<AuditEvent[]>
     : store.auditEvents;
 }
 
+export async function exportProjectData(projectId: string) {
+  const project = await getProject(projectId);
+
+  if (!project) return null;
+
+  return {
+    exportedAt: new Date().toISOString(),
+    project,
+    responses: await listResponses(projectId),
+    auditEvents: await listAuditEvents(projectId),
+  };
+}
+
