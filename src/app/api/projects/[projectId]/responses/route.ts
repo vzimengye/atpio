@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { addResponse, getProject } from "@/lib/store";
 import type { ProjectResponse } from "@/lib/types";
 import { invalidInput, responseSubmissionSchema } from "@/lib/validation";
@@ -41,6 +42,11 @@ export async function POST(
   };
 
   await addResponse(response);
+  logger.info({
+    msg: "Response accepted",
+    projectId,
+    answerCount: Object.keys(response.answers).length,
+  });
 
   return NextResponse.json({ response, status: "accepted" }, { status: 201 });
 }

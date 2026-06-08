@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { getProject, listResponses, saveProject } from "@/lib/store";
 import type { DataProject } from "@/lib/types";
 import { invalidInput, updateProjectRequestSchema } from "@/lib/validation";
@@ -56,6 +57,7 @@ export async function PATCH(
     ...patch,
     updatedAt: new Date().toISOString().slice(0, 10),
   });
+  logger.info({ msg: "Project updated", projectId: project.id });
 
   return NextResponse.json({ project });
 }

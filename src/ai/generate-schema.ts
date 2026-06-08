@@ -2,6 +2,7 @@ import "server-only";
 
 import { generateObject } from "ai";
 import { z } from "zod";
+import { logger } from "@/lib/logger";
 import { generateSchemaFromBrief, projectNameFromBrief } from "@/lib/schema-generator";
 import type { ProjectSchema } from "@/lib/types";
 import { ppio } from "./provider";
@@ -91,7 +92,10 @@ export async function generateSchema({
 }: {
   brief: string;
 }): Promise<GeneratedSchemaResult> {
+  logger.info({ msg: "Generating schema", briefLength: brief.length });
+
   if (!process.env.PPIO_API_KEY) {
+    logger.info({ msg: "Using local schema generator", reason: "missing_api_key" });
     return localSchemaResult(brief);
   }
 
@@ -106,12 +110,22 @@ export async function generateSchema({
       maxRetries: 2,
     });
 
-    return {
+    const result: GeneratedSchemaResult = {
       name: object.name || projectNameFromBrief(brief),
       schema: normalizeSchema(object.schema),
       source: "ppio",
     };
-  } catch {
+    logger.info({
+      msg: "Schema generated",
+      fieldCount: result.schema.fields.length,
+      source: result.source,
+    });
+    return result;
+  } catch (error) {
+    logger.error({
+      msg: "LLM schema generation failed, using local fallback",
+      error,
+    });
     return localSchemaResult(brief);
   }
 }

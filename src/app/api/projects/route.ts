@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 import { projectIdFromName, projectNameFromBrief } from "@/lib/schema-generator";
 import { listProjects, saveProject } from "@/lib/store";
@@ -64,6 +65,11 @@ export async function POST(request: Request) {
   };
 
   await saveProject(project);
+  logger.info({
+    msg: "Project created",
+    projectId: project.id,
+    fieldCount: project.schema.fields.length,
+  });
 
   return NextResponse.json({ project }, { headers: publicHeaders, status: 201 });
 }
