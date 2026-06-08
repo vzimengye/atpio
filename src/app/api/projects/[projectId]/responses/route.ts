@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
+import { rateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { addResponse, getProject } from "@/lib/store";
 import type { ProjectResponse } from "@/lib/types";
 import { invalidInput, responseSubmissionSchema } from "@/lib/validation";
@@ -9,6 +10,19 @@ export async function POST(
   { params }: { params: Promise<{ projectId: string }> },
 ) {
   const { projectId } = await params;
+  const limited = rateLimit({
+    key: rateLimitKey(request, `response:${projectId}`),
+    limit: 30,
+    windowMs: 60_000,
+  });
+
+  if (!limited.allowed) {
+    return NextResponse.json(
+      { error: "Too many responses. Try again shortly." },
+      { status: 429 },
+    );
+  }
+
   const project = await getProject(projectId);
 
   if (!project) {
