@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
+import { createProjectAction } from "@/app/projects/actions";
 import { DynamicForm } from "@/components/dynamic-form";
 import { publicMockProductUrl } from "@/lib/public-url";
 import type { ProjectSchema } from "@/lib/types";
@@ -113,19 +114,12 @@ export function ProjectBuilder({
     setErrorMessage("");
     setSourceMessage("");
     try {
-      const response = await fetch("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brief: trimmedBrief, name, schema }),
-      });
+      const result = await createProjectAction({ brief: trimmedBrief, name, schema });
 
-      if (!response.ok) {
-        throw new Error("Project save failed.");
-      }
+      if (!result.project) throw new Error(result.error);
 
-      const payload = await response.json();
-      setProjectId(payload.project.id);
-      setSchema(payload.project.schema);
+      setProjectId(result.project.id);
+      setSchema(result.project.schema);
       setStatus("saved");
     } catch {
       setErrorMessage(

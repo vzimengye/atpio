@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { updateProjectAction } from "@/app/projects/actions";
 import { publicAppUrl } from "@/lib/public-url";
 import type {
   DataProject,
@@ -207,22 +208,17 @@ export function ProjectDetailEditor({
     setStatus("saving");
     try {
       const parsedSchema = JSON.parse(schemaText);
-      const response = await fetch(`/api/projects/${project.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const result = await updateProjectAction(project.id, {
           name: project.name,
           brief: project.brief,
           schema: parsedSchema,
           gadget: project.gadget,
-        }),
       });
 
-      if (!response.ok) throw new Error("Save failed.");
+      if (!result.project) throw new Error(result.error);
 
-      const payload = await response.json();
-      setProject(payload.project);
-      setSchemaText(JSON.stringify(payload.project.schema, null, 2));
+      setProject(result.project);
+      setSchemaText(JSON.stringify(result.project.schema, null, 2));
       setStatus("saved");
     } catch {
       setStatus("error");
