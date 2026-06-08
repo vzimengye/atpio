@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Project {
+  id            String     @id
+  name          String
+  brief         String
+  schema        Json
+  gadget        Json
+  status        String     @default("draft")
+  responseCount Int        @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  responses     Response[]
+}
+
+model Response {
+  id        String   @id
+  projectId String
+  answers   Json
+  sourceUrl String?
+  userAgent String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([createdAt])
+}
+
+model AuditEvent {
+  id        String   @id
+  action    String
+  projectId String?
+  actor     String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+  @@index([createdAt])
+}

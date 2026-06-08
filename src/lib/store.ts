@@ -3,6 +3,7 @@ import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { sampleProject } from "@/lib/mock-data";
+import { getPrisma } from "@/prisma/prisma";
 import type {
   AppStore,
   AuditEvent,
@@ -12,6 +13,7 @@ import type {
 } from "./types";
 
 const storePath = path.join(process.cwd(), "data", "app-store.json");
+const shouldUseDatabase = Boolean(process.env.DATABASE_URL);
 
 const initialStore: AppStore = {
   projects: [sampleProject],
@@ -68,6 +70,27 @@ export async function writeStore(store: AppStore) {
 }
 
 export async function listProjects(): Promise<DataProject[]> {
+  if (shouldUseDatabase) {
+    const prisma = getPrisma();
+    const projects = await prisma.project.findMany({
+      orderBy: { updatedAt: "desc" },
+      include: { _count: { select: { responses: true } } },
+    });
+
+    return projects.map((project) =>
+      withProjectDefaults({
+        id: project.id,
+        name: project.name,
+        brief: project.brief,
+        schema: project.schema as DataProject["schema"],
+        gadget: project.gadget as DataProject["gadget"],
+        responseCount: project._count.responses,
+        status: project.status as DataProject["status"],
+        updatedAt: project.updatedAt.toISOString().slice(0, 10),
+      }),
+    );
+  }
+
   const store = await readStore();
   return store.projects.map((project) => ({
     ...project,
@@ -83,6 +106,49 @@ export async function getProject(projectId: string): Promise<DataProject | null>
 }
 
 export async function saveProject(project: DataProject): Promise<DataProject> {
+  if (shouldUseDatabase) {
+    const prisma = getPrisma();
+    const projectWithDefaults = withProjectDefaults(project);
+    const saved = await prisma.project.upsert({
+      where: { id: project.id },
+      create: {
+        id: projectWithDefaults.id,
+        name: projectWithDefaults.name,
+        brief: projectWithDefaults.brief,
+        schema: projectWithDefaults.schema,
+        gadget: projectWithDefaults.gadget,
+        status: projectWithDefaults.status,
+        responseCount: projectWithDefaults.responseCount,
+      },
+      update: {
+        name: projectWithDefaults.name,
+        brief: projectWithDefaults.brief,
+        schema: projectWithDefaults.schema,
+        gadget: projectWithDefaults.gadget,
+        status: projectWithDefaults.status,
+      },
+      include: { _count: { select: { responses: true } } },
+    });
+
+    await addAuditEvent({
+      action: "project.saved",
+      actor: "admin",
+      projectId: project.id,
+      metadata: { status: project.status },
+    });
+
+    return withProjectDefaults({
+      id: saved.id,
+      name: saved.name,
+      brief: saved.brief,
+      schema: saved.schema as DataProject["schema"],
+      gadget: saved.gadget as DataProject["gadget"],
+      responseCount: saved._count.responses,
+      status: saved.status as DataProject["status"],
+      updatedAt: saved.updatedAt.toISOString().slice(0, 10),
+    });
+  }
+
   const store = await readStore();
   const projectWithDefaults = withProjectDefaults(project);
   const existingIndex = store.projects.findIndex((item) => item.id === project.id);
@@ -107,6 +173,44 @@ export async function saveProject(project: DataProject): Promise<DataProject> {
 export async function addResponse(
   response: ProjectResponse,
 ): Promise<ProjectResponse> {
+  if (shouldUseDatabase) {
+    const prisma = getPrisma();
+    const saved = await prisma.response.create({
+      data: {
+        id: response.id,
+        projectId: response.projectId,
+        answers: response.answers,
+        sourceUrl: response.sourceUrl,
+        userAgent: response.userAgent,
+        metadata: response.metadata,
+      },
+    });
+
+    await prisma.project.update({
+      where: { id: response.projectId },
+      data: {
+        status: "collecting",
+        responseCount: { increment: 1 },
+      },
+    });
+
+    await addAuditEvent({
+      action: "response.created",
+      actor: "public",
+      projectId: response.projectId,
+    });
+
+    return {
+      id: saved.id,
+      projectId: saved.projectId,
+      answers: saved.answers as ProjectResponse["answers"],
+      sourceUrl: saved.sourceUrl ?? undefined,
+      userAgent: saved.userAgent ?? undefined,
+      metadata: saved.metadata as ProjectResponse["metadata"],
+      createdAt: saved.createdAt.toISOString(),
+    };
+  }
+
   const store = await readStore();
   store.responses.unshift(response);
 
@@ -126,6 +230,24 @@ export async function addResponse(
 }
 
 export async function listResponses(projectId: string): Promise<ProjectResponse[]> {
+  if (shouldUseDatabase) {
+    const prisma = getPrisma();
+    const responses = await prisma.response.findMany({
+      where: { projectId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return responses.map((response) => ({
+      id: response.id,
+      projectId: response.projectId,
+      answers: response.answers as ProjectResponse["answers"],
+      sourceUrl: response.sourceUrl ?? undefined,
+      userAgent: response.userAgent ?? undefined,
+      metadata: response.metadata as ProjectResponse["metadata"],
+      createdAt: response.createdAt.toISOString(),
+    }));
+  }
+
   const store = await readStore();
   return store.responses.filter((response) => response.projectId === projectId);
 }
@@ -133,6 +255,28 @@ export async function listResponses(projectId: string): Promise<ProjectResponse[
 export async function addAuditEvent(
   event: Omit<AuditEvent, "id" | "createdAt">,
 ): Promise<AuditEvent> {
+  if (shouldUseDatabase) {
+    const prisma = getPrisma();
+    const auditEvent = await prisma.auditEvent.create({
+      data: {
+        id: `audit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        action: event.action,
+        actor: event.actor,
+        projectId: event.projectId,
+        metadata: event.metadata,
+      },
+    });
+
+    return {
+      id: auditEvent.id,
+      action: auditEvent.action,
+      actor: auditEvent.actor as AuditEvent["actor"],
+      projectId: auditEvent.projectId ?? undefined,
+      metadata: auditEvent.metadata as AuditEvent["metadata"],
+      createdAt: auditEvent.createdAt.toISOString(),
+    };
+  }
+
   const store = await readStore();
   const auditEvent: AuditEvent = {
     ...event,
@@ -145,6 +289,23 @@ export async function addAuditEvent(
 }
 
 export async function listAuditEvents(projectId?: string): Promise<AuditEvent[]> {
+  if (shouldUseDatabase) {
+    const prisma = getPrisma();
+    const auditEvents = await prisma.auditEvent.findMany({
+      where: projectId ? { projectId } : undefined,
+      orderBy: { createdAt: "desc" },
+    });
+
+    return auditEvents.map((event) => ({
+      id: event.id,
+      action: event.action,
+      actor: event.actor as AuditEvent["actor"],
+      projectId: event.projectId ?? undefined,
+      metadata: event.metadata as AuditEvent["metadata"],
+      createdAt: event.createdAt.toISOString(),
+    }));
+  }
+
   const store = await readStore();
   return projectId
     ? store.auditEvents.filter((event) => event.projectId === projectId)
