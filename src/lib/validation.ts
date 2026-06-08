@@ -51,6 +51,7 @@ export const gadgetSettingsSchema = z.object({
   accentColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   buttonShape: z.enum(["pill", "rounded", "square"]).optional(),
   fontFamily: z.string().min(1).max(160).optional(),
+  allowedDomains: z.array(z.string().min(1).max(240)).max(20).optional(),
 });
 
 export const generateSchemaRequestSchema = z.object({

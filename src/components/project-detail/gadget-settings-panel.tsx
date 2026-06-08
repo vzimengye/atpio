@@ -91,6 +91,27 @@ export function GadgetSettingsPanel({
           value={gadget.fontFamily}
           onChange={(value) => onUpdate("fontFamily", value)}
         />
+        <label className="text-sm sm:col-span-2">
+          <span className="font-medium text-slate-800">Allowed domains</span>
+          <textarea
+            className="mt-2 min-h-24 w-full rounded-md border border-stone-300 px-3 py-2"
+            placeholder="One domain per line. Leave blank to allow any domain during local testing."
+            value={(gadget.allowedDomains ?? []).join("\n")}
+            onChange={(event) =>
+              onUpdate(
+                "allowedDomains",
+                event.target.value
+                  .split("\n")
+                  .map((domain) => domain.trim())
+                  .filter(Boolean),
+              )
+            }
+          />
+          <p className="mt-1 text-xs leading-5 text-slate-500">
+            Example: app.example.com. Subdomains are allowed when the parent
+            domain is listed.
+          </p>
+        </label>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { forbiddenOriginResponse, isOriginAllowed } from "@/lib/domain-access";
 import { logger } from "@/lib/logger";
 import { rateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { addResponse, getProject } from "@/lib/store";
@@ -27,6 +28,10 @@ export async function POST(
 
   if (!project) {
     return NextResponse.json({ error: "Project not found." }, { status: 404 });
+  }
+
+  if (!isOriginAllowed(project, request)) {
+    return forbiddenOriginResponse();
   }
 
   const body = await request.json().catch(() => null);
