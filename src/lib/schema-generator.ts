@@ -22,7 +22,40 @@ function titleFromBrief(brief: string) {
     return "AI Selection Feedback";
   }
 
+  if (isFoodBrief(normalized)) {
+    return "Meal Preference Survey";
+  }
+
   return "Product Feedback";
+}
+
+function includesAny(value: string, keywords: string[]) {
+  return keywords.some((keyword) => value.includes(keyword));
+}
+
+function isFoodBrief(value: string) {
+  const lowerValue = value.toLowerCase();
+  return includesAny(lowerValue, [
+    "breakfast",
+    "lunch",
+    "dinner",
+    "meal",
+    "food",
+    "taste",
+    "flavor",
+    "portion",
+    "早餐",
+    "早饭",
+    "中餐",
+    "西餐",
+    "午餐",
+    "晚餐",
+    "吃什么",
+    "口味",
+    "多少量",
+    "份量",
+    "饭",
+  ]);
 }
 
 export function generateSchemaFromBrief(brief: string): ProjectSchema {
@@ -115,6 +148,70 @@ export function generateSchemaFromBrief(brief: string): ProjectSchema {
           required: false,
           pageId: "switching",
           placeholder: "Mention missing features, trust issues, pricing, quality, or workflow fit.",
+          validation: { maxLength: 500 },
+        },
+      ],
+    };
+  }
+
+  if (isFoodBrief(brief)) {
+    return {
+      title,
+      description:
+        "Collect meal preference, taste, portion, and reason signals from users.",
+      pages: [
+        {
+          id: "meal_choice",
+          title: "Meal choice",
+          description: "Understand what the user would choose first.",
+        },
+        {
+          id: "preference_detail",
+          title: "Preference detail",
+          description: "Capture taste, portion, and the reason behind it.",
+        },
+      ],
+      fields: [
+        {
+          id: "meal_style",
+          type: "single_select",
+          label: "早餐你更想选择哪一类？",
+          required: true,
+          options: ["中式早餐", "西式早餐", "都可以", "其他"],
+          pageId: "meal_choice",
+        },
+        {
+          id: "specific_food",
+          type: "short_text",
+          label: "你具体会想吃什么？",
+          required: true,
+          pageId: "meal_choice",
+          placeholder: "例如：包子豆浆、粥、三明治、咖啡、沙拉",
+          validation: { minLength: 1, maxLength: 80 },
+        },
+        {
+          id: "flavor_preference",
+          type: "multi_select",
+          label: "你偏好的口味是什么？",
+          required: true,
+          options: ["清淡", "咸口", "甜口", "辣", "酸", "不油腻", "都可以"],
+          pageId: "preference_detail",
+        },
+        {
+          id: "portion_size",
+          type: "single_select",
+          label: "你希望份量大概是多少？",
+          required: true,
+          options: ["少量", "正常份量", "较大份量", "看当天情况"],
+          pageId: "preference_detail",
+        },
+        {
+          id: "choice_reason",
+          type: "long_text",
+          label: "为什么会这样选择？",
+          required: false,
+          pageId: "preference_detail",
+          placeholder: "可以写口味、健康、方便程度、价格、习惯等原因。",
           validation: { maxLength: 500 },
         },
       ],

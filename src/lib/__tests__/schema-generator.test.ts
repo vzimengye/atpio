@@ -33,6 +33,19 @@ describe("generateSchemaFromBrief", () => {
     expect(result.fields.some((field) => field.id === "reason")).toBe(true);
     expect(result.fields.some((field) => field.id === "rating")).toBe(true);
   });
+
+  it("generates a meal preference schema for Chinese breakfast briefs", () => {
+    const result = generateSchemaFromBrief(
+      "早餐会选择吃什么？中餐西餐？什么口味多少量？",
+    );
+
+    expect(result.title).toBe("Meal Preference Survey");
+    expect(result.fields.some((field) => field.id === "meal_style")).toBe(true);
+    expect(result.fields.some((field) => field.id === "flavor_preference")).toBe(
+      true,
+    );
+    expect(result.fields.some((field) => field.id === "portion_size")).toBe(true);
+  });
 });
 
 describe("project naming helpers", () => {
