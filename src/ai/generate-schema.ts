@@ -47,7 +47,7 @@ const projectSchemaOutput = z.object({
     title: z.string(),
     description: z.string(),
     pages: z.array(formPageSchema).max(5).optional(),
-    fields: z.array(formFieldSchema).min(1).max(8),
+    fields: z.array(formFieldSchema).min(4).max(12),
   }),
 });
 
@@ -127,7 +127,7 @@ export async function generateSchema({
     const { text } = await generateText({
       model: ppio.chat(model),
       system: schemaGenerationPrompt,
-      prompt: `Create a data gathering form for this brief. Keep it concise, useful inside an embedded gadget, and split into pages only when helpful.
+      prompt: `Create a data gathering form for this brief. Make the questions rich, specific, and varied while still usable inside an embedded gadget. Split into pages when helpful.
 
 Return only valid JSON with this shape:
 {
@@ -151,11 +151,18 @@ Return only valid JSON with this shape:
   }
 }
 
+Question design requirements:
+- Prefer 6-9 fields for normal briefs. Use up to 12 when the brief has multiple dimensions.
+- Include a mix of field types when useful: single_select, multi_select, rating, short_text, long_text, and boolean.
+- Cover multiple data dimensions, such as current behavior, preference, reason, context, constraints, tradeoffs, frequency, satisfaction, and follow-up willingness.
+- Avoid generic questions like "What is the most important thing you want us to know?" unless the brief is truly generic.
+- Choice options should be concrete and brief, usually 4-7 options.
+- Put related questions into 2-4 pages so the preview feels organized.
 Use the same language as the brief for user-facing labels.
 
 Brief:
 ${brief}`,
-      temperature: 0.2,
+      temperature: 0.35,
     });
     const object = projectSchemaOutput.parse(extractJsonObject(text));
 
