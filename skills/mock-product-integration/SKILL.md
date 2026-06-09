@@ -1,31 +1,33 @@
 # Mock Product Integration
 
-Use this guide when you need to connect another product page to Atpio the same way the local mock product does.
+Use this skill to build a mock host page that connects to an existing Atpio app.
+The mock page represents a partner product. It does not implement Atpio itself;
+it only loads Atpio's public gadget script.
 
-## Mental Model
+## Goal
 
-Atpio runs as the collector app. The host product is any separate page that wants to show an embedded feedback gadget.
+Create a separate page that:
 
-The connection has three pieces:
-
-1. The host page loads Atpio's public script: `/gadget.js`.
-2. The script reads `data-*` attributes from its own `<script>` tag.
-3. The script creates a floating button and opens an iframe pointing to `/embed/{projectId}`.
+1. Runs outside the Atpio app.
+2. Loads `https://YOUR_ATPIO_DOMAIN/gadget.js`.
+3. Passes an Atpio `data-project-id`.
+4. Shows the injected feedback button.
+5. Opens the Atpio iframe when the button is clicked.
 
 In local development:
 
 - Atpio app: `http://127.0.0.1:3000`
 - Mock product: `http://127.0.0.1:4000`
-- Script loaded by mock product: `http://127.0.0.1:3000/gadget.js`
-- Iframe opened by script: `http://127.0.0.1:3000/embed/{projectId}`
+- Gadget script: `http://127.0.0.1:3000/gadget.js`
 
-## Minimal Host Page Snippet
+## Static Mock
 
-Add this script tag to the host product page:
+Use a static script tag when the mock should always load one known Atpio
+project:
 
 ```html
 <script
-  src="https://YOUR_ATPIO_DOMAIN/gadget.js"
+  src="http://127.0.0.1:3000/gadget.js"
   data-project-id="project_example"
   data-atpio-position="bottom-right"
   data-atpio-theme="light"
@@ -33,103 +35,83 @@ Add this script tag to the host product page:
 ></script>
 ```
 
-Required:
-
-- `src`: the Atpio app URL plus `/gadget.js`.
-- `data-project-id`: the Atpio project to render in the iframe.
-
-Optional:
-
-- `data-atpio-position`: `bottom-right`, `bottom-left`, `top-right`, or `top-left`.
-- `data-atpio-theme`: `light` or `dark`.
-- `data-atpio-label`: button label.
-- `data-atpio-brand-color`: primary button color.
-- `data-atpio-accent-color`: top border / accent color.
-- `data-atpio-button-shape`: `pill`, `rounded`, or `square`.
-- `data-atpio-font-family`: CSS font stack.
-- `data-atpio-success-callback`: global callback function name.
-- `data-atpio-meta-*`: any extra metadata to attach to submitted responses.
-
-## Recommended Partner Implementation
-
-Use this flow when a partner product needs to collect a specific dataset.
-
-1. The Atpio admin creates a project for the partner's research brief.
-2. The Atpio admin saves the project and opens the project detail page.
-3. The partner copies the generated embed script from the project detail page.
-4. The partner adds the script to the target product page, usually near the end
-   of `<body>`.
-5. The partner optionally adds `data-atpio-meta-*` attributes for context such
-   as page, user segment, account ID, experiment ID, or feature flag.
-6. The partner tests the page and confirms the feedback button opens the right
-   Atpio form.
-
-Partners should not fork or reimplement Atpio. Their product only needs to load
-the public script and pass the project ID.
-
-### Static Project Integration
-
-Use this when one product page should always collect data for one Atpio project:
+For production-like testing, replace the script URL:
 
 ```html
 <script
   src="https://YOUR_ATPIO_DOMAIN/gadget.js"
-  data-project-id="project_customer_research"
+  data-project-id="project_example"
   data-atpio-position="bottom-right"
   data-atpio-label="Share feedback"
-  data-atpio-meta-page="checkout"
-  data-atpio-meta-source="partner-product"
 ></script>
 ```
 
-### Dynamic Project Integration
+Required attributes:
 
-Use this when the host product chooses the project ID at runtime:
+- `src`: Atpio app URL plus `/gadget.js`.
+- `data-project-id`: the Atpio project ID to render.
+
+Common optional attributes:
+
+- `data-atpio-position`: `bottom-right`, `bottom-left`, `top-right`, or
+  `top-left`.
+- `data-atpio-theme`: `light` or `dark`.
+- `data-atpio-label`: button label.
+- `data-atpio-success-callback`: global callback function name.
+- `data-atpio-meta-*`: metadata to attach to each submitted response.
+
+## Dynamic Mock
+
+Use JavaScript injection when the mock should choose a project ID at runtime.
+This is how `mock-product/index.html` previews the latest saved Atpio project.
 
 ```js
-const script = document.createElement("script");
-script.src = "https://YOUR_ATPIO_DOMAIN/gadget.js";
-script.dataset.projectId = window.atpioProjectId;
-script.dataset.atpioPosition = "bottom-right";
-script.dataset.atpioLabel = "Share feedback";
-script.dataset.atpioMetaPage = window.location.pathname;
-document.body.appendChild(script);
+var atpioAppUrl = "http://127.0.0.1:3000";
+
+function loadAtpioGadget(projectId) {
+  var oldRoot = document.querySelector("[data-atpio-root]");
+  if (oldRoot) oldRoot.remove();
+
+  var oldScript = document.querySelector("[data-atpio-mock-script]");
+  if (oldScript) oldScript.remove();
+
+  var script = document.createElement("script");
+  script.src = atpioAppUrl + "/gadget.js";
+  script.setAttribute("data-atpio-mock-script", "true");
+  script.setAttribute("data-project-id", projectId);
+  script.setAttribute("data-atpio-position", "bottom-right");
+  script.setAttribute("data-atpio-theme", "light");
+  script.setAttribute("data-atpio-label", "Share feedback");
+  script.setAttribute("data-atpio-meta-page", "mock-product");
+  script.setAttribute("data-atpio-success-callback", "onAtpioSuccess");
+  document.body.appendChild(script);
+}
 ```
 
-The host product can decide `window.atpioProjectId` from its own config,
-experiment assignment, route, or tenant settings.
-
-## How the Local Mock Product Works
-
-The local mock product lives in `mock-product/index.html`.
-
-It does two things:
-
-1. Fetches the latest saved project:
+To load the latest saved Atpio project:
 
 ```js
 fetch(atpioAppUrl + "/api/projects/latest?t=" + Date.now(), {
   cache: "no-store",
-});
+})
+  .then(function (response) {
+    if (!response.ok) throw new Error("Could not load latest project.");
+    return response.json();
+  })
+  .then(function (payload) {
+    var projectId = payload.project
+      ? payload.project.id
+      : "project_onboarding_feedback";
+    loadAtpioGadget(projectId);
+  })
+  .catch(function () {
+    loadAtpioGadget("project_onboarding_feedback");
+  });
 ```
 
-2. Injects the gadget script using that project ID:
+## Events and Callback
 
-```js
-var script = document.createElement("script");
-script.src = atpioAppUrl + "/gadget.js";
-script.setAttribute("data-project-id", projectId);
-script.setAttribute("data-atpio-position", "bottom-right");
-script.setAttribute("data-atpio-theme", "light");
-script.setAttribute("data-atpio-label", "Share feedback");
-document.body.appendChild(script);
-```
-
-This makes the mock product always preview the newest saved Atpio project.
-
-## Events and Callbacks
-
-The gadget emits browser events on the host page:
+The mock page can listen for gadget events:
 
 ```js
 window.addEventListener("atpio:open", function (event) {
@@ -145,15 +127,7 @@ window.addEventListener("atpio:success", function (event) {
 });
 ```
 
-You can also pass a callback function name:
-
-```html
-<script
-  src="https://YOUR_ATPIO_DOMAIN/gadget.js"
-  data-project-id="project_example"
-  data-atpio-success-callback="onAtpioSuccess"
-></script>
-```
+If the script includes `data-atpio-success-callback="onAtpioSuccess"`, define:
 
 ```js
 window.onAtpioSuccess = function (detail) {
@@ -163,11 +137,12 @@ window.onAtpioSuccess = function (detail) {
 
 ## Metadata
 
-Use `data-atpio-meta-*` attributes to send host product context with every response.
+Use `data-atpio-meta-*` attributes to send mock product context with each
+response:
 
 ```html
 <script
-  src="https://YOUR_ATPIO_DOMAIN/gadget.js"
+  src="http://127.0.0.1:3000/gadget.js"
   data-project-id="project_example"
   data-atpio-meta-page="pricing"
   data-atpio-meta-user-segment="trial"
@@ -175,9 +150,7 @@ Use `data-atpio-meta-*` attributes to send host product context with every respo
 ></script>
 ```
 
-Atpio stores these values under `metadata` on the response.
-
-## Local Testing Steps
+## Local Test
 
 1. Start Atpio:
 
@@ -191,31 +164,25 @@ npm run dev
 npm run mock-product
 ```
 
-3. Open the mock product:
+3. Open:
 
 ```text
 http://127.0.0.1:4000
 ```
 
 4. Save a project in Atpio.
-5. Refresh the mock product.
-6. Click the feedback button.
-7. Confirm it opens the latest saved Atpio form.
+5. Refresh the mock page.
+6. Confirm the mock page says it loaded the latest saved project.
+7. Click the feedback button and confirm the Atpio iframe opens.
+8. Submit the form and confirm the success event/callback logs in the browser
+   console.
 
-## Production Checklist
+## Acceptance Checklist
 
-- Set `NEXT_PUBLIC_APP_URL` to the deployed Atpio URL.
-- Set `NEXT_PUBLIC_MOCK_PRODUCT_URL` only for local/demo environments.
-- Register allowed host domains before tightening CORS for production.
-- Keep response submission public, but validate input and rate limit it.
-- Protect project management and export endpoints with authentication before exposing real customer data.
-
-## Partner Acceptance Checklist
-
-- The host page loads `https://YOUR_ATPIO_DOMAIN/gadget.js` without console
-  errors.
-- The script tag includes the expected `data-project-id`.
-- The feedback button appears in the configured position.
+- The mock page is separate from the Atpio app.
+- The mock page loads `/gadget.js` from the Atpio URL.
+- The script receives the correct `data-project-id`.
+- The feedback button appears.
 - Clicking the button opens the Atpio iframe.
-- Submitting the form creates a response in Atpio.
-- The response includes expected metadata, if `data-atpio-meta-*` was provided.
+- Submitting the form saves a response in Atpio.
+- Optional metadata appears on the saved response.

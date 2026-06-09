@@ -110,24 +110,22 @@ http://127.0.0.1:4000
 
 The mock product is a separate static app in `mock-product/`. It loads Atpio from `http://127.0.0.1:3000/gadget.js`, then opens the feedback form in an iframe. This is the local equivalent of another product calling Atpio's gadget API.
 
-## Partner Integration Skill
+## Mock Product Integration Skill
 
-If a partner wants to implement their own feedback entry point, give them this
-guide:
+If someone needs to build a mock host page that connects to Atpio the same way
+`mock-product/` does, use this guide:
 
 [`skills/mock-product-integration/SKILL.md`](skills/mock-product-integration/SKILL.md)
 
-That skill explains the same pattern used by the local mock product:
+That skill only explains the mock host side:
 
-1. Create or save a project in Atpio.
-2. Copy the generated script tag from the Atpio project detail page.
-3. Add the script tag to the partner product page.
-4. The script renders a floating feedback button.
-5. When a user clicks the button, Atpio opens the project form in an iframe.
-6. Submitted responses are saved back to Atpio and can be exported as JSON.
+1. Load Atpio's public `gadget.js` script.
+2. Pass the right `data-project-id`.
+3. Optionally pass `data-atpio-meta-*` metadata.
+4. Listen for open, close, and success events.
+5. Verify the iframe opens and responses are saved.
 
-Partners do not need to run Atpio's code inside their own app. They only need to
-load the public `gadget.js` script and pass the correct `data-project-id`.
+It does not describe Atpio's internal implementation.
 
 ## Download Project Data
 
