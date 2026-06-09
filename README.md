@@ -16,15 +16,15 @@ Implemented:
 
 - Next.js + TypeScript + Tailwind app scaffold.
 - Project dashboard shell.
-- Mock project data.
 - Dynamic form renderer.
-- `/projects/new` builder stub.
+- `/projects/new` project creator with AI-assisted schema generation.
 - `/projects` project list.
 - `/projects/[projectId]` project detail editor.
 - `/embed/[projectId]` embedded form preview.
 - `/gadget.js` script embed.
 - `/demo-host` mock host product page.
-- Local file-backed persistence in `data/app-store.json`.
+- Prisma/PostgreSQL storage for deployed environments, with local JSON fallback.
+- Admin login for project management routes.
 - PPIO-backed schema generation with local fallback.
 - Multi-page questionnaire rendering.
 - Field validation metadata.
@@ -35,13 +35,14 @@ Implemented:
 - Mock collection APIs:
   - `GET /api/projects/[projectId]/schema`
   - `POST /api/projects/[projectId]/responses`
+- Project data export API:
+  - `GET /api/projects/[projectId]/export`
 - OpenClio concept notes for future analysis exploration.
 
 Not implemented yet:
 
-- Production database storage.
 - Basic aggregate reporting beyond response and schema counts.
-- Vercel deployment.
+- Multi-tenant self-serve user signup.
 
 ## Run the App
 
@@ -109,8 +110,24 @@ http://127.0.0.1:4000
 
 The mock product is a separate static app in `mock-product/`. It loads Atpio from `http://127.0.0.1:3000/gadget.js`, then opens the feedback form in an iframe. This is the local equivalent of another product calling Atpio's gadget API.
 
-For a reusable integration guide, see
-[`skills/mock-product-integration/SKILL.md`](skills/mock-product-integration/SKILL.md).
+## Partner Integration Skill
+
+If a partner wants to implement their own feedback entry point, give them this
+guide:
+
+[`skills/mock-product-integration/SKILL.md`](skills/mock-product-integration/SKILL.md)
+
+That skill explains the same pattern used by the local mock product:
+
+1. Create or save a project in Atpio.
+2. Copy the generated script tag from the Atpio project detail page.
+3. Add the script tag to the partner product page.
+4. The script renders a floating feedback button.
+5. When a user clicks the button, Atpio opens the project form in an iframe.
+6. Submitted responses are saved back to Atpio and can be exported as JSON.
+
+Partners do not need to run Atpio's code inside their own app. They only need to
+load the public `gadget.js` script and pass the correct `data-project-id`.
 
 ## Download Project Data
 
@@ -125,7 +142,6 @@ gadget settings, responses, audit events, and export timestamp.
 
 ## Remaining Production Work
 
-- Replace `data/app-store.json` with Supabase, Postgres, or another production database.
 - Revisit advanced analysis after the data gathering product flow is stable. If needed, use OpenClio only as conceptual reference and prefer a TypeScript implementation first.
 - Deploy to Vercel and configure production environment variables. See `docs/deployment.md`.
 - Add privacy hardening before advanced analysis work, including PII redaction and minimum group thresholds.

@@ -50,6 +50,55 @@ Optional:
 - `data-atpio-success-callback`: global callback function name.
 - `data-atpio-meta-*`: any extra metadata to attach to submitted responses.
 
+## Recommended Partner Implementation
+
+Use this flow when a partner product needs to collect a specific dataset.
+
+1. The Atpio admin creates a project for the partner's research brief.
+2. The Atpio admin saves the project and opens the project detail page.
+3. The partner copies the generated embed script from the project detail page.
+4. The partner adds the script to the target product page, usually near the end
+   of `<body>`.
+5. The partner optionally adds `data-atpio-meta-*` attributes for context such
+   as page, user segment, account ID, experiment ID, or feature flag.
+6. The partner tests the page and confirms the feedback button opens the right
+   Atpio form.
+
+Partners should not fork or reimplement Atpio. Their product only needs to load
+the public script and pass the project ID.
+
+### Static Project Integration
+
+Use this when one product page should always collect data for one Atpio project:
+
+```html
+<script
+  src="https://YOUR_ATPIO_DOMAIN/gadget.js"
+  data-project-id="project_customer_research"
+  data-atpio-position="bottom-right"
+  data-atpio-label="Share feedback"
+  data-atpio-meta-page="checkout"
+  data-atpio-meta-source="partner-product"
+></script>
+```
+
+### Dynamic Project Integration
+
+Use this when the host product chooses the project ID at runtime:
+
+```js
+const script = document.createElement("script");
+script.src = "https://YOUR_ATPIO_DOMAIN/gadget.js";
+script.dataset.projectId = window.atpioProjectId;
+script.dataset.atpioPosition = "bottom-right";
+script.dataset.atpioLabel = "Share feedback";
+script.dataset.atpioMetaPage = window.location.pathname;
+document.body.appendChild(script);
+```
+
+The host product can decide `window.atpioProjectId` from its own config,
+experiment assignment, route, or tenant settings.
+
 ## How the Local Mock Product Works
 
 The local mock product lives in `mock-product/index.html`.
@@ -160,3 +209,13 @@ http://127.0.0.1:4000
 - Register allowed host domains before tightening CORS for production.
 - Keep response submission public, but validate input and rate limit it.
 - Protect project management and export endpoints with authentication before exposing real customer data.
+
+## Partner Acceptance Checklist
+
+- The host page loads `https://YOUR_ATPIO_DOMAIN/gadget.js` without console
+  errors.
+- The script tag includes the expected `data-project-id`.
+- The feedback button appears in the configured position.
+- Clicking the button opens the Atpio iframe.
+- Submitting the form creates a response in Atpio.
+- The response includes expected metadata, if `data-atpio-meta-*` was provided.
