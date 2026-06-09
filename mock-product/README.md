@@ -1,6 +1,7 @@
 # Mock Product
 
-This is a separate local host product used to test Atpio integration.
+This is a separate host product used to test Atpio integration. It can run
+locally on port 4000 or as its own Vercel static project.
 
 Run Atpio in one terminal:
 
@@ -43,3 +44,29 @@ Atpio on localhost:3000/gadget.js
 Atpio form on localhost:3000/embed/project_onboarding_feedback
 ```
 
+## Deploy This Mock Product to Vercel
+
+Create a second Vercel project from the same GitHub repo:
+
+```text
+Repository: vzimengye/atpio
+Root Directory: mock-product
+Framework Preset: Other
+Build Command: npm run build
+Output Directory: .
+Install Command: npm install
+```
+
+The deployed mock product defaults to loading Atpio from:
+
+```text
+https://atpio-vzimengyes-projects.vercel.app
+```
+
+No Atpio backend code runs inside this mock project. It only loads:
+
+```text
+https://atpio-vzimengyes-projects.vercel.app/gadget.js
+```
+
+and injects the latest saved Atpio project into an iframe.

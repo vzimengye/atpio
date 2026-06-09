@@ -1,0 +1,8 @@
+{
+  "name": "atpio-mock-product",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "node -e \"console.log('Static mock product: no build step needed.')\""
+  }
+}
