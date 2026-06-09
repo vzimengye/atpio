@@ -22,13 +22,21 @@ export default async function ProjectsPage() {
               Data gathering workspace
             </h1>
           </div>
-          <Link
-            className="inline-flex h-10 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-medium text-white"
-            href="/projects/new"
-          >
-            Generate new form
-          </Link>
-          <SignOutButton />
+          <div className="flex flex-wrap gap-2">
+            <Link
+              className="inline-flex h-10 items-center justify-center rounded-full border border-stone-300 bg-white/70 px-5 text-sm font-medium text-slate-700"
+              href="/"
+            >
+              Atpio home
+            </Link>
+            <Link
+              className="inline-flex h-10 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-medium text-white"
+              href="/projects/new"
+            >
+              Generate new form
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
 
         <section className="mt-8 grid gap-4">
