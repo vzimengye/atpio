@@ -4,6 +4,8 @@
 
 Atpio is a standard Next.js app and can be deployed to Vercel.
 
+Choose the **Next.js** application preset. Then override the build command.
+
 Use the custom build command:
 
 ```bash
@@ -17,6 +19,8 @@ prisma generate && prisma migrate deploy && next build
 ```
 
 The Prisma steps matter because Vercel caches dependencies between builds. Generating Prisma Client during deployment keeps the generated client aligned with `prisma/schema.prisma`, and `prisma migrate deploy` applies committed migrations.
+
+Do not run Prisma from `postinstall`. Dependency installation should not require a database connection; the deployment build command is the right place to generate the client and apply migrations.
 
 ## Required Environment Variables
 
