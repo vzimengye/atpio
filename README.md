@@ -74,6 +74,9 @@ For production database storage on Vercel, set `DATABASE_URL` and use the
 `npm run vercel-build` build command so Prisma generates the client and applies
 migrations before `next build`.
 
+For the exact Prisma + Neon + Vercel setup, see
+[`docs/prisma-vercel.md`](docs/prisma-vercel.md).
+
 ## MVP Flow
 
 1. Open `/projects/new`.

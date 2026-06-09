@@ -1,5 +1,7 @@
 {
   "framework": "nextjs",
+  "buildCommand": "npm run vercel-build",
+  "installCommand": "npm install",
   "regions": ["sfo1"],
   "functions": {
     "src/app/api/**/*.ts": {
@@ -7,4 +9,3 @@
     }
   }
 }
-
