@@ -1,6 +1,7 @@
 "use server";
 
 import { logger } from "@/lib/logger";
+import { SchemaGenerationError } from "@/ai/generate-schema";
 import { requireAdmin } from "@/lib/auth-guard";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 import { projectIdFromName, projectNameFromBrief } from "@/lib/schema-generator";
@@ -23,12 +24,20 @@ export async function createProjectAction(input: unknown) {
   }
 
   const { brief, schema: providedSchema } = parsed.data;
-  const generated = providedSchema
-    ? {
-        name: projectNameFromBrief(brief),
-        schema: providedSchema,
-      }
-    : await generateSchemaWithPpio(brief);
+  let generated;
+  try {
+    generated = providedSchema
+      ? {
+          name: projectNameFromBrief(brief),
+          schema: providedSchema,
+        }
+      : await generateSchemaWithPpio(brief);
+  } catch (error) {
+    if (error instanceof SchemaGenerationError) {
+      return { error: error.message };
+    }
+    return { error: "Could not generate schema with PPIO." };
+  }
   const name = (parsed.data.name || generated.name || projectNameFromBrief(brief)).trim();
   const now = new Date().toISOString();
   const project: DataProject = {

@@ -57,6 +57,13 @@ export type GeneratedSchemaResult = {
   source: "ppio" | "local";
 };
 
+export class SchemaGenerationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "SchemaGenerationError";
+  }
+}
+
 function localSchemaResult(brief: string): GeneratedSchemaResult {
   return {
     name: projectNameFromBrief(brief),
@@ -88,15 +95,18 @@ function normalizeSchema(schema: ProjectSchema): ProjectSchema {
 }
 
 export async function generateSchema({
+  allowLocalFallback = false,
   brief,
 }: {
+  allowLocalFallback?: boolean;
   brief: string;
 }): Promise<GeneratedSchemaResult> {
   logger.info({ msg: "Generating schema", briefLength: brief.length });
 
   if (!process.env.PPIO_API_KEY) {
-    logger.info({ msg: "Using local schema generator", reason: "missing_api_key" });
-    return localSchemaResult(brief);
+    logger.error({ msg: "PPIO schema generation unavailable", reason: "missing_api_key" });
+    if (allowLocalFallback) return localSchemaResult(brief);
+    throw new SchemaGenerationError("PPIO_API_KEY is missing.");
   }
 
   try {
@@ -123,9 +133,14 @@ export async function generateSchema({
     return result;
   } catch (error) {
     logger.error({
-      msg: "LLM schema generation failed, using local fallback",
+      msg: "PPIO schema generation failed",
       error,
     });
+    if (!allowLocalFallback) {
+      throw new SchemaGenerationError(
+        "PPIO could not generate the form. Check the API key, model, base URL, or provider status.",
+      );
+    }
     return localSchemaResult(brief);
   }
 }

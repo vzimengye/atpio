@@ -23,6 +23,7 @@ type ProjectBuilderProps = {
   initialName?: string;
   initialSchema?: ProjectSchema;
   initialSource?: "ppio" | "local";
+  generationError?: string;
   savedProjectId?: string;
 };
 
@@ -31,6 +32,7 @@ export function ProjectBuilder({
   initialBrief = "",
   initialName = "",
   initialSchema = emptyPreviewSchema,
+  generationError = "",
   savedProjectId,
 }: ProjectBuilderProps) {
   const [brief, setBrief] = useState(initialBrief);
@@ -40,7 +42,7 @@ export function ProjectBuilder({
   const [status, setStatus] = useState<
     "idle" | "generating" | "saving" | "saved"
   >(savedProjectId ? "saved" : "idle");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState(generationError);
   const [sourceMessage, setSourceMessage] = useState(
     savedProjectId
       ? ""
@@ -84,19 +86,24 @@ export function ProjectBuilder({
       });
 
       if (!response.ok) {
-        throw new Error("Schema generation failed.");
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error ?? "Schema generation failed.");
       }
 
       const payload = await response.json();
       setName(payload.name);
       setSchema(payload.schema);
       setSourceMessage(
-        "Form generated. Review the questions, then save it as a project.",
+        payload.source === "ppio"
+          ? "Generated with PPIO. Review the questions, then save it as a project."
+          : "Generated locally. Review the questions, then save it as a project.",
       );
       setStatus("idle");
-    } catch {
+    } catch (error) {
       setErrorMessage(
-        "Could not reach the schema API. The local preview is still available.",
+        error instanceof Error
+          ? error.message
+          : "Could not generate schema with PPIO.",
       );
       setStatus("idle");
     }

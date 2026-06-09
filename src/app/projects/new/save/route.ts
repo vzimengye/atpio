@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { SchemaGenerationError } from "@/ai/generate-schema";
 import { requireAdmin } from "@/lib/auth-guard";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 import { projectIdFromName, projectNameFromBrief } from "@/lib/schema-generator";
@@ -35,12 +36,21 @@ export async function POST(request: Request) {
   }
 
   const providedSchema = parseSchema(formData.get("schema"));
-  const generated = providedSchema
-    ? {
-        name: projectNameFromBrief(brief),
-        schema: providedSchema,
-      }
-    : await generateSchemaWithPpio(brief);
+  let generated;
+  try {
+    generated = providedSchema
+      ? {
+          name: projectNameFromBrief(brief),
+          schema: providedSchema,
+        }
+      : await generateSchemaWithPpio(brief);
+  } catch (error) {
+    fallbackUrl.searchParams.set(
+      "error",
+      error instanceof SchemaGenerationError ? "ppio_failed" : "schema_failed",
+    );
+    return NextResponse.redirect(fallbackUrl, { status: 303 });
+  }
   const name = String(
     formData.get("name") || generated.name || projectNameFromBrief(brief),
   ).trim();

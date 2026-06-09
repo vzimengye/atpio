@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { SchemaGenerationError } from "@/ai/generate-schema";
 import { requireAdmin } from "@/lib/auth-guard";
 import { logger } from "@/lib/logger";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
@@ -28,13 +29,24 @@ export async function POST(request: Request) {
   }
 
   const { brief, schema: providedSchema } = parsed.data;
-  const generated = providedSchema
-    ? {
-        name: projectNameFromBrief(brief),
-        schema: providedSchema,
-        source: "local" as const,
-      }
-    : await generateSchemaWithPpio(brief);
+  let generated;
+  try {
+    generated = providedSchema
+      ? {
+          name: projectNameFromBrief(brief),
+          schema: providedSchema,
+          source: "local" as const,
+        }
+      : await generateSchemaWithPpio(brief);
+  } catch (error) {
+    if (error instanceof SchemaGenerationError) {
+      return NextResponse.json({ error: error.message }, { status: 502 });
+    }
+    return NextResponse.json(
+      { error: "Could not generate schema with PPIO." },
+      { status: 502 },
+    );
+  }
   const name = (parsed.data.name || generated.name || projectNameFromBrief(brief)).trim();
   const now = new Date().toISOString();
   const project: DataProject = {
