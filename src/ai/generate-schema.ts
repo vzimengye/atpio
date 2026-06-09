@@ -1,6 +1,6 @@
 import "server-only";
 
-import { generateObject } from "ai";
+import { generateText } from "ai";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
 import { generateSchemaFromBrief, projectNameFromBrief } from "@/lib/schema-generator";
@@ -94,6 +94,19 @@ function normalizeSchema(schema: ProjectSchema): ProjectSchema {
   };
 }
 
+function extractJsonObject(text: string) {
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidate = fenced?.[1] ?? text;
+  const start = candidate.indexOf("{");
+  const end = candidate.lastIndexOf("}");
+
+  if (start === -1 || end === -1 || end <= start) {
+    throw new SchemaGenerationError("PPIO returned text without a JSON object.");
+  }
+
+  return JSON.parse(candidate.slice(start, end + 1));
+}
+
 export async function generateSchema({
   allowLocalFallback = false,
   brief,
@@ -111,14 +124,40 @@ export async function generateSchema({
 
   try {
     const model = process.env.PPIO_MODEL ?? "deepseek/deepseek-v3-turbo";
-    const { object } = await generateObject({
-      model: ppio(model),
-      schema: projectSchemaOutput,
+    const { text } = await generateText({
+      model: ppio.chat(model),
       system: schemaGenerationPrompt,
-      prompt: `Create a data gathering form for this brief. Keep it concise, useful inside an embedded gadget, and split into pages only when helpful.\n\nBrief:\n${brief}`,
+      prompt: `Create a data gathering form for this brief. Keep it concise, useful inside an embedded gadget, and split into pages only when helpful.
+
+Return only valid JSON with this shape:
+{
+  "name": "short project name",
+  "schema": {
+    "title": "form title",
+    "description": "form description",
+    "pages": [{"id": "page_id", "title": "Page title", "description": "optional"}],
+    "fields": [
+      {
+        "id": "stable_snake_case_id",
+        "type": "short_text | long_text | single_select | multi_select | rating | boolean",
+        "label": "question label",
+        "required": true,
+        "options": ["for choice fields only"],
+        "pageId": "matching page id",
+        "placeholder": "optional",
+        "validation": {"minLength": 0, "maxLength": 500, "min": 1, "max": 5}
+      }
+    ]
+  }
+}
+
+Use the same language as the brief for user-facing labels.
+
+Brief:
+${brief}`,
       temperature: 0.2,
-      maxRetries: 2,
     });
+    const object = projectSchemaOutput.parse(extractJsonObject(text));
 
     const result: GeneratedSchemaResult = {
       name: object.name || projectNameFromBrief(brief),
