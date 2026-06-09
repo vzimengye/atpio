@@ -113,6 +113,16 @@ http://127.0.0.1:4000
 
 The mock product is a separate static app in `mock-product/`. It loads Atpio from `http://127.0.0.1:3000/gadget.js`, then opens the feedback form in an iframe. This is the local equivalent of another product calling Atpio's gadget API.
 
+The deployed mock product is available at:
+
+```text
+https://mock-product.vercel.app
+```
+
+In production, set `NEXT_PUBLIC_MOCK_PRODUCT_URL=https://mock-product.vercel.app`
+on the Atpio Vercel project so Atpio's "Test in mock product" links open the
+host product directly.
+
 ## Mock Product Integration Skill
 
 If someone needs to build a mock host page that connects to Atpio the same way

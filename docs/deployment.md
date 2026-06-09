@@ -30,6 +30,7 @@ ATPIO_ADMIN_EMAIL=admin@example.com
 ATPIO_ADMIN_PASSWORD=...
 DATABASE_URL=postgresql://...
 NEXT_PUBLIC_APP_URL=https://your-atpio-domain.vercel.app
+NEXT_PUBLIC_MOCK_PRODUCT_URL=https://mock-product.vercel.app
 PPIO_API_KEY=...
 PPIO_BASE_URL=https://api.ppinfra.com/v3/openai
 PPIO_MODEL=deepseek/deepseek-v3-turbo
@@ -39,7 +40,6 @@ PPIO_TIMEOUT_MS=30000
 Optional for local/demo environments:
 
 ```text
-NEXT_PUBLIC_MOCK_PRODUCT_URL=http://127.0.0.1:4000
 LOG_LEVEL=info
 ```
 
@@ -99,4 +99,5 @@ npx vercel --prod
 2. Sign in with the configured admin credentials.
 3. Create and save a project.
 4. Open `/api/projects/{projectId}/export` while signed in and verify a JSON file downloads.
-5. Add the script from the project detail page to a host product and verify the iframe opens.
+5. Open the configured mock product URL, for example `https://mock-product.vercel.app`, and verify it loads the latest saved project.
+6. Add the script from the project detail page to a host product and verify the iframe opens.
