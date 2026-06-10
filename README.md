@@ -24,8 +24,7 @@ Implemented:
 - `/gadget.js` script embed.
 - `/demo-host` mock host product page.
 - Prisma/PostgreSQL storage for deployed environments, with local JSON fallback.
-- Self-serve user registration and login for project management routes.
-- Per-user project/document records scoped by signed-in email.
+- Admin login for project management routes.
 - PPIO-backed schema generation with local fallback.
 - Multi-page questionnaire rendering.
 - Field validation metadata.
@@ -43,6 +42,7 @@ Implemented:
 Not implemented yet:
 
 - Basic aggregate reporting beyond response and schema counts.
+- Multi-tenant self-serve user signup.
 
 ## Run the App
 
@@ -64,9 +64,11 @@ Copy `.env.example` to `.env.local` and set `PPIO_API_KEY` to enable real LLM sc
 
 Do not commit `.env.local`.
 
-For account access, set `AUTH_SECRET`, then create an account at `/register`.
-Projects, generated forms, response records, and exports are scoped to the
-signed-in user.
+For admin access, set:
+
+- `AUTH_SECRET`
+- `ATPIO_ADMIN_EMAIL`
+- `ATPIO_ADMIN_PASSWORD`
 
 For production database storage on Vercel, set `DATABASE_URL` and use the
 `npm run vercel-build` build command so Prisma generates the client and applies

@@ -51,6 +51,8 @@ Add these in Vercel project settings:
 ```env
 DATABASE_URL=postgresql://...
 AUTH_SECRET=replace_with_a_long_random_secret
+ATPIO_ADMIN_EMAIL=you@example.com
+ATPIO_ADMIN_PASSWORD=replace_with_a_strong_password
 NEXT_PUBLIC_APP_URL=https://your-atpio-domain.vercel.app
 PPIO_API_KEY=replace_with_your_ppio_key
 PPIO_BASE_URL=https://api.ppinfra.com/v3/openai
@@ -59,8 +61,6 @@ PPIO_TIMEOUT_MS=30000
 ```
 
 Set the environment scope to Production and Preview.
-
-After deployment, create your first user at `/register`.
 
 ## Generate AUTH_SECRET
 

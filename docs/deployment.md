@@ -26,6 +26,8 @@ Do not run Prisma from `postinstall`. Dependency installation should not require
 
 ```text
 AUTH_SECRET=...
+ATPIO_ADMIN_EMAIL=admin@example.com
+ATPIO_ADMIN_PASSWORD=...
 DATABASE_URL=postgresql://...
 NEXT_PUBLIC_APP_URL=https://your-atpio-domain.vercel.app
 NEXT_PUBLIC_MOCK_PRODUCT_URL=https://mock-product.vercel.app
@@ -56,13 +58,13 @@ Local development can still run without `DATABASE_URL`; in that case Atpio falls
 
 ## Auth
 
-Project management routes are protected by Auth.js credentials auth. Users
-create accounts at `/register`; their projects, response records, and exports
-are scoped to their signed-in email.
+Project management routes are protected by Auth.js credentials auth.
 
 Set:
 
 - `AUTH_SECRET`
+- `ATPIO_ADMIN_EMAIL`
+- `ATPIO_ADMIN_PASSWORD`
 
 Public routes intentionally remain open:
 
@@ -73,7 +75,7 @@ Public routes intentionally remain open:
 - `/api/projects/latest`
 - `/api/projects/generate-schema`
 
-Management/export routes require a signed-in user session.
+Admin/export routes require a signed-in admin session.
 
 ## Deploy From Local
 
@@ -94,7 +96,7 @@ npx vercel --prod
 ## Verify After Deployment
 
 1. Open `https://your-atpio-domain.vercel.app/login`.
-2. Create an account at `/register`, or sign in at `/login`.
+2. Sign in with the configured admin credentials.
 3. Create and save a project.
 4. Open `/api/projects/{projectId}/export` while signed in and verify a JSON file downloads.
 5. Open the configured mock product URL, for example `https://mock-product.vercel.app`, and verify it loads the latest saved project.
