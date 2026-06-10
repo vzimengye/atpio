@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { sampleProject } from "@/lib/mock-data";
 import type { FormField } from "@/lib/types";
 import { listProjects, listResponses } from "@/lib/store";
 
@@ -47,10 +48,10 @@ export default async function Home() {
   if (!session?.user) redirect("/login");
 
   const projects = await listProjects(session.user.email ?? undefined);
-  const project = projects[0] ?? null;
-  const responses = project ? await listResponses(project.id) : [];
-  const requiredFields =
-    project?.schema.fields.filter((field) => field.required).length ?? 0;
+  const project = projects[0] ?? sampleProject;
+  const responses = await listResponses(project.id);
+  const requiredFields = project.schema.fields.filter((field) => field.required)
+    .length;
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-slate-950">
@@ -64,9 +65,9 @@ export default async function Home() {
               Generate data gathering gadgets from natural-language briefs.
             </h1>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-              Your documents stay tied to your account: create a data gathering
-              project, preview the generated schema, embed the gadget, and
-              review your own response records.
+              This first screen turns the Atpio plan into a working product
+              shell: create a data gathering project, preview the generated
+              schema, embed the gadget, and verify response collection.
             </p>
           </div>
           <Link
@@ -79,10 +80,10 @@ export default async function Home() {
 
         <section className="grid gap-4 md:grid-cols-4">
           {[
-            ["Projects", String(projects.length)],
-            ["Responses", String(project?.responseCount ?? 0)],
-            ["Fields", String(project?.schema.fields.length ?? 0)],
-            ["Status", project ? statusLabels[project.status] : "None"],
+            ["Projects", "1"],
+            ["Responses", String(project.responseCount)],
+            ["Fields", String(project.schema.fields.length)],
+            ["Status", statusLabels[project.status]],
           ].map(([label, value]) => (
             <div
               key={label}
@@ -96,7 +97,6 @@ export default async function Home() {
           ))}
         </section>
 
-        {project ? (
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -157,26 +157,6 @@ export default async function Home() {
             </div>
           </div>
         </section>
-        ) : (
-          <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 text-center shadow-sm backdrop-blur">
-            <p className="text-sm font-medium text-emerald-700">
-              No documents yet
-            </p>
-            <h2 className="mt-2 text-3xl font-semibold">
-              Create your first data gathering project.
-            </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-              Atpio will save generated forms, edits, embed settings, and
-              response records under your account.
-            </p>
-            <Link
-              className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-medium text-white"
-              href="/projects/new"
-            >
-              Generate first form
-            </Link>
-          </section>
-        )}
 
         <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
