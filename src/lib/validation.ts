@@ -77,6 +77,12 @@ export const updateProjectRequestSchema = z.object({
   gadget: gadgetSettingsSchema.optional(),
 });
 
+export const registerUserSchema = z.object({
+  email: z.string().trim().email().max(240),
+  name: z.string().trim().max(120).optional(),
+  password: z.string().min(8).max(200),
+});
+
 const answerValueSchema = z.union([
   z.string(),
   z.array(z.string()),
