@@ -47,26 +47,30 @@ export function FieldEditor({
 
   return (
     <div className="grid gap-3 rounded-xl border border-stone-200 bg-white p-4">
-      <div className="grid gap-3 sm:grid-cols-[0.85fr_1.1fr_auto]">
-        <label className="text-sm">
-          <span className="font-medium text-slate-800">Field ID</span>
-          <input
-            className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-            value={field.id}
-            onChange={(event) => onUpdate({ id: slugify(event.target.value) })}
-          />
-        </label>
-        <label className="text-sm">
-          <span className="font-medium text-slate-800">Label</span>
-          <input
-            className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-            value={field.label}
-            onChange={(event) => onUpdate({ label: event.target.value })}
-          />
-        </label>
-        <div className="mt-7 flex flex-wrap gap-2">
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(120px,0.7fr)_minmax(220px,1.3fr)]">
+          <label className="min-w-0 text-sm">
+            <span className="font-medium text-slate-800">Field ID</span>
+            <input
+              className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
+              value={field.id}
+              onChange={(event) =>
+                onUpdate({ id: slugify(event.target.value) })
+              }
+            />
+          </label>
+          <label className="min-w-0 text-sm">
+            <span className="font-medium text-slate-800">Label</span>
+            <input
+              className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
+              value={field.label}
+              onChange={(event) => onUpdate({ label: event.target.value })}
+            />
+          </label>
+        </div>
+        <div className="flex flex-wrap gap-2 xl:justify-end xl:pt-7">
           <button
-            className="h-10 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
+            className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
             disabled={!canMoveUp}
             onClick={onMoveUp}
             type="button"
@@ -74,7 +78,7 @@ export function FieldEditor({
             Up
           </button>
           <button
-            className="h-10 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
+            className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
             disabled={!canMoveDown}
             onClick={onMoveDown}
             type="button"
@@ -83,7 +87,7 @@ export function FieldEditor({
           </button>
           {onDuplicate ? (
             <button
-              className="h-10 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700"
+              className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700"
               onClick={onDuplicate}
               type="button"
             >
@@ -91,7 +95,7 @@ export function FieldEditor({
             </button>
           ) : null}
           <button
-            className="h-10 rounded-md border border-red-200 px-3 text-sm font-medium text-red-700"
+            className="h-9 rounded-md border border-red-200 px-3 text-sm font-medium text-red-700"
             onClick={onRemove}
             type="button"
           >
