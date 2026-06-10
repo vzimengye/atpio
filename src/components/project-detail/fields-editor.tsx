@@ -8,6 +8,8 @@ type FieldsEditorProps = {
   pages: FormPage[];
   slugify: (value: string) => string;
   onAddField: () => void;
+  onDuplicateField?: (fieldId: string) => void;
+  onMoveField?: (fieldId: string, direction: "up" | "down") => void;
   onRemoveField: (fieldId: string) => void;
   onUpdateField: (fieldId: string, patch: Partial<FormField>) => void;
   onUpdateValidation: (
@@ -22,6 +24,8 @@ export function FieldsEditor({
   pages,
   slugify,
   onAddField,
+  onDuplicateField,
+  onMoveField,
   onRemoveField,
   onUpdateField,
   onUpdateValidation,
@@ -39,12 +43,23 @@ export function FieldsEditor({
         </button>
       </div>
       <div className="mt-3 grid gap-4">
-        {fields.map((field) => (
+        {fields.map((field, index) => (
           <FieldEditor
+            canMoveDown={Boolean(onMoveField) && index < fields.length - 1}
+            canMoveUp={Boolean(onMoveField) && index > 0}
             field={field}
             key={field.id}
             pages={pages}
             slugify={slugify}
+            onDuplicate={
+              onDuplicateField ? () => onDuplicateField(field.id) : undefined
+            }
+            onMoveDown={
+              onMoveField ? () => onMoveField(field.id, "down") : undefined
+            }
+            onMoveUp={
+              onMoveField ? () => onMoveField(field.id, "up") : undefined
+            }
             onRemove={() => onRemoveField(field.id)}
             onUpdate={(patch) => onUpdateField(field.id, patch)}
             onUpdateValidation={(key, value) =>

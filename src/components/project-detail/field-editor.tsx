@@ -14,6 +14,11 @@ const fieldTypes: FieldType[] = [
 
 type FieldEditorProps = {
   field: FormField;
+  canMoveDown?: boolean;
+  canMoveUp?: boolean;
+  onDuplicate?: () => void;
+  onMoveDown?: () => void;
+  onMoveUp?: () => void;
   onRemove: () => void;
   onUpdate: (patch: Partial<FormField>) => void;
   onUpdateValidation: (
@@ -26,6 +31,11 @@ type FieldEditorProps = {
 
 export function FieldEditor({
   field,
+  canMoveDown = false,
+  canMoveUp = false,
+  onDuplicate,
+  onMoveDown,
+  onMoveUp,
   onRemove,
   onUpdate,
   onUpdateValidation,
@@ -54,13 +64,40 @@ export function FieldEditor({
             onChange={(event) => onUpdate({ label: event.target.value })}
           />
         </label>
-        <button
-          className="mt-7 h-10 rounded-md border border-red-200 px-3 text-sm font-medium text-red-700"
-          onClick={onRemove}
-          type="button"
-        >
-          Remove
-        </button>
+        <div className="mt-7 flex flex-wrap gap-2">
+          <button
+            className="h-10 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
+            disabled={!canMoveUp}
+            onClick={onMoveUp}
+            type="button"
+          >
+            Up
+          </button>
+          <button
+            className="h-10 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
+            disabled={!canMoveDown}
+            onClick={onMoveDown}
+            type="button"
+          >
+            Down
+          </button>
+          {onDuplicate ? (
+            <button
+              className="h-10 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700"
+              onClick={onDuplicate}
+              type="button"
+            >
+              Copy
+            </button>
+          ) : null}
+          <button
+            className="h-10 rounded-md border border-red-200 px-3 text-sm font-medium text-red-700"
+            onClick={onRemove}
+            type="button"
+          >
+            Remove
+          </button>
+        </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-3">
         <label className="text-sm">
