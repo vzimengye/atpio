@@ -417,28 +417,49 @@ export async function addAuditEvent(
   return auditEvent;
 }
 
-export async function listAuditEvents(projectId?: string): Promise<AuditEvent[]> {
+export async function listAuditEvents(
+  projectId?: string,
+  ownerEmail?: string,
+): Promise<AuditEvent[]> {
+  const ownedProjectIds = ownerEmail
+    ? new Set((await listProjects(ownerEmail)).map((project) => project.id))
+    : null;
+
   if (shouldUseDatabase) {
     const prisma = getPrisma();
     const auditEvents = await prisma.auditEvent.findMany({
-      where: projectId ? { projectId } : undefined,
+      where: projectId
+        ? { projectId }
+        : ownedProjectIds
+          ? { projectId: { in: [...ownedProjectIds] } }
+          : undefined,
       orderBy: { createdAt: "desc" },
     });
 
-    return auditEvents.map((event) => ({
-      id: event.id,
-      action: event.action,
-      actor: event.actor as AuditEvent["actor"],
-      projectId: event.projectId ?? undefined,
-      metadata: event.metadata as AuditEvent["metadata"],
-      createdAt: event.createdAt.toISOString(),
-    }));
+    return auditEvents
+      .filter((event) =>
+        ownedProjectIds && event.projectId
+          ? ownedProjectIds.has(event.projectId)
+          : true,
+      )
+      .map((event) => ({
+        id: event.id,
+        action: event.action,
+        actor: event.actor as AuditEvent["actor"],
+        projectId: event.projectId ?? undefined,
+        metadata: event.metadata as AuditEvent["metadata"],
+        createdAt: event.createdAt.toISOString(),
+      }));
   }
 
   const store = await readStore();
-  return projectId
-    ? store.auditEvents.filter((event) => event.projectId === projectId)
-    : store.auditEvents;
+  return store.auditEvents.filter((event) => {
+    if (projectId && event.projectId !== projectId) return false;
+    if (ownedProjectIds && event.projectId) {
+      return ownedProjectIds.has(event.projectId);
+    }
+    return !ownedProjectIds;
+  });
 }
 
 export async function exportProjectData(projectId: string, ownerEmail?: string) {
@@ -450,7 +471,7 @@ export async function exportProjectData(projectId: string, ownerEmail?: string) 
     exportedAt: new Date().toISOString(),
     project,
     responses: await listResponses(projectId),
-    auditEvents: await listAuditEvents(projectId),
+    auditEvents: await listAuditEvents(projectId, ownerEmail),
   };
 }
 

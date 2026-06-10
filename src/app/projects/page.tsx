@@ -40,6 +40,26 @@ export default async function ProjectsPage() {
         </div>
 
         <section className="mt-8 grid gap-4">
+          {projects.length === 0 ? (
+            <div className="rounded-3xl border border-stone-200 bg-white/80 p-8 text-center shadow-sm">
+              <p className="text-sm font-medium text-emerald-700">
+                No documents yet
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">
+                Generate your first Atpio form.
+              </h2>
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-600">
+                Each project you create is saved under your account, with its
+                own schema, gadget settings, responses, and export data.
+              </p>
+              <Link
+                className="mt-6 inline-flex h-10 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-medium text-white"
+                href="/projects/new"
+              >
+                Generate new form
+              </Link>
+            </div>
+          ) : null}
           {projects.map((project) => (
             <Link
               key={project.id}
