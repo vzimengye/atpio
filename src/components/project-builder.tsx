@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { createProjectAction } from "@/app/projects/actions";
 import { DynamicForm } from "@/components/dynamic-form";
 import { AdvancedJsonEditor } from "@/components/project-detail/advanced-json-editor";
@@ -50,6 +50,7 @@ export function ProjectBuilder({
   const [status, setStatus] = useState<
     "idle" | "generating" | "revising" | "saving" | "saved"
   >(savedProjectId ? "saved" : "idle");
+  const [showSavedToast, setShowSavedToast] = useState(false);
   const [errorMessage, setErrorMessage] = useState(generationError);
   const [sourceMessage, setSourceMessage] = useState(
     savedProjectId
@@ -58,6 +59,16 @@ export function ProjectBuilder({
         ? "Form generated. Review the questions, then save it as a project."
         : "",
   );
+
+  useEffect(() => {
+    if (!showSavedToast) return;
+
+    const timeout = window.setTimeout(() => {
+      setShowSavedToast(false);
+    }, 3000);
+
+    return () => window.clearTimeout(timeout);
+  }, [showSavedToast]);
 
   function handleProjectSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -136,6 +147,7 @@ export function ProjectBuilder({
       setProjectId(result.project.id);
       updateSchemaState(result.project.schema);
       setStatus("saved");
+      setShowSavedToast(true);
     } catch {
       setErrorMessage(
         "Could not save the project. Make sure the local Atpio server is running, then try again.",
@@ -384,7 +396,12 @@ export function ProjectBuilder({
       ) : null}
       {status === "saved" ? (
         <div
-          className="fixed left-1/2 top-6 z-50 w-[min(92vw,520px)] -translate-x-1/2 rounded-2xl border border-emerald-200 bg-white px-5 py-4 text-slate-950 shadow-xl"
+          className={[
+            "fixed left-1/2 top-6 z-50 w-[min(92vw,520px)] -translate-x-1/2 rounded-2xl border border-emerald-200 bg-white px-5 py-4 text-slate-950 shadow-xl transition-all duration-300",
+            showSavedToast
+              ? "translate-y-0 opacity-100"
+              : "pointer-events-none -translate-y-6 opacity-0",
+          ].join(" ")}
           role="status"
         >
           <div className="flex items-start gap-3">
