@@ -3,11 +3,9 @@ import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { sampleProject } from "@/lib/mock-data";
-import { hashPassword, verifyPassword } from "@/lib/password";
 import { getPrisma } from "@/prisma/prisma";
 import type {
   AppStore,
-  AppUser,
   AuditEvent,
   DataProject,
   GadgetSettings,
@@ -18,7 +16,6 @@ const storePath = path.join(process.cwd(), "data", "app-store.json");
 const shouldUseDatabase = Boolean(process.env.DATABASE_URL);
 
 const initialStore: AppStore = {
-  users: [],
   projects: [sampleProject],
   responses: [],
   auditEvents: [],
@@ -62,7 +59,6 @@ export async function readStore(): Promise<AppStore> {
   const parsed = JSON.parse(raw) as Partial<AppStore>;
 
   return {
-    users: parsed.users ?? [],
     projects: (parsed.projects ?? initialStore.projects).map(withProjectDefaults),
     responses: parsed.responses ?? [],
     auditEvents: parsed.auditEvents ?? [],
@@ -70,117 +66,7 @@ export async function readStore(): Promise<AppStore> {
 }
 
 function belongsToOwner(project: DataProject, ownerEmail?: string) {
-  return ownerEmail ? project.ownerEmail === ownerEmail : true;
-}
-
-function normalizeEmail(email: string) {
-  return email.trim().toLowerCase();
-}
-
-function withoutPasswordHash(user: AppUser): Omit<AppUser, "passwordHash"> {
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
-  };
-}
-
-export async function createUser({
-  email,
-  name,
-  password,
-}: {
-  email: string;
-  name?: string;
-  password: string;
-}): Promise<Omit<AppUser, "passwordHash">> {
-  const normalizedEmail = normalizeEmail(email);
-  const now = new Date().toISOString();
-
-  if (shouldUseDatabase) {
-    const prisma = getPrisma();
-    const existing = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-
-    if (existing) throw new Error("email_exists");
-
-    const user = await prisma.user.create({
-      data: {
-        id: `user_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
-        email: normalizedEmail,
-        name: name?.trim() || undefined,
-        passwordHash: await hashPassword(password),
-      },
-    });
-
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name ?? undefined,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString(),
-    };
-  }
-
-  const store = await readStore();
-  const existing = store.users.find((user) => user.email === normalizedEmail);
-
-  if (existing) throw new Error("email_exists");
-
-  const user: AppUser = {
-    id: `user_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
-    email: normalizedEmail,
-    name: name?.trim() || undefined,
-    passwordHash: await hashPassword(password),
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  store.users.unshift(user);
-  await writeStore(store);
-
-  return withoutPasswordHash(user);
-}
-
-export async function verifyUserCredentials({
-  email,
-  password,
-}: {
-  email: string;
-  password: string;
-}): Promise<Omit<AppUser, "passwordHash"> | null> {
-  const normalizedEmail = normalizeEmail(email);
-
-  if (shouldUseDatabase) {
-    const prisma = getPrisma();
-    const user = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-
-    if (!user || !(await verifyPassword(password, user.passwordHash))) {
-      return null;
-    }
-
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name ?? undefined,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString(),
-    };
-  }
-
-  const store = await readStore();
-  const user = store.users.find((item) => item.email === normalizedEmail);
-
-  if (!user || !(await verifyPassword(password, user.passwordHash))) {
-    return null;
-  }
-
-  return withoutPasswordHash(user);
+  return !ownerEmail || !project.ownerEmail || project.ownerEmail === ownerEmail;
 }
 
 export async function writeStore(store: AppStore) {

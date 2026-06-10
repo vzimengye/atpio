@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { AuthError } from "next-auth";
 import { auth, signIn } from "@/auth";
 
@@ -37,7 +36,7 @@ export default async function LoginPage({
         action={login}
         className="w-full max-w-sm rounded-3xl border border-stone-200 bg-white/85 p-6 shadow-sm"
       >
-        <p className="text-sm font-medium text-emerald-700">Atpio workspace</p>
+        <p className="text-sm font-medium text-emerald-700">Atpio admin</p>
         <h1 className="mt-2 text-3xl font-semibold">Sign in</h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
           Sign in to manage projects, responses, and exports.
@@ -75,12 +74,6 @@ export default async function LoginPage({
         >
           Sign in
         </button>
-        <p className="mt-4 text-center text-sm text-slate-600">
-          New to Atpio?{" "}
-          <Link className="font-medium text-emerald-700" href="/register">
-            Create an account
-          </Link>
-        </p>
       </form>
     </main>
   );

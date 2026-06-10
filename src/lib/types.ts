@@ -59,15 +59,6 @@ export type DataProject = {
   ownerEmail?: string;
 };
 
-export type AppUser = {
-  id: string;
-  email: string;
-  name?: string;
-  passwordHash: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
 export type ProjectResponse = {
   id: string;
   projectId: string;
@@ -79,7 +70,6 @@ export type ProjectResponse = {
 };
 
 export type AppStore = {
-  users: AppUser[];
   projects: DataProject[];
   responses: ProjectResponse[];
   auditEvents: AuditEvent[];

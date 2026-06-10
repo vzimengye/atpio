@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
-import { verifyUserCredentials } from "@/lib/store";
 
 const credentialsSchema = z.object({
   email: z.string().email(),
@@ -23,19 +22,24 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         const parsed = credentialsSchema.safeParse(credentials);
+        const adminEmail = process.env.ATPIO_ADMIN_EMAIL;
+        const adminPassword = process.env.ATPIO_ADMIN_PASSWORD;
 
-        if (!parsed.success) {
+        if (!parsed.success || !adminEmail || !adminPassword) {
           return null;
         }
 
-        const user = await verifyUserCredentials(parsed.data);
-
-        if (!user) return null;
+        if (
+          parsed.data.email !== adminEmail ||
+          parsed.data.password !== adminPassword
+        ) {
+          return null;
+        }
 
         return {
-          id: user.id,
-          email: user.email,
-          name: user.name ?? user.email,
+          id: "atpio-admin",
+          email: parsed.data.email,
+          name: "Atpio Admin",
         };
       },
     }),
