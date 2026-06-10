@@ -34,7 +34,9 @@ export function DynamicForm({
     [schema.fields],
   );
   const [answers, setAnswers] = useState<FormState>(initialState);
-  const [status, setStatus] = useState<"idle" | "submitted">("idle");
+  const [status, setStatus] = useState<"idle" | "submitting" | "submitted">(
+    "idle",
+  );
   const [pageIndex, setPageIndex] = useState(0);
   const activePage = pages[pageIndex];
   const activeFields = schema.fields.filter((field) =>
@@ -69,16 +71,21 @@ export function DynamicForm({
       return;
     }
 
-    await fetch(`/api/projects/${projectId}/responses`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers, metadata }),
-    });
-    setStatus("submitted");
-    window.parent?.postMessage(
-      { type: "atpio:submitted", projectId, metadata },
-      "*",
-    );
+    setStatus("submitting");
+    try {
+      await fetch(`/api/projects/${projectId}/responses`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers, metadata }),
+      });
+      setStatus("submitted");
+      window.parent?.postMessage(
+        { type: "atpio:submitted", projectId, metadata },
+        "*",
+      );
+    } catch {
+      setStatus("idle");
+    }
   }
 
   function advancePreview() {
@@ -102,9 +109,27 @@ export function DynamicForm({
 
   return (
     <form
-      className={compact ? "space-y-4" : "space-y-5"}
+      className={compact ? "relative space-y-4" : "relative space-y-5"}
       onSubmit={handleSubmit}
     >
+      {status === "submitting" ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-white/70 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4 rounded-2xl border border-stone-200 bg-white px-8 py-7 text-center shadow-xl">
+            <span
+              aria-hidden="true"
+              className="size-10 animate-spin rounded-full border-4 border-emerald-700 border-r-transparent"
+            />
+            <div>
+              <p className="text-base font-semibold text-slate-950">
+                Submitting feedback
+              </p>
+              <p className="mt-1 text-sm text-slate-600">
+                Saving your response to Atpio.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <div>
         <h1 className={compact ? "text-xl font-semibold" : "text-2xl font-semibold"}>
           {schema.title}
@@ -162,9 +187,14 @@ export function DynamicForm({
         {!previewMode ? (
           <button
             className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-medium text-white"
+            disabled={status === "submitting"}
             type="submit"
           >
-            {isLastPage ? "Submit feedback" : "Next"}
+            {status === "submitting"
+              ? "Submitting..."
+              : isLastPage
+                ? "Submit feedback"
+                : "Next"}
           </button>
         ) : null}
       </div>
