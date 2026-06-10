@@ -45,9 +45,10 @@ export function ProjectBuilder({
   const [schemaText, setSchemaText] = useState(
     JSON.stringify(initialSchema, null, 2),
   );
+  const [revisionInstructions, setRevisionInstructions] = useState("");
   const [projectId, setProjectId] = useState(savedProjectId ?? "preview_project");
   const [status, setStatus] = useState<
-    "idle" | "generating" | "saving" | "saved"
+    "idle" | "generating" | "revising" | "saving" | "saved"
   >(savedProjectId ? "saved" : "idle");
   const [errorMessage, setErrorMessage] = useState(generationError);
   const [sourceMessage, setSourceMessage] = useState(
@@ -138,6 +139,58 @@ export function ProjectBuilder({
     } catch {
       setErrorMessage(
         "Could not save the project. Make sure the local Atpio server is running, then try again.",
+      );
+      setStatus("idle");
+    }
+  }
+
+  async function reviseWithAi() {
+    const trimmedBrief = brief.trim();
+    const trimmedInstructions = revisionInstructions.trim();
+
+    if (!trimmedBrief) {
+      setErrorMessage("Add a brief before asking Atpio to revise the form.");
+      setSourceMessage("");
+      return;
+    }
+
+    if (!trimmedInstructions) {
+      setErrorMessage("Add revision notes before asking Atpio to revise.");
+      setSourceMessage("");
+      return;
+    }
+
+    setErrorMessage("");
+    setSourceMessage("Applying your revision notes to the current form.");
+    setStatus("revising");
+
+    try {
+      const response = await fetch("/api/projects/revise-schema", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brief: trimmedBrief,
+          instructions: trimmedInstructions,
+          schema,
+        }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error ?? "Schema revision failed.");
+      }
+
+      const payload = await response.json();
+      setName(payload.name);
+      updateSchemaState(payload.schema);
+      setRevisionInstructions("");
+      setSourceMessage("Revision applied. Review the changes, then save it.");
+      setStatus("idle");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Could not revise schema with PPIO.",
       );
       setStatus("idle");
     }
@@ -303,7 +356,7 @@ export function ProjectBuilder({
 
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-      {status === "generating" || status === "saving" ? (
+      {status === "generating" || status === "revising" || status === "saving" ? (
         <div className="fixed inset-0 z-50 grid place-items-center bg-[#f7f1e8]/70 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4 rounded-2xl border border-stone-200 bg-white px-8 py-7 text-center shadow-xl">
             <span
@@ -314,12 +367,16 @@ export function ProjectBuilder({
               <p className="text-base font-semibold text-slate-950">
                 {status === "generating"
                   ? "Designing your form"
-                  : "Saving your project"}
+                  : status === "revising"
+                    ? "Revising your form"
+                    : "Saving your project"}
               </p>
               <p className="mt-1 text-sm text-slate-600">
                 {status === "generating"
                   ? "Atpio is choosing the best questions, field types, validation, and layout."
-                  : "We are making this project available to the mock product."}
+                  : status === "revising"
+                    ? "Atpio is applying your notes to the current questionnaire."
+                    : "We are making this project available to the mock product."}
               </p>
             </div>
           </div>
@@ -412,7 +469,11 @@ export function ProjectBuilder({
         <div className="mt-4 flex flex-wrap gap-3">
           <button
             className="inline-flex h-10 items-center justify-center rounded-full border border-stone-300 bg-white/70 px-4 text-sm font-medium text-slate-800"
-            disabled={status === "generating" || status === "saving"}
+            disabled={
+              status === "generating" ||
+              status === "revising" ||
+              status === "saving"
+            }
             formAction="/projects/new"
             formMethod="get"
             name="generate"
@@ -430,7 +491,7 @@ export function ProjectBuilder({
           </button>
           <button
             className="inline-flex h-10 items-center justify-center rounded-full bg-slate-950 px-4 text-sm font-medium text-white"
-            disabled={status === "saving"}
+            disabled={status === "saving" || status === "revising"}
             name="intent"
             type="submit"
             value="save"
@@ -478,6 +539,41 @@ export function ProjectBuilder({
               field type, options, validation, pages, order, and required
               status.
             </p>
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-emerald-100 bg-white p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-emerald-800">
+                  Ask Atpio to revise
+                </p>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  Give high-level feedback and Atpio will update the current
+                  questionnaire while preserving useful manual edits.
+                </p>
+              </div>
+              <button
+                className="inline-flex h-10 shrink-0 items-center justify-center rounded-full bg-emerald-700 px-4 text-sm font-medium text-white disabled:opacity-50"
+                disabled={status === "revising" || status === "saving"}
+                onClick={reviseWithAi}
+                type="button"
+              >
+                {status === "revising" ? (
+                  <>
+                    <Spinner />
+                    Revising...
+                  </>
+                ) : (
+                  "Revise with Atpio"
+                )}
+              </button>
+            </div>
+            <textarea
+              className="mt-3 min-h-24 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-600"
+              placeholder="Example: Add more price-sensitivity questions, reduce open-ended questions, and make the wording friendlier for students."
+              value={revisionInstructions}
+              onChange={(event) => setRevisionInstructions(event.target.value)}
+            />
           </div>
 
           <div className="mt-4 grid gap-4">

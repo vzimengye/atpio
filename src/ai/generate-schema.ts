@@ -190,3 +190,98 @@ ${brief}`,
     return localSchemaResult(brief);
   }
 }
+
+export async function reviseSchema({
+  brief,
+  currentSchema,
+  instructions,
+}: {
+  brief: string;
+  currentSchema: ProjectSchema;
+  instructions: string;
+}): Promise<GeneratedSchemaResult> {
+  logger.info({
+    msg: "Revising schema",
+    briefLength: brief.length,
+    instructionLength: instructions.length,
+    fieldCount: currentSchema.fields.length,
+  });
+
+  if (!process.env.PPIO_API_KEY) {
+    logger.error({ msg: "PPIO schema revision unavailable", reason: "missing_api_key" });
+    throw new SchemaGenerationError("PPIO_API_KEY is missing.");
+  }
+
+  try {
+    const model = process.env.PPIO_MODEL ?? "deepseek/deepseek-v3-turbo";
+    const { text } = await generateText({
+      model: ppio.chat(model),
+      system: schemaGenerationPrompt,
+      prompt: `Revise this existing Atpio questionnaire based on the user's instructions.
+
+Preserve useful existing questions and manual edits. Make targeted improvements instead of starting over unless the user explicitly asks for a full rewrite.
+
+Return only valid JSON with this shape:
+{
+  "name": "short project name",
+  "schema": {
+    "title": "form title",
+    "description": "form description",
+    "pages": [{"id": "page_id", "title": "Page title", "description": "optional"}],
+    "fields": [
+      {
+        "id": "stable_snake_case_id",
+        "type": "short_text | long_text | single_select | multi_select | rating | boolean",
+        "label": "question label",
+        "required": true,
+        "options": ["for choice fields only"],
+        "pageId": "matching page id",
+        "placeholder": "optional",
+        "validation": {"minLength": 0, "maxLength": 500, "min": 1, "max": 5}
+      }
+    ]
+  }
+}
+
+Revision requirements:
+- Apply the user's instructions concretely.
+- Keep the questionnaire coherent, usable, and not overly long.
+- Prefer 6-12 fields when the user asks for richer coverage.
+- Use varied field types when helpful.
+- Keep user-facing labels in the same language as the brief or the existing schema.
+- Keep stable IDs for unchanged questions when possible.
+- Ensure every field pageId matches an existing page id if pages are used.
+
+Original brief:
+${brief}
+
+Current schema:
+${JSON.stringify(currentSchema, null, 2)}
+
+User revision instructions:
+${instructions}`,
+      temperature: 0.3,
+    });
+    const object = projectSchemaOutput.parse(extractJsonObject(text));
+
+    const result: GeneratedSchemaResult = {
+      name: object.name || projectNameFromBrief(brief),
+      schema: normalizeSchema(object.schema),
+      source: "ppio",
+    };
+    logger.info({
+      msg: "Schema revised",
+      fieldCount: result.schema.fields.length,
+      source: result.source,
+    });
+    return result;
+  } catch (error) {
+    logger.error({
+      msg: "PPIO schema revision failed",
+      error,
+    });
+    throw new SchemaGenerationError(
+      "PPIO could not revise the form. Check the API key, model, base URL, or provider status.",
+    );
+  }
+}
