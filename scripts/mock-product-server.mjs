@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const port = Number(process.env.PORT ?? 4000);
-const root = dirname(fileURLToPath(import.meta.url));
+const root = join(dirname(fileURLToPath(import.meta.url)), "..", "mock-product");
 
 const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? "/", `http://${request.headers.host}`);
@@ -27,4 +27,3 @@ const server = createServer(async (request, response) => {
 server.listen(port, "127.0.0.1", () => {
   console.log(`Mock product running at http://127.0.0.1:${port}`);
 });
-

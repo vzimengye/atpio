@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "mock-product": "node mock-product/server.mjs"
+    "mock-product": "node scripts/mock-product-server.mjs"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.68",

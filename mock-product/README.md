@@ -53,20 +53,20 @@ Repository: vzimengye/atpio
 Root Directory: mock-product
 Framework Preset: Other
 Build Command: npm run build
-Output Directory: .
+Output Directory: leave blank
 Install Command: npm install
 ```
 
 The deployed mock product defaults to loading Atpio from:
 
 ```text
-https://atpio-vzimengyes-projects.vercel.app
+https://atpio.vercel.app
 ```
 
 No Atpio backend code runs inside this mock project. It only loads:
 
 ```text
-https://atpio-vzimengyes-projects.vercel.app/gadget.js
+https://atpio.vercel.app/gadget.js
 ```
 
 and injects the latest saved Atpio project into an iframe.
