@@ -47,28 +47,7 @@ export function FieldEditor({
 
   return (
     <div className="grid gap-3 rounded-xl border border-stone-200 bg-white p-4">
-      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto]">
-        <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(120px,0.7fr)_minmax(220px,1.3fr)]">
-          <label className="min-w-0 text-sm">
-            <span className="font-medium text-slate-800">Field ID</span>
-            <input
-              className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-              value={field.id}
-              onChange={(event) =>
-                onUpdate({ id: slugify(event.target.value) })
-              }
-            />
-          </label>
-          <label className="min-w-0 text-sm">
-            <span className="font-medium text-slate-800">Label</span>
-            <input
-              className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
-              value={field.label}
-              onChange={(event) => onUpdate({ label: event.target.value })}
-            />
-          </label>
-        </div>
-        <div className="flex flex-wrap gap-2 xl:justify-end xl:pt-7">
+      <div className="flex flex-wrap gap-2">
           <button
             className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
             disabled={!canMoveUp}
@@ -101,7 +80,24 @@ export function FieldEditor({
           >
             Remove
           </button>
-        </div>
+      </div>
+      <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+        <label className="min-w-0 text-sm">
+          <span className="font-medium text-slate-800">Field ID</span>
+          <input
+            className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
+            value={field.id}
+            onChange={(event) => onUpdate({ id: slugify(event.target.value) })}
+          />
+        </label>
+        <label className="min-w-0 text-sm">
+          <span className="font-medium text-slate-800">Label</span>
+          <input
+            className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
+            value={field.label}
+            onChange={(event) => onUpdate({ label: event.target.value })}
+          />
+        </label>
       </div>
       <div className="grid gap-3 sm:grid-cols-3">
         <label className="text-sm">
