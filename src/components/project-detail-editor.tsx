@@ -3,12 +3,14 @@
 import { ProjectSummaryPanel } from "@/components/project-detail/project-summary-panel";
 import { SchemaBuilder } from "@/components/project-detail/schema-builder";
 import { useProjectEditor } from "@/components/project-detail/use-project-editor";
+import type { UiLanguage } from "@/lib/i18n";
 import type { DataProject, ProjectResponse } from "@/lib/types";
 
 type ProjectDetailEditorProps = {
   activeProjectId?: string;
   initialProject: DataProject;
   responses: ProjectResponse[];
+  uiLanguage?: UiLanguage;
   workspaceKey?: string;
 };
 
@@ -26,6 +28,7 @@ export function ProjectDetailEditor({
   activeProjectId,
   initialProject,
   responses,
+  uiLanguage = "en",
   workspaceKey,
 }: ProjectDetailEditorProps) {
   const editor = useProjectEditor(initialProject, workspaceKey);
@@ -37,6 +40,7 @@ export function ProjectDetailEditor({
         isActiveProject={(activeProjectId ?? initialProject.id) === initialProject.id}
         project={editor.project}
         responseCount={responses.length}
+        uiLanguage={uiLanguage}
         workspaceEmbedCode={editor.workspaceEmbedCode}
         onProjectChange={editor.updateProject}
         onUpdateGadget={editor.updateGadget}
@@ -47,6 +51,7 @@ export function ProjectDetailEditor({
         schemaText={editor.schemaText}
         slugify={slugify}
         status={editor.status}
+        uiLanguage={uiLanguage}
         onAddField={editor.addField}
         onAddPage={editor.addPage}
         onApplySchemaText={editor.applySchemaText}

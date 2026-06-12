@@ -1,6 +1,7 @@
 "use client";
 
 import { FieldValidationPanel } from "@/components/project-detail/field-validation-panel";
+import type { UiLanguage } from "@/lib/i18n";
 import type { FieldType, FormField, FormPage } from "@/lib/types";
 
 const fieldTypes: FieldType[] = [
@@ -27,6 +28,7 @@ type FieldEditorProps = {
   ) => void;
   pages: FormPage[];
   slugify: (value: string) => string;
+  uiLanguage: UiLanguage;
 };
 
 export function FieldEditor({
@@ -41,49 +43,51 @@ export function FieldEditor({
   onUpdateValidation,
   pages,
   slugify,
+  uiLanguage,
 }: FieldEditorProps) {
+  const t = copy[uiLanguage];
   const isChoice =
     field.type === "single_select" || field.type === "multi_select";
 
   return (
     <div className="grid gap-3 rounded-xl border border-stone-200 bg-white p-4">
       <div className="flex flex-wrap gap-2">
+        <button
+          className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
+          disabled={!canMoveUp}
+          onClick={onMoveUp}
+          type="button"
+        >
+          {t.up}
+        </button>
+        <button
+          className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
+          disabled={!canMoveDown}
+          onClick={onMoveDown}
+          type="button"
+        >
+          {t.down}
+        </button>
+        {onDuplicate ? (
           <button
-            className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
-            disabled={!canMoveUp}
-            onClick={onMoveUp}
+            className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700"
+            onClick={onDuplicate}
             type="button"
           >
-            Up
+            {t.copy}
           </button>
-          <button
-            className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
-            disabled={!canMoveDown}
-            onClick={onMoveDown}
-            type="button"
-          >
-            Down
-          </button>
-          {onDuplicate ? (
-            <button
-              className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700"
-              onClick={onDuplicate}
-              type="button"
-            >
-              Copy
-            </button>
-          ) : null}
-          <button
-            className="h-9 rounded-md border border-red-200 px-3 text-sm font-medium text-red-700"
-            onClick={onRemove}
-            type="button"
-          >
-            Remove
-          </button>
+        ) : null}
+        <button
+          className="h-9 rounded-md border border-red-200 px-3 text-sm font-medium text-red-700"
+          onClick={onRemove}
+          type="button"
+        >
+          {t.remove}
+        </button>
       </div>
       <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
         <label className="min-w-0 text-sm">
-          <span className="font-medium text-slate-800">Field ID</span>
+          <span className="font-medium text-slate-800">{t.fieldId}</span>
           <input
             className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
             value={field.id}
@@ -91,7 +95,7 @@ export function FieldEditor({
           />
         </label>
         <label className="min-w-0 text-sm">
-          <span className="font-medium text-slate-800">Label</span>
+          <span className="font-medium text-slate-800">{t.label}</span>
           <input
             className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
             value={field.label}
@@ -101,7 +105,7 @@ export function FieldEditor({
       </div>
       <div className="grid gap-3 sm:grid-cols-3">
         <label className="text-sm">
-          <span className="font-medium text-slate-800">Type</span>
+          <span className="font-medium text-slate-800">{t.type}</span>
           <select
             className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
             value={field.type}
@@ -117,7 +121,7 @@ export function FieldEditor({
           </select>
         </label>
         <label className="text-sm">
-          <span className="font-medium text-slate-800">Page</span>
+          <span className="font-medium text-slate-800">{t.page}</span>
           <select
             className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
             value={field.pageId ?? ""}
@@ -125,7 +129,7 @@ export function FieldEditor({
               onUpdate({ pageId: event.target.value || undefined })
             }
           >
-            <option value="">No page</option>
+            <option value="">{t.noPage}</option>
             {pages.map((page) => (
               <option key={page.id} value={page.id}>
                 {page.title}
@@ -139,11 +143,11 @@ export function FieldEditor({
             onChange={(event) => onUpdate({ required: event.target.checked })}
             type="checkbox"
           />
-          Required
+          {t.required}
         </label>
       </div>
       <label className="text-sm">
-        <span className="font-medium text-slate-800">Placeholder</span>
+        <span className="font-medium text-slate-800">{t.placeholder}</span>
         <input
           className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
           value={field.placeholder ?? ""}
@@ -155,7 +159,7 @@ export function FieldEditor({
       {isChoice ? (
         <label className="text-sm">
           <span className="font-medium text-slate-800">
-            Options, comma separated
+            {t.options}
           </span>
           <input
             className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
@@ -173,8 +177,40 @@ export function FieldEditor({
       ) : null}
       <FieldValidationPanel
         field={field}
+        uiLanguage={uiLanguage}
         onUpdateValidation={onUpdateValidation}
       />
     </div>
   );
 }
+
+const copy = {
+  en: {
+    copy: "Copy",
+    down: "Down",
+    fieldId: "Field ID",
+    label: "Label",
+    noPage: "No page",
+    options: "Options, comma separated",
+    page: "Page",
+    placeholder: "Placeholder",
+    remove: "Remove",
+    required: "Required",
+    type: "Type",
+    up: "Up",
+  },
+  zh: {
+    copy: "复制",
+    down: "下移",
+    fieldId: "字段 ID",
+    label: "问题文案",
+    noPage: "不分页面",
+    options: "选项，用英文逗号分隔",
+    page: "页面",
+    placeholder: "占位提示",
+    remove: "删除",
+    required: "必填",
+    type: "类型",
+    up: "上移",
+  },
+} satisfies Record<UiLanguage, Record<string, string>>;

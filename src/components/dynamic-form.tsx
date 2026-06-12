@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import type { UiLanguage } from "@/lib/i18n";
 import type { FormField, FormPage, ProjectSchema } from "@/lib/types";
 
 type DynamicFormProps = {
@@ -10,6 +11,7 @@ type DynamicFormProps = {
   metadata?: Record<string, string>;
   previewMode?: boolean;
   successMessage?: string;
+  uiLanguage?: UiLanguage;
 };
 
 type FormState = Record<string, string | string[] | boolean>;
@@ -21,7 +23,9 @@ export function DynamicForm({
   metadata,
   previewMode = false,
   successMessage = "This response is saved and ready for the project dashboard.",
+  uiLanguage = "en",
 }: DynamicFormProps) {
+  const t = formCopy[uiLanguage];
   const pages = useMemo(() => getPages(schema), [schema]);
   const initialState = useMemo(
     () =>
@@ -98,7 +102,7 @@ export function DynamicForm({
     return (
       <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-5">
         <h2 className="text-lg font-semibold text-emerald-950">
-          Thanks for the feedback.
+          {t.thanks}
         </h2>
         <p className="mt-2 text-sm leading-6 text-emerald-800">
           {successMessage}
@@ -121,10 +125,10 @@ export function DynamicForm({
             />
             <div>
               <p className="text-base font-semibold text-slate-950">
-                Submitting feedback
+                {t.submittingTitle}
               </p>
               <p className="mt-1 text-sm text-slate-600">
-                Saving your response to Atpio.
+                {t.submittingText}
               </p>
             </div>
           </div>
@@ -140,7 +144,7 @@ export function DynamicForm({
         {pages.length > 1 && activePage ? (
           <div className="mt-4 rounded-lg bg-stone-50 p-3">
             <p className="text-xs font-medium uppercase tracking-wide text-emerald-700">
-              Step {pageIndex + 1} of {pages.length}
+              {t.step} {pageIndex + 1} {t.of} {pages.length}
             </p>
             <h2 className="mt-1 text-base font-semibold text-slate-950">
               {activePage.title}
@@ -162,6 +166,7 @@ export function DynamicForm({
           onToggleMultiSelect={toggleMultiSelect}
           onUpdateAnswer={updateAnswer}
           previewMode={previewMode}
+          uiLanguage={uiLanguage}
         />
       ))}
 
@@ -172,7 +177,7 @@ export function DynamicForm({
             type="button"
             onClick={() => setPageIndex((current) => Math.max(current - 1, 0))}
           >
-            Back
+            {t.back}
           </button>
         ) : null}
         {previewMode && !isLastPage ? (
@@ -181,7 +186,7 @@ export function DynamicForm({
             onClick={advancePreview}
             type="button"
           >
-            Next
+            {t.next}
           </button>
         ) : null}
         {!previewMode ? (
@@ -191,10 +196,10 @@ export function DynamicForm({
             type="submit"
           >
             {status === "submitting"
-              ? "Submitting..."
+              ? t.submitting
               : isLastPage
-                ? "Submit feedback"
-                : "Next"}
+                ? t.submit
+                : t.next}
           </button>
         ) : null}
       </div>
@@ -210,19 +215,50 @@ function getPages(schema: ProjectSchema): FormPage[] {
   return [{ id: "default", title: schema.title, description: schema.description }];
 }
 
+const formCopy = {
+  en: {
+    back: "Back",
+    next: "Next",
+    of: "of",
+    selectOne: "Select one",
+    step: "Step",
+    submit: "Submit feedback",
+    submitting: "Submitting...",
+    submittingText: "Saving your response to Atpio.",
+    submittingTitle: "Submitting feedback",
+    thanks: "Thanks for the feedback.",
+  },
+  zh: {
+    back: "返回",
+    next: "下一步",
+    of: "/",
+    selectOne: "请选择",
+    step: "第",
+    submit: "提交反馈",
+    submitting: "提交中...",
+    submittingText: "正在把你的回答保存到 Atpio。",
+    submittingTitle: "正在提交反馈",
+    thanks: "感谢你的反馈。",
+  },
+} satisfies Record<UiLanguage, Record<string, string>>;
+
 function FieldInput({
   answers,
   field,
   onToggleMultiSelect,
   onUpdateAnswer,
   previewMode,
+  uiLanguage,
 }: {
   answers: FormState;
   field: FormField;
   onToggleMultiSelect: (fieldId: string, option: string) => void;
   onUpdateAnswer: (fieldId: string, value: string | string[] | boolean) => void;
   previewMode: boolean;
+  uiLanguage: UiLanguage;
 }) {
+  const t = formCopy[uiLanguage];
+
   return (
     <label className="block">
       <span className="text-sm font-medium text-slate-900">
@@ -261,7 +297,7 @@ function FieldInput({
           value={String(answers[field.id] ?? "")}
           onChange={(event) => onUpdateAnswer(field.id, event.target.value)}
         >
-          <option value="">Select one</option>
+          <option value="">{t.selectOne}</option>
           {field.options?.map((option) => (
             <option key={option} value={option}>
               {option}

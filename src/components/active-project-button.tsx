@@ -3,16 +3,31 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setActiveProjectAction } from "@/app/projects/actions";
+import type { UiLanguage } from "@/lib/i18n";
 
 export function ActiveProjectButton({
   isActive,
   projectId,
+  uiLanguage = "en",
 }: {
   isActive: boolean;
   projectId: string;
+  uiLanguage?: UiLanguage;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const t =
+    uiLanguage === "zh"
+      ? {
+          active: "当前嵌入项目",
+          setting: "设置中...",
+          use: "用于嵌入",
+        }
+      : {
+          active: "Active in embeds",
+          setting: "Setting...",
+          use: "Use in embeds",
+        };
 
   return (
     <button
@@ -31,7 +46,7 @@ export function ActiveProjectButton({
       }}
       type="button"
     >
-      {isActive ? "Active in embeds" : isPending ? "Setting..." : "Use in embeds"}
+      {isActive ? t.active : isPending ? t.setting : t.use}
     </button>
   );
 }

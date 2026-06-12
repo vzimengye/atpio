@@ -1,12 +1,14 @@
 "use client";
 
 import { FieldEditor } from "@/components/project-detail/field-editor";
+import type { UiLanguage } from "@/lib/i18n";
 import type { FormField, FormPage } from "@/lib/types";
 
 type FieldsEditorProps = {
   fields: FormField[];
   pages: FormPage[];
   slugify: (value: string) => string;
+  uiLanguage: UiLanguage;
   onAddField: () => void;
   onDuplicateField?: (fieldId: string) => void;
   onMoveField?: (fieldId: string, direction: "up" | "down") => void;
@@ -23,6 +25,7 @@ export function FieldsEditor({
   fields,
   pages,
   slugify,
+  uiLanguage,
   onAddField,
   onDuplicateField,
   onMoveField,
@@ -30,16 +33,18 @@ export function FieldsEditor({
   onUpdateField,
   onUpdateValidation,
 }: FieldsEditorProps) {
+  const t = copy[uiLanguage];
+
   return (
     <div className="mt-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-950">Fields</h2>
+        <h2 className="text-sm font-semibold text-slate-950">{t.fields}</h2>
         <button
           className="h-9 rounded-full border border-stone-300 px-3 text-sm font-medium"
           onClick={onAddField}
           type="button"
         >
-          Add field
+          {t.addField}
         </button>
       </div>
       <div className="mt-3 grid gap-4">
@@ -51,6 +56,7 @@ export function FieldsEditor({
             key={field.id}
             pages={pages}
             slugify={slugify}
+            uiLanguage={uiLanguage}
             onDuplicate={
               onDuplicateField ? () => onDuplicateField(field.id) : undefined
             }
@@ -71,3 +77,14 @@ export function FieldsEditor({
     </div>
   );
 }
+
+const copy = {
+  en: {
+    addField: "Add field",
+    fields: "Fields",
+  },
+  zh: {
+    addField: "添加问题",
+    fields: "问题",
+  },
+} satisfies Record<UiLanguage, Record<string, string>>;

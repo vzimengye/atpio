@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ActiveProjectButton } from "@/components/active-project-button";
 import { GadgetSettingsPanel } from "@/components/project-detail/gadget-settings-panel";
+import { langPath, type UiLanguage } from "@/lib/i18n";
 import type { DataProject, GadgetSettings } from "@/lib/types";
 
 type ProjectSummaryPanelProps = {
@@ -10,6 +11,7 @@ type ProjectSummaryPanelProps = {
   isActiveProject: boolean;
   project: DataProject;
   responseCount: number;
+  uiLanguage: UiLanguage;
   workspaceEmbedCode?: string;
   onProjectChange: (project: DataProject) => void;
   onUpdateGadget: <K extends keyof GadgetSettings>(
@@ -23,26 +25,29 @@ export function ProjectSummaryPanel({
   isActiveProject,
   project,
   responseCount,
+  uiLanguage,
   workspaceEmbedCode,
   onProjectChange,
   onUpdateGadget,
 }: ProjectSummaryPanelProps) {
+  const t = copy[uiLanguage];
+
   return (
     <section className="min-w-0 overflow-hidden rounded-2xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm font-medium text-emerald-700">Project detail</p>
+        <p className="text-sm font-medium text-emerald-700">{t.detail}</p>
         <div className="flex flex-wrap gap-2">
           <Link
             className="rounded-full border border-stone-300 bg-white/70 px-3 py-1.5 text-sm font-medium text-slate-700"
-            href="/projects"
+            href={langPath("/projects", uiLanguage)}
           >
-            All projects
+            {t.allProjects}
           </Link>
           <Link
             className="rounded-full bg-slate-950 px-3 py-1.5 text-sm font-medium text-white"
-            href="/projects/new"
+            href={langPath("/projects/new", uiLanguage)}
           >
-            Generate new form
+            {t.newProject}
           </Link>
         </div>
       </div>
@@ -62,21 +67,29 @@ export function ProjectSummaryPanel({
       />
 
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        <Metric label="Responses" value={responseCount} />
-        <Metric label="Fields" value={project.schema.fields.length} />
-        <Metric label="Pages" value={project.schema.pages?.length ?? 1} />
+        <Metric label={t.responses} value={responseCount} />
+        <Metric label={t.fields} value={project.schema.fields.length} />
+        <Metric label={t.pages} value={project.schema.pages?.length ?? 1} />
       </div>
 
       <div className="mt-4">
-        <ActiveProjectButton isActive={isActiveProject} projectId={project.id} />
+        <ActiveProjectButton
+          isActive={isActiveProject}
+          projectId={project.id}
+          uiLanguage={uiLanguage}
+        />
       </div>
 
-      <GadgetSettingsPanel gadget={project.gadget} onUpdate={onUpdateGadget} />
+      <GadgetSettingsPanel
+        gadget={project.gadget}
+        uiLanguage={uiLanguage}
+        onUpdate={onUpdateGadget}
+      />
 
       {workspaceEmbedCode ? (
         <div className="mt-6 rounded-xl bg-emerald-50 p-4 text-emerald-950">
           <p className="text-sm font-medium">
-            Workspace embed code, follows your active project
+            {t.workspaceEmbed}
           </p>
           <pre className="mt-3 whitespace-pre-wrap break-all text-xs leading-6">
             {workspaceEmbedCode}
@@ -85,7 +98,7 @@ export function ProjectSummaryPanel({
       ) : null}
 
       <div className="mt-6 rounded-xl bg-slate-950 p-4 text-slate-50">
-        <p className="text-sm font-medium">Fixed project embed code</p>
+        <p className="text-sm font-medium">{t.fixedEmbed}</p>
         <pre className="mt-3 whitespace-pre-wrap break-all text-xs leading-6">
           {embedCode}
         </pre>
@@ -93,6 +106,29 @@ export function ProjectSummaryPanel({
     </section>
   );
 }
+
+const copy = {
+  en: {
+    allProjects: "All projects",
+    detail: "Project detail",
+    fields: "Fields",
+    fixedEmbed: "Fixed project embed code",
+    newProject: "New project",
+    pages: "Pages",
+    responses: "Responses",
+    workspaceEmbed: "Workspace embed code, follows your active project",
+  },
+  zh: {
+    allProjects: "所有项目",
+    detail: "项目详情",
+    fields: "问题",
+    fixedEmbed: "固定项目嵌入代码",
+    newProject: "新建项目",
+    pages: "页面",
+    responses: "回答",
+    workspaceEmbed: "Workspace 嵌入代码，会跟随你的 active project",
+  },
+} satisfies Record<UiLanguage, Record<string, string>>;
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 import { createProjectAction } from "@/app/projects/actions";
 import { DynamicForm } from "@/components/dynamic-form";
-import type { UiLanguage } from "@/lib/i18n";
+import { langPath, type UiLanguage } from "@/lib/i18n";
 import { publicMockProductUrl } from "@/lib/public-url";
 import type { ProjectSchema } from "@/lib/types";
 
@@ -34,6 +34,36 @@ const builderCopy = {
     revising: "Revising...",
     revisionPlaceholder:
       "Example: Add more price-sensitivity questions, reduce open-ended questions, and make the wording friendlier for students.",
+    addBriefGenerate: "Add a brief before generating a schema.",
+    addBriefSave: "Add a brief before saving the project.",
+    addBriefRevise: "Add a brief before asking Atpio to revise the form.",
+    addRevisionNotes: "Add revision notes before asking Atpio to revise.",
+    generatedLocal:
+      "Generated locally. Review the questions, then save it as a project.",
+    generatedPpio:
+      "Generated with PPIO. Review the questions, then save it as a project.",
+    generatedReview:
+      "Form generated. Review the questions, then save it as a project.",
+    generatingDetail:
+      "Atpio is choosing the best questions, field types, validation, and layout.",
+    generatingInline:
+      "Atpio is choosing the best questions, fields, validation, and layout. This can take a moment.",
+    generatingTitle: "Designing your form",
+    reviseDetail: "Atpio is applying your notes to the current questionnaire.",
+    reviseSource: "Applying your revision notes to the current form.",
+    reviseSuccess: "Revision applied. Review the changes, then save it.",
+    reviseTitleLoading: "Revising your form",
+    saveDetail: "We are making this project available to the mock product.",
+    saveError:
+      "Could not save the project. Make sure the local Atpio server is running, then try again.",
+    saveToastTitle: "Project saved successfully.",
+    saveToastText: "It is now available in All projects and will be used by the mock product at",
+    savedDetail:
+      "Open project detail to fine-tune fields, pages, validation, and embed settings. The mock product can load it from",
+    savingTitle: "Saving your project",
+    openDetail: "Open project detail",
+    testMock: "Test in mock product",
+    viewProjects: "View all projects",
   },
   zh: {
     projectNamePlaceholder: "可选。Atpio 可以帮你命名。",
@@ -57,6 +87,31 @@ const builderCopy = {
     reviseButton: "用 Atpio 调整",
     revising: "调整中...",
     revisionPlaceholder: "例如：增加价格敏感度问题，减少开放题，让语气更适合学生。",
+    addBriefGenerate: "请先填写 brief，再生成 schema。",
+    addBriefSave: "请先填写 brief，再保存项目。",
+    addBriefRevise: "请先填写 brief，再让 Atpio 调整表单。",
+    addRevisionNotes: "请先填写调整意见。",
+    generatedLocal: "已使用本地 fallback 生成。请检查问题，然后保存项目。",
+    generatedPpio: "已使用 PPIO 生成。请检查问题，然后保存项目。",
+    generatedReview: "表单已生成。请检查问题，然后保存为项目。",
+    generatingDetail: "Atpio 正在选择最合适的问题、字段类型、校验和布局。",
+    generatingInline:
+      "Atpio 正在选择最合适的问题、字段类型、校验和布局，可能需要一点时间。",
+    generatingTitle: "正在设计表单",
+    reviseDetail: "Atpio 正在把你的意见应用到当前问卷。",
+    reviseSource: "正在根据你的调整意见更新当前表单。",
+    reviseSuccess: "已完成调整。请检查修改，然后保存。",
+    reviseTitleLoading: "正在调整表单",
+    saveDetail: "正在让这个项目可被 mock product 使用。",
+    saveError: "无法保存项目。请确认 Atpio 服务正常运行，然后重试。",
+    saveToastTitle: "项目已保存。",
+    saveToastText: "现在可以在所有项目里看到它，也会被 mock product 使用：",
+    savedDetail:
+      "打开项目详情可以继续细调字段、页面、校验和嵌入设置。Mock product 可以从这里加载它：",
+    savingTitle: "正在保存项目",
+    openDetail: "打开项目详情",
+    testMock: "在 mock product 中测试",
+    viewProjects: "查看所有项目",
   },
 } satisfies Record<UiLanguage, Record<string, string>>;
 const emptyPreviewSchema: ProjectSchema = {
@@ -102,9 +157,9 @@ export function ProjectBuilder({
   const [errorMessage, setErrorMessage] = useState(generationError);
   const [sourceMessage, setSourceMessage] = useState(
     savedProjectId
-      ? ""
-      : generatedFromUrl
-        ? "Form generated. Review the questions, then save it as a project."
+        ? ""
+        : generatedFromUrl
+        ? builderCopy[uiLanguage].generatedReview
         : "",
   );
 
@@ -134,14 +189,14 @@ export function ProjectBuilder({
   async function generateSchema() {
     const trimmedBrief = brief.trim();
     if (!trimmedBrief) {
-      setErrorMessage("Add a brief before generating a schema.");
+      setErrorMessage(t.addBriefGenerate);
       setSourceMessage("");
       return;
     }
 
     setErrorMessage("");
     setSourceMessage(
-      "Designing the best form, questions, field types, and validation.",
+      t.generatingDetail,
     );
     setStatus("generating");
 
@@ -162,8 +217,8 @@ export function ProjectBuilder({
       updateSchemaState(payload.schema);
       setSourceMessage(
         payload.source === "ppio"
-          ? "Generated with PPIO. Review the questions, then save it as a project."
-          : "Generated locally. Review the questions, then save it as a project.",
+          ? t.generatedPpio
+          : t.generatedLocal,
       );
       setStatus("idle");
     } catch (error) {
@@ -179,7 +234,7 @@ export function ProjectBuilder({
   async function saveProject() {
     const trimmedBrief = brief.trim();
     if (!trimmedBrief) {
-      setErrorMessage("Add a brief before saving the project.");
+      setErrorMessage(t.addBriefSave);
       setSourceMessage("");
       return;
     }
@@ -203,7 +258,7 @@ export function ProjectBuilder({
       setShowSavedToast(true);
     } catch {
       setErrorMessage(
-        "Could not save the project. Make sure the local Atpio server is running, then try again.",
+        t.saveError,
       );
       setStatus("idle");
     }
@@ -214,19 +269,19 @@ export function ProjectBuilder({
     const trimmedInstructions = revisionInstructions.trim();
 
     if (!trimmedBrief) {
-      setErrorMessage("Add a brief before asking Atpio to revise the form.");
+      setErrorMessage(t.addBriefRevise);
       setSourceMessage("");
       return;
     }
 
     if (!trimmedInstructions) {
-      setErrorMessage("Add revision notes before asking Atpio to revise.");
+      setErrorMessage(t.addRevisionNotes);
       setSourceMessage("");
       return;
     }
 
     setErrorMessage("");
-    setSourceMessage("Applying your revision notes to the current form.");
+    setSourceMessage(t.reviseSource);
     setStatus("revising");
 
     try {
@@ -250,7 +305,7 @@ export function ProjectBuilder({
       setName(payload.name);
       updateSchemaState(payload.schema);
       setRevisionInstructions("");
-      setSourceMessage("Revision applied. Review the changes, then save it.");
+      setSourceMessage(t.reviseSuccess);
       setStatus("idle");
     } catch (error) {
       setErrorMessage(
@@ -278,17 +333,17 @@ export function ProjectBuilder({
             <div>
               <p className="text-base font-semibold text-slate-950">
                 {status === "generating"
-                  ? "Designing your form"
+                  ? t.generatingTitle
                   : status === "revising"
-                    ? "Revising your form"
-                    : "Saving your project"}
+                    ? t.reviseTitleLoading
+                    : t.savingTitle}
               </p>
               <p className="mt-1 text-sm text-slate-600">
                 {status === "generating"
-                  ? "Atpio is choosing the best questions, field types, validation, and layout."
+                  ? t.generatingDetail
                   : status === "revising"
-                    ? "Atpio is applying your notes to the current questionnaire."
-                    : "We are making this project available to the mock product."}
+                    ? t.reviseDetail
+                    : t.saveDetail}
               </p>
             </div>
           </div>
@@ -312,10 +367,9 @@ export function ProjectBuilder({
               OK
             </span>
             <div>
-              <p className="font-semibold">Project saved successfully.</p>
+              <p className="font-semibold">{t.saveToastTitle}</p>
               <p className="mt-1 text-sm leading-6 text-slate-600">
-                It is now available in All projects and will be used by the
-                mock product at {publicMockProductUrl}.
+                {t.saveToastText} {publicMockProductUrl}.
               </p>
             </div>
           </div>
@@ -340,7 +394,7 @@ export function ProjectBuilder({
             </p>
             <Link
               className="rounded-full border border-stone-300 bg-white/70 px-3 py-1.5 text-sm font-medium text-slate-700"
-              href="/projects"
+              href={langPath("/projects", uiLanguage)}
             >
               {t.allProjects}
             </Link>
@@ -450,8 +504,7 @@ export function ProjectBuilder({
           <div className="mt-4 flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
             <Spinner />
             <span>
-              Atpio is choosing the best questions, fields, validation, and
-              layout. This can take a moment.
+              {t.generatingInline}
             </span>
           </div>
         ) : null}
@@ -517,11 +570,9 @@ export function ProjectBuilder({
                 OK
               </span>
               <div>
-                <p className="font-semibold">Project saved successfully.</p>
+                <p className="font-semibold">{t.saveToastTitle}</p>
                 <p className="mt-1 text-emerald-800">
-                  Open project detail to fine-tune fields, pages, validation,
-                  and embed settings. The mock product can load it from{" "}
-                  {publicMockProductUrl}.
+                  {t.savedDetail} {publicMockProductUrl}.
                 </p>
                 <p className="mt-2 text-xs text-emerald-700">
                   Embed path: /embed/{projectId}
@@ -531,9 +582,9 @@ export function ProjectBuilder({
             <div className="mt-4 flex flex-wrap gap-2">
               <Link
                 className="inline-flex h-9 items-center rounded-full bg-emerald-700 px-3 text-sm font-medium text-white"
-                href={`/projects/${projectId}`}
+                href={langPath(`/projects/${projectId}`, uiLanguage)}
               >
-                Open project detail
+                {t.openDetail}
               </Link>
               <a
                 className="inline-flex h-9 items-center rounded-full border border-emerald-200 bg-white px-3 text-sm font-medium text-emerald-800"
@@ -541,13 +592,13 @@ export function ProjectBuilder({
                 rel="noreferrer"
                 target="_blank"
               >
-                Test in mock product
+                {t.testMock}
               </a>
               <Link
                 className="inline-flex h-9 items-center rounded-full border border-emerald-200 bg-white px-3 text-sm font-medium text-emerald-800"
-                href="/projects"
+                href={langPath("/projects", uiLanguage)}
               >
-                View all projects
+                {t.viewProjects}
               </Link>
             </div>
           </div>
@@ -558,7 +609,12 @@ export function ProjectBuilder({
         <p className="mb-4 text-sm font-medium text-slate-500">
           {t.preview}
         </p>
-        <DynamicForm projectId={projectId} previewMode schema={schema} />
+        <DynamicForm
+          projectId={projectId}
+          previewMode
+          schema={schema}
+          uiLanguage={uiLanguage}
+        />
       </section>
     </div>
   );
