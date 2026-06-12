@@ -31,7 +31,7 @@ export async function createProjectAction(input: unknown) {
           name: projectNameFromBrief(brief),
           schema: providedSchema,
         }
-      : await generateSchemaWithPpio(brief);
+      : await generateSchemaWithPpio(brief, parsed.data.outputLanguage);
   } catch (error) {
     if (error instanceof SchemaGenerationError) {
       return { error: error.message };

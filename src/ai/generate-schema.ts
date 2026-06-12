@@ -57,6 +57,8 @@ export type GeneratedSchemaResult = {
   source: "ppio" | "local";
 };
 
+export type QuestionnaireLanguage = "zh" | "en" | "bilingual";
+
 export class SchemaGenerationError extends Error {
   constructor(message: string) {
     super(message);
@@ -110,9 +112,11 @@ function extractJsonObject(text: string) {
 export async function generateSchema({
   allowLocalFallback = false,
   brief,
+  outputLanguage = "en",
 }: {
   allowLocalFallback?: boolean;
   brief: string;
+  outputLanguage?: QuestionnaireLanguage;
 }): Promise<GeneratedSchemaResult> {
   logger.info({ msg: "Generating schema", briefLength: brief.length });
 
@@ -128,6 +132,9 @@ export async function generateSchema({
       model: ppio.chat(model),
       system: schemaGenerationPrompt,
       prompt: `Create a data gathering form for this brief. Make the questions rich, specific, and varied while still usable inside an embedded gadget. Split into pages when helpful.
+
+Questionnaire language:
+${languageInstruction(outputLanguage)}
 
 Return only valid JSON with this shape:
 {
@@ -158,7 +165,7 @@ Question design requirements:
 - Avoid generic questions like "What is the most important thing you want us to know?" unless the brief is truly generic.
 - Choice options should be concrete and brief, usually 4-7 options.
 - Put related questions into 2-4 pages so the preview feels organized.
-Use the same language as the brief for user-facing labels.
+Follow the requested questionnaire language exactly for every user-facing string: name, title, description, page titles, field labels, placeholders, and options.
 
 Brief:
 ${brief}`,
@@ -195,10 +202,12 @@ export async function reviseSchema({
   brief,
   currentSchema,
   instructions,
+  outputLanguage = "en",
 }: {
   brief: string;
   currentSchema: ProjectSchema;
   instructions: string;
+  outputLanguage?: QuestionnaireLanguage;
 }): Promise<GeneratedSchemaResult> {
   logger.info({
     msg: "Revising schema",
@@ -220,6 +229,9 @@ export async function reviseSchema({
       prompt: `Revise this existing Atpio questionnaire based on the user's instructions.
 
 Preserve useful existing questions and manual edits. Make targeted improvements instead of starting over unless the user explicitly asks for a full rewrite.
+
+Questionnaire language:
+${languageInstruction(outputLanguage)}
 
 Return only valid JSON with this shape:
 {
@@ -248,7 +260,7 @@ Revision requirements:
 - Keep the questionnaire coherent, usable, and not overly long.
 - Prefer 6-12 fields when the user asks for richer coverage.
 - Use varied field types when helpful.
-- Keep user-facing labels in the same language as the brief or the existing schema.
+- Follow the requested questionnaire language exactly for every user-facing string.
 - Keep stable IDs for unchanged questions when possible.
 - Ensure every field pageId matches an existing page id if pages are used.
 
@@ -284,4 +296,16 @@ ${instructions}`,
       "PPIO could not revise the form. Check the API key, model, base URL, or provider status.",
     );
   }
+}
+
+function languageInstruction(language: QuestionnaireLanguage) {
+  if (language === "zh") {
+    return "Generate all user-facing questionnaire text in Simplified Chinese.";
+  }
+
+  if (language === "bilingual") {
+    return "Generate bilingual user-facing text with Chinese first, then English in parentheses, for example: 您最看重什么？ (What matters most to you?)";
+  }
+
+  return "Generate all user-facing questionnaire text in English.";
 }

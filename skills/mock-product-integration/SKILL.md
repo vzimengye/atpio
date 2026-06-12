@@ -4,6 +4,12 @@ Use this skill to build a mock host page that connects to an existing Atpio app.
 The mock page represents a partner product. It does not implement Atpio itself;
 it only loads Atpio's public gadget script.
 
+Downloadable customer-facing copy:
+
+```text
+https://atpio.vercel.app/resources/mock-product-integration-skill
+```
+
 ## Goal
 
 Create a separate page that:

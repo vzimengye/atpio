@@ -26,7 +26,12 @@ export async function POST(request: Request) {
   }
 
   try {
-    return NextResponse.json(await generateSchemaWithPpio(parsed.data.brief));
+    return NextResponse.json(
+      await generateSchemaWithPpio(
+        parsed.data.brief,
+        parsed.data.outputLanguage,
+      ),
+    );
   } catch (error) {
     if (error instanceof SchemaGenerationError) {
       return NextResponse.json({ error: error.message }, { status: 502 });

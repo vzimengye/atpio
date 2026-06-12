@@ -36,6 +36,11 @@ export async function POST(request: Request) {
   }
 
   const providedSchema = parseSchema(formData.get("schema"));
+  const outputLanguageRaw = String(formData.get("outputLanguage") ?? "en");
+  const outputLanguage =
+    outputLanguageRaw === "zh" || outputLanguageRaw === "bilingual"
+      ? outputLanguageRaw
+      : "en";
   let generated;
   try {
     generated = providedSchema
@@ -43,7 +48,7 @@ export async function POST(request: Request) {
           name: projectNameFromBrief(brief),
           schema: providedSchema,
         }
-      : await generateSchemaWithPpio(brief);
+      : await generateSchemaWithPpio(brief, outputLanguage);
   } catch (error) {
     fallbackUrl.searchParams.set(
       "error",

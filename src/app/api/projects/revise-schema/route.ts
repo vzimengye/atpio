@@ -31,6 +31,7 @@ export async function POST(request: Request) {
         brief: parsed.data.brief,
         currentSchema: parsed.data.schema,
         instructions: parsed.data.instructions,
+        outputLanguage: parsed.data.outputLanguage,
       }),
     );
   } catch (error) {

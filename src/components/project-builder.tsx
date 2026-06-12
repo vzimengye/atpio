@@ -4,12 +4,61 @@ import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 import { createProjectAction } from "@/app/projects/actions";
 import { DynamicForm } from "@/components/dynamic-form";
+import type { UiLanguage } from "@/lib/i18n";
 import { publicMockProductUrl } from "@/lib/public-url";
 import type { ProjectSchema } from "@/lib/types";
 
-const projectNamePlaceholder = "Optional. We can name this for you.";
-const briefPlaceholder =
-  "Describe the insight you want. We will choose the questions, field types, validation, and layout.";
+const builderCopy = {
+  en: {
+    projectNamePlaceholder: "Optional. We can name this for you.",
+    briefPlaceholder:
+      "Describe the insight you want. We will choose the questions, field types, validation, and layout.",
+    projectCreator: "Project creator",
+    allProjects: "All projects",
+    title: "Turn a research brief into a collection form.",
+    subtitle:
+      "Describe the insight you want. Atpio turns it into a structured collection form with the right questions, field types, validation, and layout. Use AI revision here, then fine-tune individual fields after saving.",
+    projectName: "Project name",
+    optional: "optional",
+    brief: "Brief",
+    questionnaireLanguage: "Questionnaire language",
+    generate: "Generate best form",
+    generating: "Generating...",
+    save: "Save project",
+    saving: "Saving...",
+    preview: "Generated form preview",
+    reviseTitle: "Ask Atpio to revise",
+    reviseText:
+      "Give high-level feedback and Atpio will update the current form. For precise field edits, save the project and open project detail.",
+    reviseButton: "Revise with Atpio",
+    revising: "Revising...",
+    revisionPlaceholder:
+      "Example: Add more price-sensitivity questions, reduce open-ended questions, and make the wording friendlier for students.",
+  },
+  zh: {
+    projectNamePlaceholder: "可选。Atpio 可以帮你命名。",
+    briefPlaceholder: "描述你想了解什么。我们会选择问题、字段类型、校验和布局。",
+    projectCreator: "项目创建",
+    allProjects: "所有项目",
+    title: "把 research brief 变成反馈问卷。",
+    subtitle:
+      "描述你想收集的洞察。Atpio 会生成结构化问卷；这里用 AI 调整，保存后再进入项目详情细调字段。",
+    projectName: "项目名称",
+    optional: "可选",
+    brief: "Brief",
+    questionnaireLanguage: "问卷语言",
+    generate: "生成最佳问卷",
+    generating: "生成中...",
+    save: "保存项目",
+    saving: "保存中...",
+    preview: "生成问卷预览",
+    reviseTitle: "让 Atpio 调整",
+    reviseText: "写下整体修改意见，Atpio 会更新当前问卷。精确字段编辑请保存后进入项目详情。",
+    reviseButton: "用 Atpio 调整",
+    revising: "调整中...",
+    revisionPlaceholder: "例如：增加价格敏感度问题，减少开放题，让语气更适合学生。",
+  },
+} satisfies Record<UiLanguage, Record<string, string>>;
 const emptyPreviewSchema: ProjectSchema = {
   title: "Your generated form will appear here",
   description:
@@ -21,23 +70,29 @@ type ProjectBuilderProps = {
   generatedFromUrl?: boolean;
   initialBrief?: string;
   initialName?: string;
+  initialOutputLanguage?: "zh" | "en" | "bilingual";
   initialSchema?: ProjectSchema;
   initialSource?: "ppio" | "local";
   generationError?: string;
   savedProjectId?: string;
+  uiLanguage?: UiLanguage;
 };
 
 export function ProjectBuilder({
   generatedFromUrl = false,
   initialBrief = "",
   initialName = "",
+  initialOutputLanguage = "en",
   initialSchema = emptyPreviewSchema,
   generationError = "",
   savedProjectId,
+  uiLanguage = "en",
 }: ProjectBuilderProps) {
+  const t = builderCopy[uiLanguage];
   const [brief, setBrief] = useState(initialBrief);
   const [name, setName] = useState(initialName);
   const [schema, setSchema] = useState<ProjectSchema>(initialSchema);
+  const [outputLanguage, setOutputLanguage] = useState(initialOutputLanguage);
   const [revisionInstructions, setRevisionInstructions] = useState("");
   const [projectId, setProjectId] = useState(savedProjectId ?? "preview_project");
   const [status, setStatus] = useState<
@@ -94,7 +149,7 @@ export function ProjectBuilder({
       const response = await fetch("/api/projects/generate-schema", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brief: trimmedBrief }),
+        body: JSON.stringify({ brief: trimmedBrief, outputLanguage }),
       });
 
       if (!response.ok) {
@@ -133,7 +188,12 @@ export function ProjectBuilder({
     setErrorMessage("");
     setSourceMessage("");
     try {
-      const result = await createProjectAction({ brief: trimmedBrief, name, schema });
+      const result = await createProjectAction({
+        brief: trimmedBrief,
+        name,
+        outputLanguage,
+        schema,
+      });
 
       if (!result.project) throw new Error(result.error);
 
@@ -176,6 +236,7 @@ export function ProjectBuilder({
         body: JSON.stringify({
           brief: trimmedBrief,
           instructions: trimmedInstructions,
+          outputLanguage,
           schema,
         }),
       });
@@ -275,52 +336,73 @@ export function ProjectBuilder({
         <div>
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-medium text-emerald-700">
-              Project creator
+              {t.projectCreator}
             </p>
             <Link
               className="rounded-full border border-stone-300 bg-white/70 px-3 py-1.5 text-sm font-medium text-slate-700"
               href="/projects"
             >
-              All projects
+              {t.allProjects}
             </Link>
           </div>
           <h1 className="mt-2 text-4xl font-semibold leading-tight tracking-tight">
-            Turn a research brief into a collection form.
+            {t.title}
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Describe the insight you want. Atpio turns it into a structured
-            collection form with the right questions, field types, validation,
-            and layout. Use AI revision here, then fine-tune individual fields
-            after saving.
+            {t.subtitle}
           </p>
         </div>
 
         <label className="mt-6 block">
           <span className="text-sm font-medium text-slate-900">
-            Project name <span className="font-normal text-slate-500">(optional)</span>
+            {t.projectName}{" "}
+            <span className="font-normal text-slate-500">({t.optional})</span>
           </span>
           <input
             aria-label="Project name"
             className="mt-2 h-10 w-full rounded-xl border border-stone-300 bg-white/90 px-3 text-sm outline-none focus:border-emerald-600"
             id="project-name"
             name="name"
-            placeholder={projectNamePlaceholder}
+            placeholder={t.projectNamePlaceholder}
             value={name}
             onChange={(event) => setName(event.target.value)}
           />
         </label>
 
         <label className="mt-4 block">
-          <span className="text-sm font-medium text-slate-900">Brief</span>
+          <span className="text-sm font-medium text-slate-900">{t.brief}</span>
           <textarea
             aria-label="Brief"
             className="mt-2 min-h-40 w-full rounded-xl border border-stone-300 bg-white/90 px-3 py-2 text-sm outline-none focus:border-emerald-600"
             id="project-brief"
             name="brief"
-            placeholder={briefPlaceholder}
+            placeholder={t.briefPlaceholder}
             value={brief}
             onChange={(event) => setBrief(event.target.value)}
           />
+        </label>
+
+        <label className="mt-4 block">
+          <span className="text-sm font-medium text-slate-900">
+            {t.questionnaireLanguage}
+          </span>
+          <select
+            className="mt-2 h-10 w-full rounded-xl border border-stone-300 bg-white/90 px-3 text-sm outline-none focus:border-emerald-600"
+            name="outputLanguage"
+            value={outputLanguage}
+            onChange={(event) =>
+              setOutputLanguage(
+                event.target.value === "zh" ||
+                  event.target.value === "bilingual"
+                  ? event.target.value
+                  : "en",
+              )
+            }
+          >
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+            <option value="bilingual">中文 + English</option>
+          </select>
         </label>
 
         <div className="mt-4 flex flex-wrap gap-3">
@@ -340,10 +422,10 @@ export function ProjectBuilder({
             {status === "generating" ? (
               <>
                 <Spinner />
-                Generating...
+                {t.generating}
               </>
             ) : (
-              "Generate best form"
+              t.generate
             )}
           </button>
           <button
@@ -356,10 +438,10 @@ export function ProjectBuilder({
             {status === "saving" ? (
               <>
                 <Spinner />
-                Saving...
+                {t.saving}
               </>
             ) : (
-              "Save project"
+              t.save
             )}
           </button>
         </div>
@@ -391,11 +473,10 @@ export function ProjectBuilder({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-emerald-800">
-                  Ask Atpio to revise
+                  {t.reviseTitle}
                 </p>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
-                  Give high-level feedback and Atpio will update the current form.
-                  For precise field edits, save the project and open project detail.
+                  {t.reviseText}
                 </p>
               </div>
               <button
@@ -407,16 +488,16 @@ export function ProjectBuilder({
                 {status === "revising" ? (
                   <>
                     <Spinner />
-                    Revising...
+                    {t.revising}
                   </>
                 ) : (
-                  "Revise with Atpio"
+                  t.reviseButton
                 )}
               </button>
             </div>
             <textarea
               className="mt-3 min-h-24 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-600"
-              placeholder="Example: Add more price-sensitivity questions, reduce open-ended questions, and make the wording friendlier for students."
+              placeholder={t.revisionPlaceholder}
               value={revisionInstructions}
               onChange={(event) => setRevisionInstructions(event.target.value)}
             />
@@ -475,7 +556,7 @@ export function ProjectBuilder({
 
       <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm backdrop-blur">
         <p className="mb-4 text-sm font-medium text-slate-500">
-          Generated form preview
+          {t.preview}
         </p>
         <DynamicForm projectId={projectId} previewMode schema={schema} />
       </section>

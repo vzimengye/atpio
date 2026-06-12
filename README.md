@@ -1,183 +1,162 @@
 # Atpio
 
-Atpio is a TypeScript-first prototype for collecting product feedback through embeddable gadgets. Product teams describe the data they want in natural language, and Atpio generates a lightweight form/questionnaire gadget that can run inside another product.
+Atpio 是一个用于收集产品反馈的 AI 问卷与嵌入式反馈工具。客户只需要用自然语言描述想了解的问题，Atpio 会生成合适的反馈问卷，并通过一段 `gadget.js` 脚本嵌入到自己的网站或产品里。
 
-The current architecture is intentionally a solo TypeScript codebase:
+普通填写反馈的用户不需要注册或登录；只有创建和管理项目的人需要 Atpio 账号。
 
-```text
-Next.js app -> PPIO schema generation -> script/iframe gadget -> response storage -> collection summary
+## 线上入口
+
+- Atpio 产品入口：<https://atpio.vercel.app>
+- Mock product 示例：<https://mock-product.vercel.app>
+- Mock 接入指南下载：<https://atpio.vercel.app/resources/mock-product-integration-skill>
+
+## Atpio 能做什么
+
+- 注册/登录后，每个账号拥有自己的 project workspace。
+- 根据 brief 自动生成反馈问卷。
+- 支持生成中文、英文、中英双语问卷。
+- 支持在项目详情页细调字段、页面、选项、校验和嵌入样式。
+- 支持把某个项目设为当前 workspace 的 active embed。
+- 支持客户网站通过 `data-atpio-workspace-key` 自动加载当前 active project。
+- 支持固定加载某一个项目的 `data-project-id`。
+- 普通用户可以在客户网站中直接提交 feedback，无需登录 Atpio。
+- 项目创建者可以查看 responses，并下载项目数据。
+
+## 客户使用流程
+
+1. 打开 <https://atpio.vercel.app>。
+2. 注册或登录 Atpio 账号；也可以先跳过，查看产品介绍和接入指南。
+3. 进入 New Project，输入想收集的反馈 brief。
+4. 选择问卷语言：中文、英文或中英双语。
+5. 生成问卷，如需整体调整，可以用 “Ask Atpio to revise”。
+6. 保存项目。
+7. 在项目详情页细调字段、页面、校验和 embed 设置。
+8. 在 Workspace 中把某个项目设为 active embed。
+9. 客户网站引入 Atpio 的 `gadget.js`，并传入自己的 workspace key。
+10. 普通用户在客户网站中填写反馈，数据回到 Atpio 项目。
+
+## 接入方式
+
+推荐使用 workspace 方式接入。这样客户只需要在 Atpio 内选择 active project，自己的网站不需要每次改代码。
+
+```html
+<script
+  src="https://atpio.vercel.app/gadget.js"
+  data-atpio-workspace-key="YOUR_WORKSPACE_KEY"
+  data-atpio-position="bottom-right"
+  data-atpio-label="Share feedback"
+></script>
 ```
 
-OpenClio is only a research reference for later analysis work. It is not required for the current data gathering MVP.
+也可以固定加载某一个项目：
 
-## Current Status
+```html
+<script
+  src="https://atpio.vercel.app/gadget.js"
+  data-project-id="YOUR_PROJECT_ID"
+  data-atpio-position="bottom-right"
+  data-atpio-label="Share feedback"
+></script>
+```
 
-Implemented:
+更完整的 mock/客户网站接入说明见：
 
-- Next.js + TypeScript + Tailwind app scaffold.
-- Project dashboard shell.
-- Dynamic form renderer.
-- `/projects/new` project creator with AI-assisted schema generation.
-- `/projects` project list.
-- `/projects/[projectId]` project detail editor.
-- `/embed/[projectId]` embedded form preview.
-- `/gadget.js` script embed.
-- `/demo-host` mock host product page.
-- Prisma/PostgreSQL storage for deployed environments, with local JSON fallback.
-- Self-serve account registration and sign-in for project workspaces.
-- PPIO-backed schema generation with local fallback.
-- Multi-page questionnaire rendering.
-- Field validation metadata.
-- Visual schema builder with an advanced JSON fallback.
-- Visual validation controls for text length and rating ranges.
-- Configurable gadget position, theme, label, success message, brand color, accent color, button shape, and font family.
-- Host metadata, open/close/success events, and success callback.
-- Mock collection APIs:
-  - `GET /api/projects/[projectId]/schema`
-  - `POST /api/projects/[projectId]/responses`
-- Project data export API:
-  - `GET /api/projects/[projectId]/export`
-- OpenClio concept notes for future analysis exploration.
+```text
+skills/mock-product-integration/SKILL.md
+```
 
-Not implemented yet:
+也可以直接从线上下载：
 
-- Basic aggregate reporting beyond response and schema counts.
-- Shared team workspaces and role permissions.
+```text
+https://atpio.vercel.app/resources/mock-product-integration-skill
+```
 
-## Run the App
+## 管理端与公开端
+
+需要登录的页面：
+
+- `/projects`
+- `/projects/new`
+- `/projects/[projectId]`
+- 项目编辑、导出、response 管理相关接口
+
+不需要登录的页面：
+
+- `/`
+- `/gadget.js`
+- `/embed/[projectId]`
+- `/api/projects/[projectId]/schema`
+- `/api/projects/[projectId]/responses`
+- mock product 页面
+
+## 本地运行
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open:
+打开：
 
-- `http://127.0.0.1:3000`
-- `http://127.0.0.1:3000/projects/new`
-- `http://127.0.0.1:3000/embed/project_onboarding_feedback`
-- `http://127.0.0.1:3000/demo-host`
-
-## Environment
-
-Copy `.env.example` to `.env.local` and set `PPIO_API_KEY` to enable real LLM schema generation. Without a key, Atpio falls back to the local deterministic schema generator.
-
-Do not commit `.env.local`.
-
-For account sign-in, set:
-
-- `AUTH_SECRET`
-
-Atpio users can create accounts from `/register`. The legacy
-`ATPIO_ADMIN_EMAIL` and `ATPIO_ADMIN_PASSWORD` variables are optional migration
-fallback credentials and are not required for normal self-serve use.
-
-For production database storage on Vercel, set `DATABASE_URL` and use the
-`npm run vercel-build` build command so Prisma generates the client and applies
-migrations before `next build`.
-
-For the exact Prisma + Neon + Vercel setup, see
-[`docs/prisma-vercel.md`](docs/prisma-vercel.md).
-
-## MVP Flow
-
-1. Open `/projects/new`.
-2. Enter or edit a research brief.
-3. Generate a schema.
-4. Save the project.
-5. Open `/projects` or `/projects/[projectId]` to edit schema and gadget settings.
-6. Mark the project active for workspace embeds, or use the fixed project embed.
-7. Open `/demo-host`, `/embed/[projectId]`, or the deployed mock product link.
-8. Submit feedback as a public participant without signing in.
-9. Return to `/`.
-10. Review response and schema counts.
-
-## Local Two-Project Integration Test
-
-This verifies that Atpio can run inside another product locally.
-
-Terminal 1:
-
-```bash
-npm run dev
+```text
+http://127.0.0.1:3000
 ```
 
-Terminal 2:
+本地 mock product：
 
 ```bash
 npm run mock-product
 ```
 
-Open:
+打开：
 
 ```text
 http://127.0.0.1:4000
 ```
 
-The mock product is a separate static app in `mock-product/`. It loads Atpio from `http://127.0.0.1:3000/gadget.js`, then opens the feedback form in an iframe. This is the local equivalent of another product calling Atpio's gadget API.
+## 环境变量
 
-The deployed mock product is available at:
+生产环境推荐使用 Vercel + Postgres/Neon。
 
-```text
-https://mock-product.vercel.app
-```
-
-In production, set `NEXT_PUBLIC_MOCK_PRODUCT_URL=https://mock-product.vercel.app`
-on the Atpio Vercel project so Atpio's "Test in mock product" links open the
-host product directly.
-
-## Mock Product Integration Skill
-
-If someone needs to build a mock host page that connects to Atpio the same way
-`mock-product/` does, use this guide:
-
-[`skills/mock-product-integration/SKILL.md`](skills/mock-product-integration/SKILL.md)
-
-That skill only explains the mock host side:
-
-1. Load Atpio's public `gadget.js` script.
-2. Pass either `data-atpio-workspace-key` to follow the account's active
-   project, or `data-project-id` to pin one project.
-3. Optionally pass `data-atpio-meta-*` metadata.
-4. Listen for open, close, and success events.
-5. Verify the iframe opens and responses are saved.
-
-It does not describe Atpio's internal implementation.
-
-## Download Project Data
-
-Project data can be exported as JSON:
+必需：
 
 ```text
-GET /api/projects/{projectId}/export
+AUTH_SECRET=随机长字符串
+DATABASE_URL=Postgres 连接串
+NEXT_PUBLIC_APP_URL=https://atpio.vercel.app
+NEXT_PUBLIC_MOCK_PRODUCT_URL=https://mock-product.vercel.app
+PPIO_API_KEY=你的 PPIO key
+PPIO_BASE_URL=https://api.ppinfra.com/v3/openai
+PPIO_MODEL=deepseek/deepseek-v3-turbo
+PPIO_TIMEOUT_MS=30000
 ```
 
-The response is returned as a downloadable file containing the project, schema,
-gadget settings, responses, audit events, and export timestamp.
+可选迁移兜底账号：
 
-## Remaining Production Work
+```text
+ATPIO_ADMIN_EMAIL=...
+ATPIO_ADMIN_PASSWORD=...
+```
 
-- Revisit advanced analysis after the data gathering product flow is stable. If needed, use OpenClio only as conceptual reference and prefer a TypeScript implementation first.
-- Deploy to Vercel and configure production environment variables. See `docs/deployment.md`.
-- Add privacy hardening before advanced analysis work, including PII redaction and minimum group thresholds.
+正常客户使用时不需要提前配置管理员账号，用户可以在 `/register` 自行注册。
 
-## Validate
+## 数据与部署
+
+- 数据库使用 Prisma + PostgreSQL。
+- Vercel 构建命令使用 `npm run vercel-build`。
+- 构建过程会执行 `prisma generate && prisma migrate deploy && next build`。
+- 没有 `DATABASE_URL` 的本地环境会使用 `data/app-store.json` 作为开发 fallback。
+
+## 验证命令
 
 ```bash
 npm run lint
 npm run build
 ```
 
-## OpenClio Reference
+## 当前边界
 
-OpenClio is not on the current critical path. Atpio should stay TypeScript-first while the data gathering flow is being developed.
-
-Current rule: do not integrate or adapt OpenClio before the data gathering flow is stable. Use it only as conceptual reference for later analysis work.
-
-## Git Rule
-
-Keep commits small:
-
-- Commit each meaningful feature addition.
-- Commit each decision or documentation update.
-- Check `git diff` before committing.
+- Atpio 负责生成、嵌入和收集反馈。
+- mock-product 只是示例客户网站，用于展示如何接入 Atpio。
+- 普通填写者永远不需要 Atpio 账号。
+- 不同 Atpio 账号默认拥有独立 workspace；当前还没有团队协作/共享 workspace 权限系统。

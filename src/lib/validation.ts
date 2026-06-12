@@ -56,17 +56,20 @@ export const gadgetSettingsSchema = z.object({
 
 export const generateSchemaRequestSchema = z.object({
   brief: z.string().trim().min(1).max(2000),
+  outputLanguage: z.enum(["zh", "en", "bilingual"]).optional(),
 });
 
 export const reviseSchemaRequestSchema = z.object({
   brief: z.string().trim().min(1).max(2000),
   instructions: z.string().trim().min(1).max(2000),
+  outputLanguage: z.enum(["zh", "en", "bilingual"]).optional(),
   schema: projectSchemaSchema,
 });
 
 export const createProjectRequestSchema = z.object({
   brief: z.string().trim().min(1).max(2000),
   name: z.string().trim().max(160).optional(),
+  outputLanguage: z.enum(["zh", "en", "bilingual"]).optional(),
   schema: projectSchemaSchema.optional(),
 });
 

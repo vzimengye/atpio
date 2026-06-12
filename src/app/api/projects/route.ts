@@ -37,7 +37,7 @@ export async function POST(request: Request) {
           schema: providedSchema,
           source: "local" as const,
         }
-      : await generateSchemaWithPpio(brief);
+      : await generateSchemaWithPpio(brief, parsed.data.outputLanguage);
   } catch (error) {
     if (error instanceof SchemaGenerationError) {
       return NextResponse.json({ error: error.message }, { status: 502 });
