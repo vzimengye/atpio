@@ -2,7 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { updateProjectAction } from "@/app/projects/actions";
-import { buildEmbedCode } from "@/components/project-detail/embed-code";
+import {
+  buildEmbedCode,
+  buildWorkspaceEmbedCode,
+} from "@/components/project-detail/embed-code";
 import { cleanValidation } from "@/components/project-detail/validation-utils";
 import type {
   DataProject,
@@ -14,13 +17,17 @@ import type {
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
 
-export function useProjectEditor(initialProject: DataProject) {
+export function useProjectEditor(initialProject: DataProject, workspaceKey?: string) {
   const [project, setProject] = useState(initialProject);
   const [schemaText, setSchemaText] = useState(
     JSON.stringify(initialProject.schema, null, 2),
   );
   const [status, setStatus] = useState<SaveStatus>("idle");
   const embedCode = useMemo(() => buildEmbedCode(project), [project]);
+  const workspaceEmbedCode = useMemo(
+    () => buildWorkspaceEmbedCode(project, workspaceKey),
+    [project, workspaceKey],
+  );
 
   function updateProject(nextProject: DataProject) {
     setProject(nextProject);
@@ -176,6 +183,7 @@ export function useProjectEditor(initialProject: DataProject) {
     addPage,
     applySchemaText,
     embedCode,
+    workspaceEmbedCode,
     project,
     removeField,
     removePage,

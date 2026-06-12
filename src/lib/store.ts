@@ -5,17 +5,20 @@ import path from "node:path";
 import { sampleProject } from "@/lib/mock-data";
 import { getPrisma } from "@/prisma/prisma";
 import type {
+  AppUser,
   AppStore,
   AuditEvent,
   DataProject,
   GadgetSettings,
   ProjectResponse,
 } from "./types";
+import { hashPassword, verifyPassword } from "./password";
 
 const storePath = path.join(process.cwd(), "data", "app-store.json");
 const shouldUseDatabase = Boolean(process.env.DATABASE_URL);
 
 const initialStore: AppStore = {
+  users: [],
   projects: [sampleProject],
   responses: [],
   auditEvents: [],
@@ -59,6 +62,7 @@ export async function readStore(): Promise<AppStore> {
   const parsed = JSON.parse(raw) as Partial<AppStore>;
 
   return {
+    users: parsed.users ?? [],
     projects: (parsed.projects ?? initialStore.projects).map(withProjectDefaults),
     responses: parsed.responses ?? [],
     auditEvents: parsed.auditEvents ?? [],
@@ -66,7 +70,15 @@ export async function readStore(): Promise<AppStore> {
 }
 
 function belongsToOwner(project: DataProject, ownerEmail?: string) {
-  return !ownerEmail || !project.ownerEmail || project.ownerEmail === ownerEmail;
+  return !ownerEmail || project.ownerEmail === ownerEmail;
+}
+
+function makeId(prefix: string) {
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function makePublicKey() {
+  return `wk_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
 }
 
 export async function writeStore(store: AppStore) {
@@ -107,6 +119,218 @@ export async function listProjects(ownerEmail?: string): Promise<DataProject[]> 
         (response) => response.projectId === project.id,
       ).length,
     }));
+}
+
+export async function createUser(input: {
+  email: string;
+  password: string;
+  name?: string;
+}): Promise<AppUser> {
+  const email = input.email.trim().toLowerCase();
+  const name = input.name?.trim() || undefined;
+  const passwordHash = await hashPassword(input.password);
+  const publicKey = makePublicKey();
+
+  if (shouldUseDatabase) {
+    const prisma = getPrisma();
+    const user = await prisma.user.create({
+      data: {
+        id: makeId("user"),
+        email,
+        name,
+        passwordHash,
+        publicKey,
+      },
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name ?? undefined,
+      passwordHash: user.passwordHash,
+      publicKey: user.publicKey,
+      activeProjectId: user.activeProjectId ?? undefined,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    };
+  }
+
+  const store = await readStore();
+  if (store.users.some((user) => user.email.toLowerCase() === email)) {
+    throw new Error("User already exists.");
+  }
+
+  const now = new Date().toISOString();
+  const user: AppUser = {
+    id: makeId("user"),
+    email,
+    name,
+    passwordHash,
+    publicKey,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  store.users.unshift(user);
+  await writeStore(store);
+  return user;
+}
+
+export async function verifyUserCredentials(
+  email: string,
+  password: string,
+): Promise<Pick<AppUser, "id" | "email" | "name" | "publicKey"> | null> {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (shouldUseDatabase) {
+    const prisma = getPrisma();
+    const user = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (!user || !(await verifyPassword(password, user.passwordHash))) {
+      return null;
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name ?? undefined,
+      publicKey: user.publicKey,
+    };
+  }
+
+  const store = await readStore();
+  const user = store.users.find((item) => item.email.toLowerCase() === normalizedEmail);
+
+  if (!user || !(await verifyPassword(password, user.passwordHash))) {
+    return null;
+  }
+
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    publicKey: user.publicKey,
+  };
+}
+
+export async function getUserByEmail(email: string): Promise<AppUser | null> {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (shouldUseDatabase) {
+    const prisma = getPrisma();
+    const user = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (!user) return null;
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name ?? undefined,
+      passwordHash: user.passwordHash,
+      publicKey: user.publicKey,
+      activeProjectId: user.activeProjectId ?? undefined,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    };
+  }
+
+  const store = await readStore();
+  return store.users.find((user) => user.email.toLowerCase() === normalizedEmail) ?? null;
+}
+
+export async function getUserByPublicKey(publicKey: string): Promise<AppUser | null> {
+  if (shouldUseDatabase) {
+    const prisma = getPrisma();
+    const user = await prisma.user.findUnique({
+      where: { publicKey },
+    });
+
+    if (!user) return null;
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name ?? undefined,
+      passwordHash: user.passwordHash,
+      publicKey: user.publicKey,
+      activeProjectId: user.activeProjectId ?? undefined,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    };
+  }
+
+  const store = await readStore();
+  return store.users.find((user) => user.publicKey === publicKey) ?? null;
+}
+
+export async function setActiveProjectForUser(
+  ownerEmail: string,
+  projectId: string,
+): Promise<AppUser | null> {
+  const project = await getProject(projectId, ownerEmail);
+  if (!project) return null;
+
+  if (shouldUseDatabase) {
+    const prisma = getPrisma();
+    const user = await prisma.user.update({
+      where: { email: ownerEmail.trim().toLowerCase() },
+      data: { activeProjectId: projectId },
+    });
+
+    await addAuditEvent({
+      action: "workspace.active_project_set",
+      actor: "user",
+      projectId,
+      metadata: { ownerEmail: user.email },
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name ?? undefined,
+      passwordHash: user.passwordHash,
+      publicKey: user.publicKey,
+      activeProjectId: user.activeProjectId ?? undefined,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    };
+  }
+
+  const store = await readStore();
+  const user = store.users.find(
+    (item) => item.email.toLowerCase() === ownerEmail.trim().toLowerCase(),
+  );
+  if (!user) return null;
+
+  user.activeProjectId = projectId;
+  user.updatedAt = new Date().toISOString();
+  await writeStore(store);
+  await addAuditEvent({
+    action: "workspace.active_project_set",
+    actor: "user",
+    projectId,
+    metadata: { ownerEmail: user.email },
+  });
+  return user;
+}
+
+export async function getActiveProjectForPublicKey(
+  publicKey: string,
+): Promise<DataProject | null> {
+  const user = await getUserByPublicKey(publicKey);
+  if (!user) return null;
+
+  if (user.activeProjectId) {
+    const activeProject = await getProject(user.activeProjectId, user.email);
+    if (activeProject) return activeProject;
+  }
+
+  const projects = await listProjects(user.email);
+  return projects[0] ?? null;
 }
 
 export async function getProject(
@@ -274,7 +498,7 @@ export async function addAuditEvent(
     const prisma = getPrisma();
     const auditEvent = await prisma.auditEvent.create({
       data: {
-        id: `audit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        id: makeId("audit"),
         action: event.action,
         actor: event.actor,
         projectId: event.projectId,
@@ -295,7 +519,7 @@ export async function addAuditEvent(
   const store = await readStore();
   const auditEvent: AuditEvent = {
     ...event,
-    id: `audit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    id: makeId("audit"),
     createdAt: new Date().toISOString(),
   };
   store.auditEvents.unshift(auditEvent);

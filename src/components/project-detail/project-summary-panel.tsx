@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { ActiveProjectButton } from "@/components/active-project-button";
 import { GadgetSettingsPanel } from "@/components/project-detail/gadget-settings-panel";
 import type { DataProject, GadgetSettings } from "@/lib/types";
 
 type ProjectSummaryPanelProps = {
   embedCode: string;
+  isActiveProject: boolean;
   project: DataProject;
   responseCount: number;
+  workspaceEmbedCode?: string;
   onProjectChange: (project: DataProject) => void;
   onUpdateGadget: <K extends keyof GadgetSettings>(
     key: K,
@@ -17,8 +20,10 @@ type ProjectSummaryPanelProps = {
 
 export function ProjectSummaryPanel({
   embedCode,
+  isActiveProject,
   project,
   responseCount,
+  workspaceEmbedCode,
   onProjectChange,
   onUpdateGadget,
 }: ProjectSummaryPanelProps) {
@@ -62,10 +67,25 @@ export function ProjectSummaryPanel({
         <Metric label="Pages" value={project.schema.pages?.length ?? 1} />
       </div>
 
+      <div className="mt-4">
+        <ActiveProjectButton isActive={isActiveProject} projectId={project.id} />
+      </div>
+
       <GadgetSettingsPanel gadget={project.gadget} onUpdate={onUpdateGadget} />
 
+      {workspaceEmbedCode ? (
+        <div className="mt-6 rounded-xl bg-emerald-50 p-4 text-emerald-950">
+          <p className="text-sm font-medium">
+            Workspace embed code, follows your active project
+          </p>
+          <pre className="mt-3 whitespace-pre-wrap break-all text-xs leading-6">
+            {workspaceEmbedCode}
+          </pre>
+        </div>
+      ) : null}
+
       <div className="mt-6 rounded-xl bg-slate-950 p-4 text-slate-50">
-        <p className="text-sm font-medium">Embed code</p>
+        <p className="text-sm font-medium">Fixed project embed code</p>
         <pre className="mt-3 whitespace-pre-wrap break-all text-xs leading-6">
           {embedCode}
         </pre>

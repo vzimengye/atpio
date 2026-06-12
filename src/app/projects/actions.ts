@@ -5,7 +5,7 @@ import { SchemaGenerationError } from "@/ai/generate-schema";
 import { requireAdmin } from "@/lib/auth-guard";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 import { projectIdFromName, projectNameFromBrief } from "@/lib/schema-generator";
-import { getProject, saveProject } from "@/lib/store";
+import { getProject, saveProject, setActiveProjectForUser } from "@/lib/store";
 import type { DataProject } from "@/lib/types";
 import {
   createProjectRequestSchema,
@@ -99,4 +99,14 @@ export async function updateProjectAction(projectId: string, input: unknown) {
   logger.info({ msg: "Project updated", projectId: project.id });
 
   return { project };
+}
+
+export async function setActiveProjectAction(projectId: string) {
+  const user = await requireAdmin();
+  if (!user?.email) return { error: "Unauthorized." };
+
+  const updated = await setActiveProjectForUser(user.email, projectId);
+  if (!updated) return { error: "Project not found." };
+
+  return { activeProjectId: updated.activeProjectId };
 }

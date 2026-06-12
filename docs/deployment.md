@@ -26,8 +26,6 @@ Do not run Prisma from `postinstall`. Dependency installation should not require
 
 ```text
 AUTH_SECRET=...
-ATPIO_ADMIN_EMAIL=admin@example.com
-ATPIO_ADMIN_PASSWORD=...
 DATABASE_URL=postgresql://...
 NEXT_PUBLIC_APP_URL=https://your-atpio-domain.vercel.app
 NEXT_PUBLIC_MOCK_PRODUCT_URL=https://mock-product.vercel.app
@@ -35,6 +33,13 @@ PPIO_API_KEY=...
 PPIO_BASE_URL=https://api.ppinfra.com/v3/openai
 PPIO_MODEL=deepseek/deepseek-v3-turbo
 PPIO_TIMEOUT_MS=30000
+```
+
+Optional migration fallback credentials:
+
+```text
+ATPIO_ADMIN_EMAIL=admin@example.com
+ATPIO_ADMIN_PASSWORD=...
 ```
 
 Optional for local/demo environments:
@@ -58,13 +63,16 @@ Local development can still run without `DATABASE_URL`; in that case Atpio falls
 
 ## Auth
 
-Project management routes are protected by Auth.js credentials auth.
+Project management routes are protected by Auth.js credentials auth. Atpio
+users can register their own account at `/register`; each account has its own
+project workspace.
 
 Set:
 
 - `AUTH_SECRET`
-- `ATPIO_ADMIN_EMAIL`
-- `ATPIO_ADMIN_PASSWORD`
+
+`ATPIO_ADMIN_EMAIL` and `ATPIO_ADMIN_PASSWORD` are optional migration fallback
+credentials. They are not required for normal self-serve accounts.
 
 Public routes intentionally remain open:
 
@@ -75,7 +83,7 @@ Public routes intentionally remain open:
 - `/api/projects/latest`
 - `/api/projects/generate-schema`
 
-Admin/export routes require a signed-in admin session.
+Project management/export routes require a signed-in Atpio account session.
 
 ## Deploy From Local
 
@@ -96,8 +104,9 @@ npx vercel --prod
 ## Verify After Deployment
 
 1. Open `https://your-atpio-domain.vercel.app/login`.
-2. Sign in with the configured admin credentials.
+2. Create an account at `/register`, then sign in.
 3. Create and save a project.
 4. Open `/api/projects/{projectId}/export` while signed in and verify a JSON file downloads.
-5. Open the configured mock product URL, for example `https://mock-product.vercel.app`, and verify it loads the latest saved project.
-6. Add the script from the project detail page to a host product and verify the iframe opens.
+5. Mark the project active in `/projects`.
+6. Open the configured mock product URL with the workspace key, for example `https://mock-product.vercel.app?workspaceKey=...`, and verify it loads the selected project.
+7. Add the script from the project detail page to a host product and verify the iframe opens.

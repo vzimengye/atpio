@@ -6,8 +6,10 @@ import { useProjectEditor } from "@/components/project-detail/use-project-editor
 import type { DataProject, ProjectResponse } from "@/lib/types";
 
 type ProjectDetailEditorProps = {
+  activeProjectId?: string;
   initialProject: DataProject;
   responses: ProjectResponse[];
+  workspaceKey?: string;
 };
 
 function slugify(value: string) {
@@ -21,17 +23,21 @@ function slugify(value: string) {
 }
 
 export function ProjectDetailEditor({
+  activeProjectId,
   initialProject,
   responses,
+  workspaceKey,
 }: ProjectDetailEditorProps) {
-  const editor = useProjectEditor(initialProject);
+  const editor = useProjectEditor(initialProject, workspaceKey);
 
   return (
     <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-4 py-8 sm:px-6 xl:grid-cols-[0.95fr_1.05fr] xl:px-8">
       <ProjectSummaryPanel
         embedCode={editor.embedCode}
+        isActiveProject={(activeProjectId ?? initialProject.id) === initialProject.id}
         project={editor.project}
         responseCount={responses.length}
+        workspaceEmbedCode={editor.workspaceEmbedCode}
         onProjectChange={editor.updateProject}
         onUpdateGadget={editor.updateGadget}
       />

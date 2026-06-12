@@ -3,6 +3,7 @@ export async function GET() {
 (function () {
   var currentScript = document.currentScript;
   var projectId = currentScript && currentScript.getAttribute("data-project-id");
+  var workspaceKey = currentScript && currentScript.getAttribute("data-atpio-workspace-key");
   var position = currentScript && currentScript.getAttribute("data-atpio-position") || "bottom-right";
   var theme = currentScript && currentScript.getAttribute("data-atpio-theme") || "light";
   var label = currentScript && currentScript.getAttribute("data-atpio-label") || "Feedback";
@@ -19,12 +20,15 @@ export async function GET() {
       }
     });
   }
+  var origin = new URL(currentScript.src).origin;
+
+  function mount(resolvedProjectId) {
+  projectId = resolvedProjectId;
   if (!projectId) {
-    console.warn("Atpio gadget: missing data-project-id.");
+    console.warn("Atpio gadget: missing project. Add data-project-id or data-atpio-workspace-key.");
     return;
   }
 
-  var origin = new URL(currentScript.src).origin;
   var existing = document.querySelector("[data-atpio-root='" + projectId + "']");
   if (existing) return;
 
@@ -102,6 +106,27 @@ export async function GET() {
       window[successCallback]({ projectId: projectId, metadata: metadata });
     }
   });
+  }
+
+  if (projectId) {
+    mount(projectId);
+    return;
+  }
+
+  var latestUrl = new URL(origin + "/api/projects/latest");
+  if (workspaceKey) latestUrl.searchParams.set("workspaceKey", workspaceKey);
+  latestUrl.searchParams.set("t", String(Date.now()));
+  fetch(latestUrl.toString(), { cache: "no-store" })
+    .then(function (response) {
+      if (!response.ok) throw new Error("Could not load Atpio project.");
+      return response.json();
+    })
+    .then(function (payload) {
+      mount(payload && payload.project && payload.project.id);
+    })
+    .catch(function (error) {
+      console.warn("Atpio gadget: " + error.message);
+    });
 })();`;
 
   return new Response(script, {

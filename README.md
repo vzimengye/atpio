@@ -24,7 +24,7 @@ Implemented:
 - `/gadget.js` script embed.
 - `/demo-host` mock host product page.
 - Prisma/PostgreSQL storage for deployed environments, with local JSON fallback.
-- Admin login for project management routes.
+- Self-serve account registration and sign-in for project workspaces.
 - PPIO-backed schema generation with local fallback.
 - Multi-page questionnaire rendering.
 - Field validation metadata.
@@ -42,7 +42,7 @@ Implemented:
 Not implemented yet:
 
 - Basic aggregate reporting beyond response and schema counts.
-- Multi-tenant self-serve user signup.
+- Shared team workspaces and role permissions.
 
 ## Run the App
 
@@ -64,11 +64,13 @@ Copy `.env.example` to `.env.local` and set `PPIO_API_KEY` to enable real LLM sc
 
 Do not commit `.env.local`.
 
-For admin access, set:
+For account sign-in, set:
 
 - `AUTH_SECRET`
-- `ATPIO_ADMIN_EMAIL`
-- `ATPIO_ADMIN_PASSWORD`
+
+Atpio users can create accounts from `/register`. The legacy
+`ATPIO_ADMIN_EMAIL` and `ATPIO_ADMIN_PASSWORD` variables are optional migration
+fallback credentials and are not required for normal self-serve use.
 
 For production database storage on Vercel, set `DATABASE_URL` and use the
 `npm run vercel-build` build command so Prisma generates the client and applies
@@ -84,10 +86,11 @@ For the exact Prisma + Neon + Vercel setup, see
 3. Generate a schema.
 4. Save the project.
 5. Open `/projects` or `/projects/[projectId]` to edit schema and gadget settings.
-6. Open `/demo-host` or `/embed/[projectId]`.
-7. Submit feedback.
-8. Return to `/`.
-9. Review response and schema counts.
+6. Mark the project active for workspace embeds, or use the fixed project embed.
+7. Open `/demo-host`, `/embed/[projectId]`, or the deployed mock product link.
+8. Submit feedback as a public participant without signing in.
+9. Return to `/`.
+10. Review response and schema counts.
 
 ## Local Two-Project Integration Test
 
@@ -133,7 +136,8 @@ If someone needs to build a mock host page that connects to Atpio the same way
 That skill only explains the mock host side:
 
 1. Load Atpio's public `gadget.js` script.
-2. Pass the right `data-project-id`.
+2. Pass either `data-atpio-workspace-key` to follow the account's active
+   project, or `data-project-id` to pin one project.
 3. Optionally pass `data-atpio-meta-*` metadata.
 4. Listen for open, close, and success events.
 5. Verify the iframe opens and responses are saved.

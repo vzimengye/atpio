@@ -73,6 +73,7 @@ export async function POST(request: Request) {
     responseCount: 0,
     status: "draft",
     updatedAt: now.slice(0, 10),
+    ownerEmail: user.email ?? undefined,
   };
 
   await saveProject(project);

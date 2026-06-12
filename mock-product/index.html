@@ -85,7 +85,9 @@
           <strong>Local integration test</strong>
           <p>
             Click the feedback button in the bottom-right corner. It should open
-            the latest saved Atpio project in an iframe.
+            the active Atpio project for the connected workspace. If no
+            workspace key is provided, it falls back to the newest public
+            project.
           </p>
           <p class="status" id="atpio-status">Loading latest Atpio project...</p>
         </section>
@@ -116,6 +118,15 @@
         atpioOriginLabel.textContent = atpioAppUrl.replace(/^https?:\/\//, "");
       }
 
+      var query = new URLSearchParams(window.location.search);
+      var workspaceKey =
+        query.get("workspaceKey") ||
+        window.localStorage.getItem("atpioWorkspaceKey") ||
+        "";
+      if (workspaceKey) {
+        window.localStorage.setItem("atpioWorkspaceKey", workspaceKey);
+      }
+
       function loadAtpioGadget(projectId) {
         var oldRoot = document.querySelector("[data-atpio-root]");
         if (oldRoot) oldRoot.remove();
@@ -125,7 +136,11 @@
         var script = document.createElement("script");
         script.src = atpioAppUrl + "/gadget.js";
         script.setAttribute("data-atpio-mock-script", "true");
-        script.setAttribute("data-project-id", projectId);
+        if (workspaceKey && projectId !== "project_onboarding_feedback") {
+          script.setAttribute("data-atpio-workspace-key", workspaceKey);
+        } else {
+          script.setAttribute("data-project-id", projectId);
+        }
         script.setAttribute("data-atpio-position", "bottom-right");
         script.setAttribute("data-atpio-theme", "light");
         script.setAttribute("data-atpio-label", "Share feedback");
@@ -136,7 +151,11 @@
         document.body.appendChild(script);
       }
 
-      fetch(atpioAppUrl + "/api/projects/latest?t=" + Date.now(), {
+      var latestUrl = new URL(atpioAppUrl + "/api/projects/latest");
+      latestUrl.searchParams.set("t", String(Date.now()));
+      if (workspaceKey) latestUrl.searchParams.set("workspaceKey", workspaceKey);
+
+      fetch(latestUrl.toString(), {
         cache: "no-store",
       })
         .then(function (response) {
@@ -151,7 +170,7 @@
           var status = document.getElementById("atpio-status");
           if (status) {
             status.textContent = latestProject
-              ? "Loaded latest saved project: " + latestProject.name
+              ? "Loaded Atpio project: " + latestProject.name
               : "Loaded fallback sample project.";
           }
           loadAtpioGadget(projectId);

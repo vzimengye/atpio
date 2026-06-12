@@ -70,16 +70,28 @@ export type ProjectResponse = {
 };
 
 export type AppStore = {
+  users: AppUser[];
   projects: DataProject[];
   responses: ProjectResponse[];
   auditEvents: AuditEvent[];
+};
+
+export type AppUser = {
+  id: string;
+  email: string;
+  name?: string;
+  passwordHash: string;
+  publicKey: string;
+  activeProjectId?: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type AuditEvent = {
   id: string;
   action: string;
   projectId?: string;
-  actor: "admin" | "public" | "system";
+  actor: "admin" | "public" | "system" | "user";
   metadata?: Record<string, string | number | boolean>;
   createdAt: string;
 };

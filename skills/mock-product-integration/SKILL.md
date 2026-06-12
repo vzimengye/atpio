@@ -10,7 +10,7 @@ Create a separate page that:
 
 1. Runs outside the Atpio app.
 2. Loads `https://YOUR_ATPIO_DOMAIN/gadget.js`.
-3. Passes an Atpio `data-project-id`.
+3. Passes either an Atpio `data-atpio-workspace-key` or a fixed `data-project-id`.
 4. Shows the injected feedback button.
 5. Opens the Atpio iframe when the button is clicked.
 
@@ -20,7 +20,37 @@ In local development:
 - Mock product: `http://127.0.0.1:4000`
 - Gadget script: `http://127.0.0.1:3000/gadget.js`
 
-## Static Mock
+## Recommended Workspace Embed
+
+Use this when the customer wants their external product to follow whatever
+project they selected inside their Atpio account. This is the normal partner
+integration path.
+
+```html
+<script
+  src="https://YOUR_ATPIO_DOMAIN/gadget.js"
+  data-atpio-workspace-key="wk_example_public_workspace_key"
+  data-atpio-position="bottom-right"
+  data-atpio-theme="light"
+  data-atpio-label="Share feedback"
+></script>
+```
+
+How it works:
+
+1. The Atpio account owner creates projects in Atpio.
+2. In Atpio, they mark one project as active for embeds.
+3. The partner product loads `gadget.js` with that account's workspace key.
+4. Atpio resolves the active project for that workspace key.
+5. If no active project is selected, Atpio uses that account's newest project.
+6. End users fill the feedback form without signing in.
+
+Required attributes:
+
+- `src`: Atpio app URL plus `/gadget.js`.
+- `data-atpio-workspace-key`: the public workspace key from the Atpio account.
+
+## Fixed Project Embed
 
 Use a static script tag when the mock should always load one known Atpio
 project:
@@ -46,7 +76,7 @@ For production-like testing, replace the script URL:
 ></script>
 ```
 
-Required attributes:
+Required attributes for fixed project mode:
 
 - `src`: Atpio app URL plus `/gadget.js`.
 - `data-project-id`: the Atpio project ID to render.
@@ -62,13 +92,14 @@ Common optional attributes:
 
 ## Dynamic Mock
 
-Use JavaScript injection when the mock should choose a project ID at runtime.
-This is how `mock-product/index.html` previews the latest saved Atpio project.
+Use JavaScript injection when the mock should choose a workspace key or project
+ID at runtime. This is how `mock-product/index.html` previews an Atpio account's
+active project.
 
 ```js
 var atpioAppUrl = "http://127.0.0.1:3000";
 
-function loadAtpioGadget(projectId) {
+function loadAtpioGadget(workspaceKey) {
   var oldRoot = document.querySelector("[data-atpio-root]");
   if (oldRoot) oldRoot.remove();
 
@@ -78,7 +109,7 @@ function loadAtpioGadget(projectId) {
   var script = document.createElement("script");
   script.src = atpioAppUrl + "/gadget.js";
   script.setAttribute("data-atpio-mock-script", "true");
-  script.setAttribute("data-project-id", projectId);
+  script.setAttribute("data-atpio-workspace-key", workspaceKey);
   script.setAttribute("data-atpio-position", "bottom-right");
   script.setAttribute("data-atpio-theme", "light");
   script.setAttribute("data-atpio-label", "Share feedback");
@@ -88,24 +119,30 @@ function loadAtpioGadget(projectId) {
 }
 ```
 
-To load the latest saved Atpio project:
+To load the active project metadata before mounting, call:
 
 ```js
-fetch(atpioAppUrl + "/api/projects/latest?t=" + Date.now(), {
+var workspaceKey = "wk_example_public_workspace_key";
+fetch(
+  atpioAppUrl +
+    "/api/projects/latest?workspaceKey=" +
+    encodeURIComponent(workspaceKey) +
+    "&t=" +
+    Date.now(),
+  {
   cache: "no-store",
-})
+  },
+)
   .then(function (response) {
-    if (!response.ok) throw new Error("Could not load latest project.");
+    if (!response.ok) throw new Error("Could not load active project.");
     return response.json();
   })
   .then(function (payload) {
-    var projectId = payload.project
-      ? payload.project.id
-      : "project_onboarding_feedback";
-    loadAtpioGadget(projectId);
+    console.log("Loaded Atpio project", payload.project);
+    loadAtpioGadget(workspaceKey);
   })
   .catch(function () {
-    loadAtpioGadget("project_onboarding_feedback");
+    console.warn("Could not load Atpio project metadata.");
   });
 ```
 
@@ -143,7 +180,7 @@ response:
 ```html
 <script
   src="http://127.0.0.1:3000/gadget.js"
-  data-project-id="project_example"
+  data-atpio-workspace-key="wk_example_public_workspace_key"
   data-atpio-meta-page="pricing"
   data-atpio-meta-user-segment="trial"
   data-atpio-meta-experiment-id="onboarding-v2"
@@ -170,18 +207,20 @@ npm run mock-product
 http://127.0.0.1:4000
 ```
 
-4. Save a project in Atpio.
-5. Refresh the mock page.
-6. Confirm the mock page says it loaded the latest saved project.
-7. Click the feedback button and confirm the Atpio iframe opens.
-8. Submit the form and confirm the success event/callback logs in the browser
+4. Create an Atpio account and save a project in Atpio.
+5. Mark that project active for embeds.
+6. Open the mock product with `?workspaceKey=YOUR_WORKSPACE_KEY`.
+7. Confirm the mock page says it loaded that Atpio project.
+8. Click the feedback button and confirm the Atpio iframe opens.
+9. Submit the form and confirm the success event/callback logs in the browser
    console.
 
 ## Acceptance Checklist
 
 - The mock page is separate from the Atpio app.
 - The mock page loads `/gadget.js` from the Atpio URL.
-- The script receives the correct `data-project-id`.
+- The script receives either the correct `data-atpio-workspace-key` or a fixed
+  `data-project-id`.
 - The feedback button appears.
 - Clicking the button opens the Atpio iframe.
 - Submitting the form saves a response in Atpio.

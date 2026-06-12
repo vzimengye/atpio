@@ -22,6 +22,17 @@ model Project {
   @@index([ownerEmail])
 }
 
+model User {
+  id              String    @id
+  email           String    @unique
+  name            String?
+  passwordHash    String
+  publicKey       String    @unique
+  activeProjectId String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
 model Response {
   id        String   @id
   projectId String
