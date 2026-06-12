@@ -4,12 +4,8 @@ import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 import { createProjectAction } from "@/app/projects/actions";
 import { DynamicForm } from "@/components/dynamic-form";
-import { AdvancedJsonEditor } from "@/components/project-detail/advanced-json-editor";
-import { FieldsEditor } from "@/components/project-detail/fields-editor";
-import { PagesEditor } from "@/components/project-detail/pages-editor";
-import { cleanValidation } from "@/components/project-detail/validation-utils";
 import { publicMockProductUrl } from "@/lib/public-url";
-import type { FormField, FormPage, ProjectSchema } from "@/lib/types";
+import type { ProjectSchema } from "@/lib/types";
 
 const projectNamePlaceholder = "Optional. We can name this for you.";
 const briefPlaceholder =
@@ -42,9 +38,6 @@ export function ProjectBuilder({
   const [brief, setBrief] = useState(initialBrief);
   const [name, setName] = useState(initialName);
   const [schema, setSchema] = useState<ProjectSchema>(initialSchema);
-  const [schemaText, setSchemaText] = useState(
-    JSON.stringify(initialSchema, null, 2),
-  );
   const [revisionInstructions, setRevisionInstructions] = useState("");
   const [projectId, setProjectId] = useState(savedProjectId ?? "preview_project");
   const [status, setStatus] = useState<
@@ -208,162 +201,8 @@ export function ProjectBuilder({
     }
   }
 
-  function slugify(value: string) {
-    return (
-      value
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "_")
-        .replace(/^_+|_+$/g, "") || "field"
-    );
-  }
-
   function updateSchemaState(nextSchema: ProjectSchema) {
     setSchema(nextSchema);
-    setSchemaText(JSON.stringify(nextSchema, null, 2));
-  }
-
-  function updateSchema(updater: (current: ProjectSchema) => ProjectSchema) {
-    setStatus("idle");
-    setSourceMessage("");
-    setErrorMessage("");
-    setSchema((current) => {
-      const nextSchema = updater(current);
-      setSchemaText(JSON.stringify(nextSchema, null, 2));
-      return nextSchema;
-    });
-  }
-
-  function updatePage(pageId: string, patch: Partial<FormPage>) {
-    updateSchema((current) => ({
-      ...current,
-      pages: (current.pages ?? []).map((page) =>
-        page.id === pageId ? { ...page, ...patch } : page,
-      ),
-      fields:
-        patch.id && patch.id !== pageId
-          ? current.fields.map((field) =>
-              field.pageId === pageId ? { ...field, pageId: patch.id } : field,
-            )
-          : current.fields,
-    }));
-  }
-
-  function addPage() {
-    updateSchema((current) => {
-      const nextIndex = (current.pages?.length ?? 0) + 1;
-      return {
-        ...current,
-        pages: [
-          ...(current.pages ?? []),
-          { id: `page_${nextIndex}`, title: `Page ${nextIndex}` },
-        ],
-      };
-    });
-  }
-
-  function removePage(pageId: string) {
-    updateSchema((current) => ({
-      ...current,
-      pages: current.pages?.filter((page) => page.id !== pageId),
-      fields: current.fields.map((field) =>
-        field.pageId === pageId ? { ...field, pageId: undefined } : field,
-      ),
-    }));
-  }
-
-  function updateField(fieldId: string, patch: Partial<FormField>) {
-    updateSchema((current) => ({
-      ...current,
-      fields: current.fields.map((field) =>
-        field.id === fieldId ? { ...field, ...patch } : field,
-      ),
-    }));
-  }
-
-  function addField() {
-    updateSchema((current) => {
-      const nextIndex = current.fields.length + 1;
-      return {
-        ...current,
-        fields: [
-          ...current.fields,
-          {
-            id: `field_${nextIndex}`,
-            type: "short_text",
-            label: `Question ${nextIndex}`,
-            required: false,
-            pageId: current.pages?.[0]?.id,
-          },
-        ],
-      };
-    });
-  }
-
-  function duplicateField(fieldId: string) {
-    updateSchema((current) => {
-      const index = current.fields.findIndex((field) => field.id === fieldId);
-      if (index < 0) return current;
-
-      const field = current.fields[index];
-      const copy: FormField = {
-        ...field,
-        id: uniqueFieldId(current.fields, `${field.id}_copy`),
-        label: `${field.label} copy`,
-      };
-      const fields = [...current.fields];
-      fields.splice(index + 1, 0, copy);
-      return { ...current, fields };
-    });
-  }
-
-  function moveField(fieldId: string, direction: "up" | "down") {
-    updateSchema((current) => {
-      const index = current.fields.findIndex((field) => field.id === fieldId);
-      const nextIndex = direction === "up" ? index - 1 : index + 1;
-      if (index < 0 || nextIndex < 0 || nextIndex >= current.fields.length) {
-        return current;
-      }
-
-      const fields = [...current.fields];
-      const [field] = fields.splice(index, 1);
-      fields.splice(nextIndex, 0, field);
-      return { ...current, fields };
-    });
-  }
-
-  function removeField(fieldId: string) {
-    updateSchema((current) => ({
-      ...current,
-      fields: current.fields.filter((field) => field.id !== fieldId),
-    }));
-  }
-
-  function updateValidation(
-    fieldId: string,
-    key: keyof NonNullable<FormField["validation"]>,
-    value: number | undefined,
-  ) {
-    updateSchema((current) => ({
-      ...current,
-      fields: current.fields.map((field) =>
-        field.id === fieldId
-          ? { ...field, validation: cleanValidation(field.validation, key, value) }
-          : field,
-      ),
-    }));
-  }
-
-  function applySchemaText() {
-    try {
-      const parsedSchema = JSON.parse(schemaText) as ProjectSchema;
-      updateSchemaState(parsedSchema);
-      setErrorMessage("");
-      setSourceMessage("JSON applied. Review the preview, then save it.");
-    } catch {
-      setErrorMessage("Could not apply JSON. Check that the schema is valid.");
-      setSourceMessage("");
-    }
   }
 
   return (
@@ -451,7 +290,8 @@ export function ProjectBuilder({
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Describe the insight you want. Atpio turns it into a structured
             collection form with the right questions, field types, validation,
-            and layout.
+            and layout. Use AI revision here, then fine-tune individual fields
+            after saving.
           </p>
         </div>
 
@@ -546,27 +386,16 @@ export function ProjectBuilder({
           </p>
         ) : null}
 
-        <div className="mt-6 rounded-2xl border border-stone-200 bg-stone-50/80 p-4">
-          <div>
-            <p className="text-sm font-semibold text-slate-950">
-              Edit generated questionnaire
-            </p>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              Fine-tune the generated form before saving. You can edit copy,
-              field type, options, validation, pages, order, and required
-              status.
-            </p>
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-emerald-100 bg-white p-4">
+        {schema.fields.length > 0 ? (
+          <div className="mt-6 rounded-2xl border border-emerald-100 bg-white p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-emerald-800">
                   Ask Atpio to revise
                 </p>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
-                  Give high-level feedback and Atpio will update the current
-                  questionnaire while preserving useful manual edits.
+                  Give high-level feedback and Atpio will update the current form.
+                  For precise field edits, save the project and open project detail.
                 </p>
               </div>
               <button
@@ -592,62 +421,7 @@ export function ProjectBuilder({
               onChange={(event) => setRevisionInstructions(event.target.value)}
             />
           </div>
-
-          <div className="mt-4 grid gap-4">
-            <label className="text-sm">
-              <span className="font-medium text-slate-800">Form title</span>
-              <input
-                className="mt-2 h-10 w-full rounded-md border border-stone-300 bg-white px-3"
-                value={schema.title}
-                onChange={(event) =>
-                  updateSchema((current) => ({
-                    ...current,
-                    title: event.target.value,
-                  }))
-                }
-              />
-            </label>
-            <label className="text-sm">
-              <span className="font-medium text-slate-800">Description</span>
-              <textarea
-                className="mt-2 min-h-20 w-full rounded-md border border-stone-300 bg-white px-3 py-2"
-                value={schema.description}
-                onChange={(event) =>
-                  updateSchema((current) => ({
-                    ...current,
-                    description: event.target.value,
-                  }))
-                }
-              />
-            </label>
-          </div>
-
-          <PagesEditor
-            pages={schema.pages ?? []}
-            slugify={slugify}
-            onAddPage={addPage}
-            onRemovePage={removePage}
-            onUpdatePage={updatePage}
-          />
-
-          <FieldsEditor
-            fields={schema.fields}
-            pages={schema.pages ?? []}
-            slugify={slugify}
-            onAddField={addField}
-            onDuplicateField={duplicateField}
-            onMoveField={moveField}
-            onRemoveField={removeField}
-            onUpdateField={updateField}
-            onUpdateValidation={updateValidation}
-          />
-
-          <AdvancedJsonEditor
-            value={schemaText}
-            onApply={applySchemaText}
-            onChange={setSchemaText}
-          />
-        </div>
+        ) : null}
 
         {status === "saved" ? (
           <div
@@ -664,8 +438,9 @@ export function ProjectBuilder({
               <div>
                 <p className="font-semibold">Project saved successfully.</p>
                 <p className="mt-1 text-emerald-800">
-                  This is now the latest Atpio project. The mock product will
-                  load it automatically at {publicMockProductUrl}.
+                  Open project detail to fine-tune fields, pages, validation,
+                  and embed settings. The mock product can load it from{" "}
+                  {publicMockProductUrl}.
                 </p>
                 <p className="mt-2 text-xs text-emerald-700">
                   Embed path: /embed/{projectId}
@@ -706,19 +481,6 @@ export function ProjectBuilder({
       </section>
     </div>
   );
-}
-
-function uniqueFieldId(fields: FormField[], baseId: string) {
-  const existingIds = new Set(fields.map((field) => field.id));
-  let candidate = baseId;
-  let suffix = 2;
-
-  while (existingIds.has(candidate)) {
-    candidate = `${baseId}_${suffix}`;
-    suffix += 1;
-  }
-
-  return candidate;
 }
 
 function Spinner() {
