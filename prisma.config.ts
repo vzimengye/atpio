@@ -1,4 +1,5 @@
 import { defineConfig } from "prisma/config";
+import { getDatabaseUrl } from "./src/prisma/database-url";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -6,8 +7,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url:
-      process.env.DATABASE_URL ??
-      "postgresql://user:password@localhost:5432/atpio_dev",
+    url: getDatabaseUrl() ?? "postgresql://user:password@localhost:5432/atpio_dev",
   },
 });

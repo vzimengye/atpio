@@ -3,6 +3,7 @@ import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { sampleProject } from "@/lib/mock-data";
+import { getDatabaseUrl } from "@/prisma/database-url";
 import { getPrisma } from "@/prisma/prisma";
 import type {
   AppUser,
@@ -15,7 +16,7 @@ import type {
 import { hashPassword, verifyPassword } from "./password";
 
 const storePath = path.join(process.cwd(), "data", "app-store.json");
-const shouldUseDatabase = Boolean(process.env.DATABASE_URL);
+const shouldUseDatabase = Boolean(getDatabaseUrl());
 
 const initialStore: AppStore = {
   users: [],
