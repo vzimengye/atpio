@@ -2,15 +2,26 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AuthError } from "next-auth";
 import { auth, signIn } from "@/auth";
+import { getUiLanguage, langPath } from "@/lib/i18n";
 
 async function login(formData: FormData) {
   "use server";
 
   try {
-    await signIn("credentials", formData);
+    const lang = String(formData.get("lang") ?? "en") === "zh" ? "zh" : "en";
+    await signIn("credentials", {
+      email: String(formData.get("email") ?? ""),
+      password: String(formData.get("password") ?? ""),
+      redirectTo: langPath("/", lang),
+    });
   } catch (error) {
     if (error instanceof AuthError) {
-      return redirect("/login?error=credentials");
+      const lang = String(formData.get("lang") ?? "en") === "zh" ? "zh" : "en";
+      const path =
+        lang === "zh"
+          ? "/login?lang=zh&error=credentials"
+          : "/login?error=credentials";
+      return redirect(path);
     }
 
     throw error;
@@ -24,13 +35,15 @@ export default async function LoginPage({
 }) {
   const session = await auth();
   const params = await searchParams;
+  const lang = getUiLanguage(params.lang);
 
   if (session?.user) {
-    redirect("/projects");
+    redirect(langPath("/", lang));
   }
 
   const hasError = Boolean(params.error);
   const registered = Boolean(params.registered);
+  const isZh = lang === "zh";
 
   return (
     <main className="grid min-h-screen place-items-center bg-[#f7f1e8] px-6 text-slate-950">
@@ -38,15 +51,19 @@ export default async function LoginPage({
         action={login}
         className="w-full max-w-sm rounded-3xl border border-stone-200 bg-white/85 p-6 shadow-sm"
       >
+        <input name="lang" type="hidden" value={lang} />
         <p className="text-sm font-medium text-emerald-700">Atpio account</p>
-        <h1 className="mt-2 text-3xl font-semibold">Sign in</h1>
+        <h1 className="mt-2 text-3xl font-semibold">
+          {isZh ? "登录" : "Sign in"}
+        </h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          Sign in to create projects, choose the active embedded form, and
-          review responses. Feedback participants never need an account.
+          {isZh
+            ? "登录后可以创建项目、选择嵌入展示的问卷，并查看反馈数据。普通填写者不需要账号。"
+            : "Sign in to create projects, choose the active embedded form, and review responses. Feedback participants never need an account."}
         </p>
 
         <label className="mt-6 block text-sm font-medium text-slate-900">
-          Email
+          {isZh ? "邮箱" : "Email"}
           <input
             className="mt-2 h-10 w-full rounded-xl border border-stone-300 px-3 outline-none focus:border-emerald-600"
             name="email"
@@ -56,7 +73,7 @@ export default async function LoginPage({
         </label>
 
         <label className="mt-4 block text-sm font-medium text-slate-900">
-          Password
+          {isZh ? "密码" : "Password"}
           <input
             className="mt-2 h-10 w-full rounded-xl border border-stone-300 px-3 outline-none focus:border-emerald-600"
             name="password"
@@ -67,12 +84,12 @@ export default async function LoginPage({
 
         {hasError ? (
           <p className="mt-4 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
-            Could not sign in with those credentials.
+            {isZh ? "邮箱或密码不正确。" : "Could not sign in with those credentials."}
           </p>
         ) : null}
         {registered ? (
           <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-            Account created. Sign in to open your workspace.
+            {isZh ? "账号已创建。登录后进入首页。" : "Account created. Sign in to open the homepage."}
           </p>
         ) : null}
 
@@ -80,12 +97,12 @@ export default async function LoginPage({
           className="mt-6 h-10 w-full rounded-full bg-slate-950 text-sm font-medium text-white"
           type="submit"
         >
-          Sign in
+          {isZh ? "登录" : "Sign in"}
         </button>
         <p className="mt-4 text-center text-sm text-slate-600">
-          New to Atpio?{" "}
-          <Link className="font-medium text-emerald-700" href="/register">
-            Create an account
+          {isZh ? "还没有 Atpio 账号？" : "New to Atpio?"}{" "}
+          <Link className="font-medium text-emerald-700" href={langPath("/register", lang)}>
+            {isZh ? "注册" : "Create an account"}
           </Link>
         </p>
       </form>

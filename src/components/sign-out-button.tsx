@@ -1,6 +1,6 @@
 import { signOut } from "@/auth";
 
-export function SignOutButton() {
+export function SignOutButton({ label = "Sign out" }: { label?: string }) {
   return (
     <form
       action={async () => {
@@ -12,7 +12,7 @@ export function SignOutButton() {
         className="rounded-full border border-stone-300 bg-white/70 px-3 py-1.5 text-sm font-medium text-slate-700"
         type="submit"
       >
-        Sign out
+        {label}
       </button>
     </form>
   );

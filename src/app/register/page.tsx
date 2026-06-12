@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { auth } from "@/auth";
+import { getUiLanguage, langPath } from "@/lib/i18n";
 import { createUser } from "@/lib/store";
 
 const registerSchema = z.object({
@@ -9,6 +10,13 @@ const registerSchema = z.object({
   email: z.string().trim().toLowerCase().email(),
   password: z.string().min(8),
 });
+
+function authPath(path: "/login" | "/register", lang: "en" | "zh", params = "") {
+  const search = [lang === "zh" ? "lang=zh" : "", params]
+    .filter(Boolean)
+    .join("&");
+  return search ? `${path}?${search}` : path;
+}
 
 async function register(formData: FormData) {
   "use server";
@@ -18,18 +26,19 @@ async function register(formData: FormData) {
     email: String(formData.get("email") ?? ""),
     password: String(formData.get("password") ?? ""),
   });
+  const lang = String(formData.get("lang") ?? "en") === "zh" ? "zh" : "en";
 
   if (!parsed.success) {
-    redirect("/register?error=invalid");
+    redirect(authPath("/register", lang, "error=invalid"));
   }
 
   try {
     await createUser(parsed.data);
   } catch {
-    redirect("/register?error=exists");
+    redirect(authPath("/register", lang, "error=exists"));
   }
 
-  redirect("/login?registered=1");
+  redirect(authPath("/login", lang, "registered=1"));
 }
 
 export default async function RegisterPage({
@@ -39,9 +48,11 @@ export default async function RegisterPage({
 }) {
   const session = await auth();
   const params = await searchParams;
+  const lang = getUiLanguage(params.lang);
+  const isZh = lang === "zh";
 
   if (session?.user) {
-    redirect("/projects");
+    redirect(langPath("/", lang));
   }
 
   const error = params.error;
@@ -52,15 +63,19 @@ export default async function RegisterPage({
         action={register}
         className="w-full max-w-sm rounded-3xl border border-stone-200 bg-white/85 p-6 shadow-sm"
       >
+        <input name="lang" type="hidden" value={lang} />
         <p className="text-sm font-medium text-emerald-700">Atpio account</p>
-        <h1 className="mt-2 text-3xl font-semibold">Create account</h1>
+        <h1 className="mt-2 text-3xl font-semibold">
+          {isZh ? "注册账号" : "Create account"}
+        </h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          Each account gets its own project workspace. Embedded feedback forms
-          remain public for participants.
+          {isZh
+            ? "每个账号都有自己的 project workspace。嵌入式反馈问卷对普通填写者保持公开。"
+            : "Each account gets its own project workspace. Embedded feedback forms remain public for participants."}
         </p>
 
         <label className="mt-6 block text-sm font-medium text-slate-900">
-          Name
+          {isZh ? "姓名" : "Name"}
           <input
             className="mt-2 h-10 w-full rounded-xl border border-stone-300 px-3 outline-none focus:border-emerald-600"
             name="name"
@@ -69,7 +84,7 @@ export default async function RegisterPage({
         </label>
 
         <label className="mt-4 block text-sm font-medium text-slate-900">
-          Email
+          {isZh ? "邮箱" : "Email"}
           <input
             className="mt-2 h-10 w-full rounded-xl border border-stone-300 px-3 outline-none focus:border-emerald-600"
             name="email"
@@ -79,7 +94,7 @@ export default async function RegisterPage({
         </label>
 
         <label className="mt-4 block text-sm font-medium text-slate-900">
-          Password
+          {isZh ? "密码" : "Password"}
           <input
             className="mt-2 h-10 w-full rounded-xl border border-stone-300 px-3 outline-none focus:border-emerald-600"
             minLength={8}
@@ -92,8 +107,12 @@ export default async function RegisterPage({
         {error ? (
           <p className="mt-4 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
             {error === "invalid"
-              ? "Use a valid email and a password with at least 8 characters."
-              : "Could not create that account. The email may already be in use."}
+              ? isZh
+                ? "请输入有效邮箱，密码至少 8 位。"
+                : "Use a valid email and a password with at least 8 characters."
+              : isZh
+                ? "无法创建账号，这个邮箱可能已经被使用。"
+                : "Could not create that account. The email may already be in use."}
           </p>
         ) : null}
 
@@ -101,12 +120,12 @@ export default async function RegisterPage({
           className="mt-6 h-10 w-full rounded-full bg-slate-950 text-sm font-medium text-white"
           type="submit"
         >
-          Create account
+          {isZh ? "注册" : "Create account"}
         </button>
         <p className="mt-4 text-center text-sm text-slate-600">
-          Already have an account?{" "}
-          <Link className="font-medium text-emerald-700" href="/login">
-            Sign in
+          {isZh ? "已经有账号？" : "Already have an account?"}{" "}
+          <Link className="font-medium text-emerald-700" href={langPath("/login", lang)}>
+            {isZh ? "登录" : "Sign in"}
           </Link>
         </p>
       </form>
