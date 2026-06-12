@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { SignOutButton } from "@/components/sign-out-button";
-import { getUiLanguage, langPath, type UiLanguage } from "@/lib/i18n";
+import { getUiLanguageFromParams, langPath, type UiLanguage } from "@/lib/i18n";
 import { sampleProject } from "@/lib/mock-data";
 import { listProjects, listResponses } from "@/lib/store";
 import type { FormField } from "@/lib/types";
@@ -124,7 +124,7 @@ export default async function Home({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const lang = getUiLanguage(params.lang);
+  const lang = getUiLanguageFromParams(params);
   const session = await auth();
   const projects = session?.user
     ? await listProjects(session.user.email ?? undefined)

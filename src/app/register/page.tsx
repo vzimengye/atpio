@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { auth } from "@/auth";
-import { getUiLanguage, langPath } from "@/lib/i18n";
+import { getUiLanguageFromParams, langPath } from "@/lib/i18n";
 import { createUser } from "@/lib/store";
 
 const registerSchema = z.object({
@@ -48,7 +48,7 @@ export default async function RegisterPage({
 }) {
   const session = await auth();
   const params = await searchParams;
-  const lang = getUiLanguage(params.lang);
+  const lang = getUiLanguageFromParams(params);
   const isZh = lang === "zh";
 
   if (session?.user) {

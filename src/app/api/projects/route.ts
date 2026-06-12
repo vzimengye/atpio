@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { SchemaGenerationError } from "@/ai/generate-schema";
 import { requireAdmin } from "@/lib/auth-guard";
+import { getOutputLanguage, getUiLanguage } from "@/lib/i18n";
 import { logger } from "@/lib/logger";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 import { projectIdFromName, projectNameFromBrief } from "@/lib/schema-generator";
@@ -22,7 +23,19 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
 
   const body = await request.json().catch(() => null);
-  const parsed = createProjectRequestSchema.safeParse(body);
+  const normalizedBody =
+    body && typeof body === "object"
+      ? {
+          ...body,
+          outputLanguage:
+            body.outputLanguage ??
+            getOutputLanguage(
+              body.questionnaireLanguage ?? body.language ?? body.lang,
+              getUiLanguage(body.language ?? body.lang),
+            ),
+        }
+      : body;
+  const parsed = createProjectRequestSchema.safeParse(normalizedBody);
 
   if (!parsed.success) {
     return NextResponse.json(invalidInput(parsed.error), { status: 400 });

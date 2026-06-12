@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AuthError } from "next-auth";
 import { auth, signIn } from "@/auth";
-import { getUiLanguage, langPath } from "@/lib/i18n";
+import { getUiLanguageFromParams, langPath } from "@/lib/i18n";
 
 async function login(formData: FormData) {
   "use server";
@@ -35,7 +35,7 @@ export default async function LoginPage({
 }) {
   const session = await auth();
   const params = await searchParams;
-  const lang = getUiLanguage(params.lang);
+  const lang = getUiLanguageFromParams(params);
 
   if (session?.user) {
     redirect(langPath("/", lang));
