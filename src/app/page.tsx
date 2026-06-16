@@ -17,6 +17,7 @@ const copy = {
     create: "Create account",
     signIn: "Sign in",
     skip: "Skip and view overview",
+    languageToggle: "中",
     newProject: "New project",
     workspace: "Workspace",
     signedIn: "Signed in",
@@ -36,9 +37,9 @@ const copy = {
     flowTitle: "How customers use it",
     flow: [
       "Register or sign in to Atpio.",
-      "Generate a feedback project from a brief.",
-      "Choose the active project for embeds.",
-      "Install the gadget script on another product.",
+      "Create a project by describing the product question you want to answer.",
+      "Choose which saved project should appear inside your website or app.",
+      "Copy the embed script into the product where you want to collect responses.",
       "Public users submit feedback without signing in.",
     ],
   },
@@ -46,33 +47,34 @@ const copy = {
     eyebrow: "Atpio",
     title: "把产品问题变成可嵌入的反馈问卷。",
     subtitle:
-      "注册账号后可以创建自己的 workspace；也可以先跳过登录，了解 Atpio 如何工作，以及如何接入到自己的网页里。",
+      "注册账号后可以创建自己的项目空间；也可以先跳过登录，了解 Atpio 如何工作，以及如何接入到自己的网页里。",
     create: "注册",
     signIn: "登录",
     skip: "跳过，先看介绍",
+    languageToggle: "EN",
     newProject: "新建项目",
-    workspace: "Workspace",
+    workspace: "项目空间",
     signedIn: "已登录",
     overview: "产品介绍",
     overviewText:
-      "Atpio 根据自然语言 brief 生成结构化反馈问卷，把问卷嵌入到另一个网站中，并把收集到的回答保存到项目创建者自己的 workspace。",
+      "Atpio 根据自然语言描述生成结构化反馈表单，把表单嵌入到另一个网站中，并把收集到的回答保存到项目创建者自己的项目空间。",
     activeProject: "最近项目预览",
     fields: "问题数",
     responses: "回答数",
     status: "状态",
     required: "必填",
-    integrationTitle: "Mock Product Integration 接入指南",
+    integrationTitle: "示例产品接入指南",
     integrationText:
-      "这个 markdown 可以给合作方或客户使用，说明如何把 Atpio gadget 装进他们自己的产品里，包括 workspace key、固定 project id、metadata、事件回调和本地测试。",
+      "这个文档可以给合作方或客户使用，说明如何把 Atpio 的反馈入口装进他们自己的产品里，包括项目空间密钥、固定项目编号、附加信息、事件通知和本地测试。",
     download: "下载接入指南",
-    mock: "打开 mock product",
+    mock: "打开示例产品",
     flowTitle: "客户使用流程",
     flow: [
       "注册或登录 Atpio。",
-      "用 brief 生成反馈项目。",
-      "选择要嵌入展示的 active project。",
-      "把 gadget script 安装到另一个产品里。",
-      "普通用户无需登录，直接提交 feedback。",
+      "用自然语言描述想了解的产品问题，创建一个反馈项目。",
+      "在项目空间中选择要展示到外部产品里的项目。",
+      "把嵌入代码复制到需要收集反馈的网站或应用里。",
+      "外部产品的普通用户无需登录 Atpio，直接填写并提交反馈。",
     ],
   },
 } satisfies Record<UiLanguage, Record<string, string | string[]>>;
@@ -132,6 +134,13 @@ export default async function Home({
   const project = projects[0] ?? sampleProject;
   const responses = await listResponses(project.id);
   const activeStatus = statusLabels[lang][project.status];
+  const nextLang: UiLanguage = lang === "zh" ? "en" : "zh";
+  const actionClass =
+    "inline-flex h-12 w-full min-w-0 items-center justify-center rounded-full border px-5 text-center text-sm font-semibold shadow-sm transition sm:w-40";
+  const primaryActionClass = `${actionClass} border-slate-950 bg-slate-950 text-white hover:bg-slate-800`;
+  const secondaryActionClass = `${actionClass} border-stone-300 bg-white/80 text-slate-800 hover:bg-white`;
+  const languageActionClass =
+    lang === "zh" ? secondaryActionClass : primaryActionClass;
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-slate-950">
@@ -141,28 +150,6 @@ export default async function Home({
             <p className="text-sm font-semibold text-emerald-700">
               {getText(lang, "eyebrow")}
             </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <Link
-                className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-                  lang === "en"
-                    ? "bg-slate-950 text-white"
-                    : "border border-stone-300 bg-white/70 text-slate-700"
-                }`}
-                href="/"
-              >
-                English
-              </Link>
-              <Link
-                className={`rounded-full px-3 py-1.5 text-sm font-medium ${
-                  lang === "zh"
-                    ? "bg-slate-950 text-white"
-                    : "border border-stone-300 bg-white/70 text-slate-700"
-                }`}
-                href="/?lang=zh"
-              >
-                中文
-              </Link>
-            </div>
           </nav>
 
           <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
@@ -174,43 +161,52 @@ export default async function Home({
                 {getText(lang, "subtitle")}
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid w-full grid-cols-2 gap-3 sm:w-auto sm:grid-cols-4">
               {session?.user ? (
                 <>
                   <Link
-                    className="inline-flex h-11 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-medium text-white shadow-sm"
+                    className={primaryActionClass}
                     href={langPath("/projects/new", lang)}
                   >
                     {getText(lang, "newProject")}
                   </Link>
                   <Link
-                    className="inline-flex h-11 items-center justify-center rounded-full border border-stone-300 bg-white/70 px-5 text-sm font-medium text-slate-700"
+                    className={secondaryActionClass}
                     href={langPath("/projects", lang)}
                   >
                     {getText(lang, "workspace")}
                   </Link>
-                  <SignOutButton label={lang === "zh" ? "退出登录" : "Sign out"} />
+                  <SignOutButton
+                    className={secondaryActionClass}
+                    label={lang === "zh" ? "退出登录" : "Sign out"}
+                  />
+                  <Link className={languageActionClass} href={langPath("/", nextLang)}>
+                    {getText(lang, "languageToggle")}
+                  </Link>
                 </>
               ) : (
                 <>
                   <Link
-                    className="inline-flex h-11 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-medium text-white shadow-sm"
+                    className={primaryActionClass}
                     href={langPath("/register", lang)}
                   >
                     {getText(lang, "create")}
                   </Link>
                   <Link
-                    className="inline-flex h-11 items-center justify-center rounded-full border border-stone-300 bg-white/70 px-5 text-sm font-medium text-slate-700"
+                    className={secondaryActionClass}
                     href={langPath("/login", lang)}
                   >
                     {getText(lang, "signIn")}
                   </Link>
                   <a
-                    className="inline-flex h-11 items-center justify-center rounded-full border border-stone-300 bg-white/70 px-5 text-sm font-medium text-slate-700"
+                    className={secondaryActionClass}
                     href="#overview"
                   >
                     {getText(lang, "skip")}
                   </a>
+                  <Link className={languageActionClass} href={langPath("/", nextLang)}>
+                    {getText(lang, "languageToggle")}
+                  </Link>
                 </>
               )}
             </div>
