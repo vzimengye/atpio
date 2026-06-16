@@ -43,7 +43,7 @@ export async function POST(
 
   const now = new Date().toISOString();
   const response: ProjectResponse = {
-    id: `response_${Date.now()}`,
+    id: `response_${crypto.randomUUID()}`,
     projectId,
     answers: parsed.data.answers,
     sourceUrl: request.headers.get("referer") ?? undefined,

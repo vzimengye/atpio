@@ -1,5 +1,6 @@
 import "server-only";
 
+import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { sampleProject } from "@/lib/mock-data";
@@ -60,11 +61,11 @@ function belongsToOwner(project: DataProject, ownerEmail?: string) {
 }
 
 function makeId(prefix: string) {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  return `${prefix}_${randomUUID()}`;
 }
 
 function makePublicKey() {
-  return `wk_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+  return `wk_${randomUUID().replaceAll("-", "")}`;
 }
 
 export async function writeStore(store: AppStore) {
@@ -356,7 +357,7 @@ export async function saveProject(project: DataProject): Promise<DataProject> {
 
     await addAuditEvent({
       action: "project.saved",
-      actor: "admin",
+      actor: "user",
       projectId: project.id,
       metadata: { status: project.status },
     });
@@ -388,7 +389,7 @@ export async function saveProject(project: DataProject): Promise<DataProject> {
   await writeStore(store);
   await addAuditEvent({
     action: "project.saved",
-    actor: "admin",
+    actor: "user",
     projectId: project.id,
     metadata: { status: project.status },
   });
