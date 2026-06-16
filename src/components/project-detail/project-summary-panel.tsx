@@ -51,6 +51,12 @@ export function ProjectSummaryPanel({
           >
             {t.newProject}
           </Link>
+          <a
+            className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-800"
+            href={`/api/projects/${project.id}/html`}
+          >
+            {t.downloadHtml}
+          </a>
         </div>
       </div>
       <input
@@ -135,6 +141,7 @@ const copy = {
   en: {
     allProjects: "All projects",
     detail: "Project detail",
+    downloadHtml: "Download HTML",
     fields: "Fields",
     fixedEmbed: "Fixed project embed code",
     newProject: "New project",
@@ -146,6 +153,7 @@ const copy = {
   zh: {
     allProjects: "所有项目",
     detail: "项目详情",
+    downloadHtml: "下载 HTML",
     fields: "问题",
     fixedEmbed: "固定项目嵌入代码",
     newProject: "新建项目",
