@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ActiveProjectButton } from "@/components/active-project-button";
+import { DynamicForm } from "@/components/dynamic-form";
 import { GadgetSettingsPanel } from "@/components/project-detail/gadget-settings-panel";
 import { langPath, type UiLanguage } from "@/lib/i18n";
 import type { DataProject, GadgetSettings } from "@/lib/types";
@@ -86,6 +87,21 @@ export function ProjectSummaryPanel({
         onUpdate={onUpdateGadget}
       />
 
+      <div className="mt-6 rounded-xl border border-stone-200 bg-white p-4">
+        <p className="mb-3 text-sm font-medium text-slate-700">
+          {t.stylePreview}
+        </p>
+        <DynamicForm
+          compact
+          gadget={project.gadget}
+          previewMode
+          projectId={project.id}
+          schema={project.schema}
+          successMessage={project.gadget.successMessage}
+          uiLanguage={uiLanguage}
+        />
+      </div>
+
       {workspaceEmbedCode ? (
         <div className="mt-6 rounded-xl bg-emerald-50 p-4 text-emerald-950">
           <p className="text-sm font-medium">
@@ -116,6 +132,7 @@ const copy = {
     newProject: "New project",
     pages: "Pages",
     responses: "Responses",
+    stylePreview: "HTML experience preview",
     workspaceEmbed: "Workspace embed code, follows your active project",
   },
   zh: {
@@ -126,6 +143,7 @@ const copy = {
     newProject: "新建项目",
     pages: "页面",
     responses: "回答",
+    stylePreview: "HTML 体验预览",
     workspaceEmbed: "Workspace 嵌入代码，会跟随你的 active project",
   },
 } satisfies Record<UiLanguage, Record<string, string>>;

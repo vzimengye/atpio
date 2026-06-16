@@ -74,6 +74,21 @@ export function GadgetSettingsPanel({
           value={gadget.accentColor}
           onChange={(value) => onUpdate("accentColor", value)}
         />
+        <ColorInput
+          label={t.backgroundColor}
+          value={gadget.backgroundColor ?? "#ffffff"}
+          onChange={(value) => onUpdate("backgroundColor", value)}
+        />
+        <ColorInput
+          label={t.textColor}
+          value={gadget.textColor ?? "#020617"}
+          onChange={(value) => onUpdate("textColor", value)}
+        />
+        <ColorInput
+          label={t.borderColor}
+          value={gadget.borderColor ?? "#dbe3ef"}
+          onChange={(value) => onUpdate("borderColor", value)}
+        />
         <label className="text-sm">
           <span className="font-medium text-slate-800">{t.buttonShape}</span>
           <select
@@ -96,6 +111,68 @@ export function GadgetSettingsPanel({
           value={gadget.fontFamily}
           onChange={(value) => onUpdate("fontFamily", value)}
         />
+        <label className="text-sm">
+          <span className="font-medium text-slate-800">{t.buttonStyle}</span>
+          <select
+            className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
+            value={gadget.buttonStyle ?? "filled"}
+            onChange={(event) =>
+              onUpdate(
+                "buttonStyle",
+                event.target.value as GadgetSettings["buttonStyle"],
+              )
+            }
+          >
+            <option value="filled">{t.filled}</option>
+            <option value="outline">{t.outline}</option>
+            <option value="soft">{t.soft}</option>
+          </select>
+        </label>
+        <label className="text-sm">
+          <span className="font-medium text-slate-800">{t.inputStyle}</span>
+          <select
+            className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
+            value={gadget.inputStyle ?? "outlined"}
+            onChange={(event) =>
+              onUpdate(
+                "inputStyle",
+                event.target.value as GadgetSettings["inputStyle"],
+              )
+            }
+          >
+            <option value="outlined">{t.outlined}</option>
+            <option value="filled">{t.filled}</option>
+            <option value="underline">{t.underline}</option>
+          </select>
+        </label>
+        <label className="text-sm">
+          <span className="font-medium text-slate-800">{t.density}</span>
+          <select
+            className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
+            value={gadget.density ?? "comfortable"}
+            onChange={(event) =>
+              onUpdate("density", event.target.value as GadgetSettings["density"])
+            }
+          >
+            <option value="compact">{t.compact}</option>
+            <option value="comfortable">{t.comfortable}</option>
+            <option value="spacious">{t.spacious}</option>
+          </select>
+        </label>
+        <label className="text-sm">
+          <span className="font-medium text-slate-800">{t.shadow}</span>
+          <select
+            className="mt-2 h-10 w-full rounded-md border border-stone-300 px-3"
+            value={gadget.shadow ?? "soft"}
+            onChange={(event) =>
+              onUpdate("shadow", event.target.value as GadgetSettings["shadow"])
+            }
+          >
+            <option value="none">{t.none}</option>
+            <option value="soft">{t.soft}</option>
+            <option value="strong">{t.strong}</option>
+          </select>
+        </label>
         <label className="text-sm sm:col-span-2">
           <span className="font-medium text-slate-800">{t.allowedDomains}</span>
           <textarea
@@ -129,23 +206,40 @@ const copy = {
       "Example: app.example.com. Subdomains are allowed when the parent domain is listed.",
     allowedDomainsPlaceholder:
       "One domain per line. Leave blank to allow any domain during local testing.",
+    backgroundColor: "Background color",
     bottomLeft: "Bottom left",
     bottomRight: "Bottom right",
+    borderColor: "Border color",
     brandColor: "Brand color",
     buttonLabel: "Button label",
     buttonShape: "Button shape",
+    buttonStyle: "Button style",
+    comfortable: "Comfortable",
+    compact: "Compact",
     dark: "Dark",
+    density: "Density",
+    filled: "Filled",
     fontFamily: "Font family",
+    inputStyle: "Input style",
     light: "Light",
+    none: "None",
+    outline: "Outline",
+    outlined: "Outlined",
     pill: "Pill",
     position: "Position",
     rounded: "Rounded",
+    shadow: "Shadow",
+    soft: "Soft",
+    spacious: "Spacious",
     square: "Square",
+    strong: "Strong",
     successMessage: "Success message",
+    textColor: "Text color",
     theme: "Theme",
     title: "Gadget settings",
     topLeft: "Top left",
     topRight: "Top right",
+    underline: "Underline",
   },
   zh: {
     accentColor: "强调色",
@@ -154,23 +248,40 @@ const copy = {
       "例如：app.example.com。填写父域名后，子域名也会被允许。",
     allowedDomainsPlaceholder:
       "每行一个域名。留空表示本地测试时允许任何域名。",
+    backgroundColor: "背景色",
     bottomLeft: "左下角",
     bottomRight: "右下角",
+    borderColor: "边框色",
     brandColor: "品牌色",
     buttonLabel: "按钮文案",
     buttonShape: "按钮形状",
+    buttonStyle: "按钮样式",
+    comfortable: "舒适",
+    compact: "紧凑",
     dark: "深色",
+    density: "密度",
+    filled: "填充",
     fontFamily: "字体",
+    inputStyle: "输入框样式",
     light: "浅色",
+    none: "无",
+    outline: "描边",
+    outlined: "描边",
     pill: "胶囊",
     position: "位置",
     rounded: "圆角",
+    shadow: "阴影",
+    soft: "柔和",
+    spacious: "宽松",
     square: "直角",
+    strong: "明显",
     successMessage: "提交成功文案",
+    textColor: "文字色",
     theme: "主题",
     title: "Gadget 设置",
     topLeft: "左上角",
     topRight: "右上角",
+    underline: "下划线",
   },
 } satisfies Record<UiLanguage, Record<string, string>>;
 
