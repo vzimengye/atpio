@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { forbiddenOriginResponse, isOriginAllowed } from "@/lib/domain-access";
 import { getActiveProjectForPublicKey, listProjects } from "@/lib/store";
 
 const publicHeaders = {
@@ -14,6 +15,10 @@ export async function GET(request: Request) {
   const latestProject = workspaceKey
     ? await getActiveProjectForPublicKey(workspaceKey)
     : (await listProjects())[0] ?? null;
+
+  if (latestProject && !isOriginAllowed(latestProject, request)) {
+    return forbiddenOriginResponse(publicHeaders);
+  }
 
   return NextResponse.json(
     { project: latestProject },

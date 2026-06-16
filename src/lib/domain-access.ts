@@ -28,9 +28,9 @@ export function isOriginAllowed(project: DataProject, request: Request) {
     .some((allowedHost) => host === allowedHost || host.endsWith(`.${allowedHost}`));
 }
 
-export function forbiddenOriginResponse() {
+export function forbiddenOriginResponse(headers?: HeadersInit) {
   return Response.json(
     { error: "This project is not available from this domain." },
-    { status: 403 },
+    { headers, status: 403 },
   );
 }
