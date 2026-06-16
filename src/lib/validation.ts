@@ -66,7 +66,7 @@ export const gadgetSettingsSchema = z.object({
 export const styleGenerationRequestSchema = z.object({
   currentGadget: gadgetSettingsSchema.optional(),
   fileName: z.string().trim().max(160).optional(),
-  instructions: z.string().trim().min(1).max(8000),
+  instructions: z.string().trim().min(1).max(12000),
   source: z.enum(["prompt", "upload"]),
 });
 

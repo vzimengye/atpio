@@ -21,6 +21,7 @@ export function AiStylePanel({
   const t = copy[uiLanguage];
   const [instructions, setInstructions] = useState("");
   const [message, setMessage] = useState("");
+  const [fileName, setFileName] = useState("");
   const [isPending, startTransition] = useTransition();
 
   function generateStyle() {
@@ -45,6 +46,41 @@ export function AiStylePanel({
 
       onApply(result.gadget);
       setMessage(result.rationale ?? t.applied);
+    });
+  }
+
+  async function handleFileUpload(file: File | undefined) {
+    if (!file) return;
+    const allowed = /\.(md|txt|json|css)$/i.test(file.name);
+    if (!allowed) {
+      setMessage(t.unsupported);
+      return;
+    }
+
+    const content = await file.text();
+    const trimmed = content.trim().slice(0, 12000);
+    if (!trimmed) {
+      setMessage(t.emptyFile);
+      return;
+    }
+
+    setFileName(file.name);
+    setMessage("");
+    startTransition(async () => {
+      const result = await generateProjectStyleAction(projectId, {
+        currentGadget: gadget,
+        fileName: file.name,
+        instructions: trimmed,
+        source: "upload",
+      });
+
+      if ("error" in result) {
+        setMessage(result.error ?? t.error);
+        return;
+      }
+
+      onApply(result.gadget);
+      setMessage(result.rationale ?? t.uploadApplied);
     });
   }
 
@@ -74,6 +110,21 @@ export function AiStylePanel({
         value={instructions}
         onChange={(event) => setInstructions(event.target.value)}
       />
+      <div className="mt-4 rounded-xl border border-emerald-200 bg-white/80 p-3">
+        <label className="block text-sm font-medium text-emerald-950">
+          {t.uploadTitle}
+          <input
+            accept=".md,.txt,.json,.css,text/markdown,text/plain,application/json,text/css"
+            className="mt-2 block w-full text-sm text-emerald-900 file:mr-3 file:rounded-full file:border-0 file:bg-emerald-700 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
+            disabled={isPending}
+            type="file"
+            onChange={(event) => void handleFileUpload(event.target.files?.[0])}
+          />
+        </label>
+        <p className="mt-2 text-xs leading-5 text-emerald-800">
+          {fileName ? `${t.loadedFile} ${fileName}` : t.uploadHint}
+        </p>
+      </div>
       {message ? (
         <p className="mt-3 rounded-lg bg-white/80 px-3 py-2 text-sm text-emerald-900">
           {message}
@@ -91,10 +142,17 @@ const copy = {
       "Describe the look you want. Atpio converts it into safe theme tokens for the HTML feedback experience.",
     empty: "Describe the style you want first.",
     error: "Could not generate that style.",
+    emptyFile: "That file is empty.",
+    loadedFile: "Loaded file:",
     placeholder:
       "Example: Make it match a calm enterprise analytics product: compact spacing, soft blue accents, white cards, subtle borders, no heavy shadows.",
     running: "Designing...",
     title: "Customize style with AI",
+    unsupported: "Upload a .md, .txt, .json, or .css file.",
+    uploadApplied: "Style applied from the uploaded file. Save changes to keep it.",
+    uploadHint:
+      "Upload a brand guideline, token file, CSS snippet, or design notes. Atpio reads it and updates the preview.",
+    uploadTitle: "Upload company design file",
   },
   zh: {
     applied: "样式已应用到预览。点击保存修改后会正式生效。",
@@ -103,9 +161,16 @@ const copy = {
       "描述你想要的视觉风格，Atpio 会把它转换成安全的 HTML feedback theme tokens。",
     empty: "请先描述你想要的风格。",
     error: "无法生成这个样式。",
+    emptyFile: "这个文件是空的。",
+    loadedFile: "已读取文件：",
     placeholder:
       "例如：让它像一个干净的 B2B 数据分析产品，紧凑间距、柔和蓝色强调、白色卡片、细边框、不要重阴影。",
     running: "设计中...",
     title: "用 AI 调整样式",
+    unsupported: "请上传 .md、.txt、.json 或 .css 文件。",
+    uploadApplied: "已根据上传文件应用样式。点击保存修改后会正式生效。",
+    uploadHint:
+      "上传品牌规范、设计 token、CSS 片段或设计说明，Atpio 会读取内容并更新预览。",
+    uploadTitle: "上传公司设计文件",
   },
 } satisfies Record<UiLanguage, Record<string, string>>;
