@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ActiveProjectButton } from "@/components/active-project-button";
 import { DynamicForm } from "@/components/dynamic-form";
+import { AiStylePanel } from "@/components/project-detail/ai-style-panel";
 import { GadgetSettingsPanel } from "@/components/project-detail/gadget-settings-panel";
 import { langPath, type UiLanguage } from "@/lib/i18n";
 import type { DataProject, GadgetSettings } from "@/lib/types";
@@ -85,6 +86,13 @@ export function ProjectSummaryPanel({
         gadget={project.gadget}
         uiLanguage={uiLanguage}
         onUpdate={onUpdateGadget}
+      />
+
+      <AiStylePanel
+        gadget={project.gadget}
+        projectId={project.id}
+        uiLanguage={uiLanguage}
+        onApply={(gadget) => onProjectChange({ ...project, gadget })}
       />
 
       <div className="mt-6 rounded-xl border border-stone-200 bg-white p-4">

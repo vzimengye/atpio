@@ -2,6 +2,7 @@
 
 import { logger } from "@/lib/logger";
 import { SchemaGenerationError } from "@/ai/generate-schema";
+import { generateStyle, StyleGenerationError } from "@/ai/generate-style";
 import { requireAdmin } from "@/lib/auth-guard";
 import { defaultGadgetSettings } from "@/lib/gadget-defaults";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
@@ -10,6 +11,7 @@ import { getProject, saveProject, setActiveProjectForUser } from "@/lib/store";
 import type { DataProject } from "@/lib/types";
 import {
   createProjectRequestSchema,
+  styleGenerationRequestSchema,
   updateProjectRequestSchema,
 } from "@/lib/validation";
 
@@ -101,4 +103,34 @@ export async function setActiveProjectAction(projectId: string) {
   if (!updated) return { error: "Project not found." };
 
   return { activeProjectId: updated.activeProjectId };
+}
+
+export async function generateProjectStyleAction(
+  projectId: string,
+  input: unknown,
+) {
+  const user = await requireAdmin();
+  if (!user) return { error: "Unauthorized." };
+
+  const existing = await getProject(projectId, user.email ?? undefined);
+  if (!existing) return { error: "Project not found." };
+
+  const parsed = styleGenerationRequestSchema.safeParse(input);
+  if (!parsed.success) return { error: "Invalid input." };
+
+  try {
+    const result = await generateStyle({
+      currentGadget: parsed.data.currentGadget ?? existing.gadget,
+      fileName: parsed.data.fileName,
+      instructions: parsed.data.instructions,
+      source: parsed.data.source,
+    });
+
+    return result;
+  } catch (error) {
+    if (error instanceof StyleGenerationError) {
+      return { error: error.message };
+    }
+    return { error: "Could not generate style with PPIO." };
+  }
 }
