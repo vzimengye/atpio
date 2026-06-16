@@ -36,7 +36,7 @@ export default async function NewProjectPage({
       generationError =
         error instanceof SchemaGenerationError
           ? error.message
-          : "Could not generate schema with PPIO.";
+          : "Atpio could not generate the form right now.";
     }
   }
   const initialBrief = brief ?? undefined;

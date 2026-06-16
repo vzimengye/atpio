@@ -39,7 +39,7 @@ export async function createProjectAction(input: unknown) {
     if (error instanceof SchemaGenerationError) {
       return { error: error.message };
     }
-    return { error: "Could not generate schema with PPIO." };
+    return { error: "Atpio could not generate the form right now." };
   }
   const name = (parsed.data.name || generated.name || projectNameFromBrief(brief)).trim();
   const now = new Date().toISOString();
@@ -131,6 +131,6 @@ export async function generateProjectStyleAction(
     if (error instanceof StyleGenerationError) {
       return { error: error.message };
     }
-    return { error: "Could not generate style with PPIO." };
+    return { error: "Atpio could not generate the style right now." };
   }
 }

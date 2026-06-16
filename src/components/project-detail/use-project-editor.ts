@@ -17,6 +17,19 @@ import type {
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
 
+function makeUniqueFieldId(baseId: string, fields: FormField[]) {
+  const existingIds = new Set(fields.map((field) => field.id));
+  let nextId = `${baseId}_copy`;
+  let index = 2;
+
+  while (existingIds.has(nextId)) {
+    nextId = `${baseId}_copy_${index}`;
+    index += 1;
+  }
+
+  return nextId;
+}
+
 export function useProjectEditor(initialProject: DataProject, workspaceKey?: string) {
   const [project, setProject] = useState(initialProject);
   const [schemaText, setSchemaText] = useState(
@@ -131,6 +144,45 @@ export function useProjectEditor(initialProject: DataProject, workspaceKey?: str
     }));
   }
 
+  function duplicateField(fieldId: string) {
+    updateSchema((schema) => {
+      const sourceIndex = schema.fields.findIndex((field) => field.id === fieldId);
+      if (sourceIndex === -1) return schema;
+
+      const source = schema.fields[sourceIndex];
+      const nextField: FormField = {
+        ...source,
+        id: makeUniqueFieldId(source.id, schema.fields),
+        label: source.label,
+      };
+      const fields = [...schema.fields];
+      fields.splice(sourceIndex + 1, 0, nextField);
+
+      return { ...schema, fields };
+    });
+  }
+
+  function moveField(fieldId: string, direction: "up" | "down") {
+    updateSchema((schema) => {
+      const currentIndex = schema.fields.findIndex((field) => field.id === fieldId);
+      const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+      if (
+        currentIndex === -1 ||
+        targetIndex < 0 ||
+        targetIndex >= schema.fields.length
+      ) {
+        return schema;
+      }
+
+      const fields = [...schema.fields];
+      const [field] = fields.splice(currentIndex, 1);
+      fields.splice(targetIndex, 0, field);
+
+      return { ...schema, fields };
+    });
+  }
+
   function applySchemaText() {
     try {
       const parsedSchema = JSON.parse(schemaText) as ProjectSchema;
@@ -182,7 +234,9 @@ export function useProjectEditor(initialProject: DataProject, workspaceKey?: str
     addField,
     addPage,
     applySchemaText,
+    duplicateField,
     embedCode,
+    moveField,
     workspaceEmbedCode,
     project,
     removeField,

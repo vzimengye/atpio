@@ -13,6 +13,25 @@ const fieldTypes: FieldType[] = [
   "boolean",
 ];
 
+const fieldTypeLabels = {
+  en: {
+    boolean: "Yes / no",
+    long_text: "Long text",
+    multi_select: "Multiple choice",
+    rating: "Rating",
+    short_text: "Short text",
+    single_select: "Single choice",
+  },
+  zh: {
+    boolean: "是或否",
+    long_text: "长文本",
+    multi_select: "多选",
+    rating: "评分",
+    short_text: "短文本",
+    single_select: "单选",
+  },
+} satisfies Record<UiLanguage, Record<FieldType, string>>;
+
 type FieldEditorProps = {
   field: FormField;
   canMoveDown?: boolean;
@@ -115,7 +134,7 @@ export function FieldEditor({
           >
             {fieldTypes.map((type) => (
               <option key={type} value={type}>
-                {type}
+                {fieldTypeLabels[uiLanguage][type]}
               </option>
             ))}
           </select>
@@ -191,7 +210,7 @@ const copy = {
     fieldId: "Field ID",
     label: "Label",
     noPage: "No page",
-    options: "Options, comma separated",
+    options: "Options, separated by commas",
     page: "Page",
     placeholder: "Placeholder",
     remove: "Remove",
@@ -202,15 +221,15 @@ const copy = {
   zh: {
     copy: "复制",
     down: "下移",
-    fieldId: "字段 ID",
+    fieldId: "字段编号",
     label: "问题文案",
     noPage: "不分页面",
-    options: "选项，用英文逗号分隔",
+    options: "选项，用逗号分隔",
     page: "页面",
-    placeholder: "占位提示",
+    placeholder: "填写提示",
     remove: "删除",
     required: "必填",
-    type: "类型",
+    type: "题型",
     up: "上移",
   },
 } satisfies Record<UiLanguage, Record<string, string>>;

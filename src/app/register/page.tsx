@@ -64,13 +64,15 @@ export default async function RegisterPage({
         className="w-full max-w-sm rounded-3xl border border-stone-200 bg-white/85 p-6 shadow-sm"
       >
         <input name="lang" type="hidden" value={lang} />
-        <p className="text-sm font-medium text-emerald-700">Atpio account</p>
+        <p className="text-sm font-medium text-emerald-700">
+          {isZh ? "Atpio 账号" : "Atpio account"}
+        </p>
         <h1 className="mt-2 text-3xl font-semibold">
           {isZh ? "注册账号" : "Create account"}
         </h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
           {isZh
-            ? "每个账号都有自己的 project workspace。嵌入式反馈问卷对普通填写者保持公开。"
+            ? "每个账号都有自己的项目空间。你可以创建问卷并接入到自己的产品里，普通填写者无需注册或登录。"
             : "Each account gets its own project workspace. Embedded feedback forms remain public for participants."}
         </p>
 

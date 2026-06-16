@@ -19,14 +19,14 @@ export function ActiveProjectButton({
   const t =
     uiLanguage === "zh"
       ? {
-          active: "当前嵌入项目",
+          active: "当前外部展示项目",
           setting: "设置中...",
-          use: "用于嵌入",
+          use: "设为外部展示",
         }
       : {
-          active: "Active in embeds",
+          active: "Active for external sites",
           setting: "Setting...",
-          use: "Use in embeds",
+          use: "Use on external sites",
         };
 
   return (

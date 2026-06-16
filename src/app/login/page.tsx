@@ -52,13 +52,15 @@ export default async function LoginPage({
         className="w-full max-w-sm rounded-3xl border border-stone-200 bg-white/85 p-6 shadow-sm"
       >
         <input name="lang" type="hidden" value={lang} />
-        <p className="text-sm font-medium text-emerald-700">Atpio account</p>
+        <p className="text-sm font-medium text-emerald-700">
+          {isZh ? "Atpio 账号" : "Atpio account"}
+        </p>
         <h1 className="mt-2 text-3xl font-semibold">
           {isZh ? "登录" : "Sign in"}
         </h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
           {isZh
-            ? "登录后可以创建项目、选择嵌入展示的问卷，并查看反馈数据。普通填写者不需要账号。"
+            ? "登录后可以创建反馈项目、选择要展示到外部产品里的问卷，并查看收集到的回答。填写问卷的普通用户不需要账号。"
             : "Sign in to create projects, choose the active embedded form, and review responses. Feedback participants never need an account."}
         </p>
 

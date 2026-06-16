@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Could not generate schema with PPIO." },
+      { error: "Atpio could not generate the form right now." },
       { status: 502 },
     );
   }

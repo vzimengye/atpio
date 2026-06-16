@@ -55,6 +55,8 @@ export function ProjectDetailEditor({
         onAddField={editor.addField}
         onAddPage={editor.addPage}
         onApplySchemaText={editor.applySchemaText}
+        onDuplicateField={editor.duplicateField}
+        onMoveField={editor.moveField}
         onRemoveField={editor.removeField}
         onRemovePage={editor.removePage}
         onSave={editor.saveChanges}

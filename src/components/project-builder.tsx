@@ -15,7 +15,7 @@ const builderCopy = {
       "Describe the insight you want. We will choose the questions, field types, validation, and layout.",
     projectCreator: "Project creator",
     allProjects: "All projects",
-    title: "Turn a research brief into a collection form.",
+    title: "Turn a product question into a feedback form.",
     subtitle:
       "Describe the insight you want. Atpio turns it into a structured collection form with the right questions, field types, validation, and layout. Use AI revision here, then fine-tune individual fields after saving.",
     projectName: "Project name",
@@ -34,14 +34,14 @@ const builderCopy = {
     revising: "Revising...",
     revisionPlaceholder:
       "Example: Add more price-sensitivity questions, reduce open-ended questions, and make the wording friendlier for students.",
-    addBriefGenerate: "Add a brief before generating a schema.",
+    addBriefGenerate: "Describe what you want to learn before generating a form.",
     addBriefSave: "Add a brief before saving the project.",
     addBriefRevise: "Add a brief before asking Atpio to revise the form.",
     addRevisionNotes: "Add revision notes before asking Atpio to revise.",
     generatedLocal:
-      "Generated locally. Review the questions, then save it as a project.",
+      "Form generated. Review the questions, then save it as a project.",
     generatedPpio:
-      "Generated with PPIO. Review the questions, then save it as a project.",
+      "Form generated. Review the questions, then save it as a project.",
     generatedReview:
       "Form generated. Review the questions, then save it as a project.",
     generatingDetail:
@@ -53,16 +53,16 @@ const builderCopy = {
     reviseSource: "Applying your revision notes to the current form.",
     reviseSuccess: "Revision applied. Review the changes, then save it.",
     reviseTitleLoading: "Revising your form",
-    saveDetail: "We are making this project available to the mock product.",
+    saveDetail: "We are making this project available to your demo product.",
     saveError:
       "Could not save the project. Make sure the local Atpio server is running, then try again.",
     saveToastTitle: "Project saved successfully.",
-    saveToastText: "It is now available in All projects and will be used by the mock product at",
+    saveToastText: "It is now available in All projects and can be tested in the demo product at",
     savedDetail:
-      "Open project detail to fine-tune fields, pages, validation, and embed settings. The mock product can load it from",
+      "Open project detail to fine-tune questions, pages, validation, and embed settings. The demo product can load it from",
     savingTitle: "Saving your project",
     openDetail: "Open project detail",
-    testMock: "Test in mock product",
+    testMock: "Test in demo product",
     viewProjects: "View all projects",
   },
   zh: {
@@ -70,12 +70,12 @@ const builderCopy = {
     briefPlaceholder: "描述你想了解什么。我们会选择问题、字段类型、校验和布局。",
     projectCreator: "项目创建",
     allProjects: "所有项目",
-    title: "把 research brief 变成反馈问卷。",
+    title: "把产品问题变成反馈问卷。",
     subtitle:
-      "描述你想收集的洞察。Atpio 会生成结构化问卷；这里用 AI 调整，保存后再进入项目详情细调字段。",
+      "描述你想了解的产品问题。Atpio 会生成结构化问卷；你可以先用整体意见调整，保存后再进入项目详情细调每一道题。",
     projectName: "项目名称",
     optional: "可选",
-    brief: "Brief",
+    brief: "需求描述",
     questionnaireLanguage: "问卷语言",
     generate: "生成最佳问卷",
     generating: "生成中...",
@@ -87,12 +87,12 @@ const builderCopy = {
     reviseButton: "用 Atpio 调整",
     revising: "调整中...",
     revisionPlaceholder: "例如：增加价格敏感度问题，减少开放题，让语气更适合学生。",
-    addBriefGenerate: "请先填写 brief，再生成 schema。",
-    addBriefSave: "请先填写 brief，再保存项目。",
-    addBriefRevise: "请先填写 brief，再让 Atpio 调整表单。",
+    addBriefGenerate: "请先描述你想了解的问题，再生成问卷。",
+    addBriefSave: "请先描述你想了解的问题，再保存项目。",
+    addBriefRevise: "请先描述你想了解的问题，再让 Atpio 调整问卷。",
     addRevisionNotes: "请先填写调整意见。",
-    generatedLocal: "已使用本地 fallback 生成。请检查问题，然后保存项目。",
-    generatedPpio: "已使用 PPIO 生成。请检查问题，然后保存项目。",
+    generatedLocal: "问卷已生成。请检查问题，然后保存项目。",
+    generatedPpio: "问卷已生成。请检查问题，然后保存项目。",
     generatedReview: "表单已生成。请检查问题，然后保存为项目。",
     generatingDetail: "Atpio 正在选择最合适的问题、字段类型、校验和布局。",
     generatingInline:
@@ -102,22 +102,22 @@ const builderCopy = {
     reviseSource: "正在根据你的调整意见更新当前表单。",
     reviseSuccess: "已完成调整。请检查修改，然后保存。",
     reviseTitleLoading: "正在调整表单",
-    saveDetail: "正在让这个项目可被 mock product 使用。",
+    saveDetail: "正在让这个项目可在示例产品中测试。",
     saveError: "无法保存项目。请确认 Atpio 服务正常运行，然后重试。",
     saveToastTitle: "项目已保存。",
-    saveToastText: "现在可以在所有项目里看到它，也会被 mock product 使用：",
+    saveToastText: "现在可以在所有项目里看到它，也可以在示例产品中测试：",
     savedDetail:
-      "打开项目详情可以继续细调字段、页面、校验和嵌入设置。Mock product 可以从这里加载它：",
+      "打开项目详情可以继续细调问题、页面、校验和接入设置。示例产品可以从这里加载它：",
     savingTitle: "正在保存项目",
     openDetail: "打开项目详情",
-    testMock: "在 mock product 中测试",
+    testMock: "在示例产品中测试",
     viewProjects: "查看所有项目",
   },
 } satisfies Record<UiLanguage, Record<string, string>>;
 const emptyPreviewSchema: ProjectSchema = {
   title: "Your generated form will appear here",
   description:
-    "Add a brief, then let Atpio design the best data-gathering flow.",
+    "Describe what you want to learn, then let Atpio design the best feedback flow.",
   fields: [],
 };
 
@@ -225,7 +225,7 @@ export function ProjectBuilder({
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "Could not generate schema with PPIO.",
+          : "Atpio could not generate the form right now.",
       );
       setStatus("idle");
     }
@@ -311,7 +311,7 @@ export function ProjectBuilder({
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "Could not revise schema with PPIO.",
+          : "Atpio could not revise the form right now.",
       );
       setStatus("idle");
     }
@@ -453,9 +453,15 @@ export function ProjectBuilder({
               )
             }
           >
-            <option value="en">English</option>
-            <option value="zh">中文</option>
-            <option value="bilingual">中文 + English</option>
+            <option value="en">
+              {uiLanguage === "zh" ? "英文" : "English"}
+            </option>
+            <option value="zh">
+              {uiLanguage === "zh" ? "中文" : "Chinese"}
+            </option>
+            <option value="bilingual">
+              {uiLanguage === "zh" ? "中英双语" : "Chinese + English"}
+            </option>
           </select>
         </label>
 
@@ -575,7 +581,7 @@ export function ProjectBuilder({
                   {t.savedDetail} {publicMockProductUrl}.
                 </p>
                 <p className="mt-2 text-xs text-emerald-700">
-                  Embed path: /embed/{projectId}
+                  {uiLanguage === "zh" ? "嵌入路径" : "Embed path"}: /embed/{projectId}
                 </p>
               </div>
             </div>

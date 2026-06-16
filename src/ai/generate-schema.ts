@@ -177,7 +177,7 @@ ${brief}`,
     });
     if (!allowLocalFallback) {
       throw new SchemaGenerationError(
-        "PPIO could not generate the form. Check the API key, model, base URL, or provider status.",
+        "Atpio could not generate the form right now. Please try again in a moment.",
       );
     }
     return localSchemaResult(brief);
@@ -278,7 +278,7 @@ ${instructions}`,
       error,
     });
     throw new SchemaGenerationError(
-      "PPIO could not revise the form. Check the API key, model, base URL, or provider status.",
+      "Atpio could not revise the form right now. Please try again in a moment.",
     );
   }
 }

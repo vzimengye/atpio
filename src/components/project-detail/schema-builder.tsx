@@ -17,6 +17,8 @@ type SchemaBuilderProps = {
   onAddField: () => void;
   onAddPage: () => void;
   onApplySchemaText: () => void;
+  onDuplicateField?: (fieldId: string) => void;
+  onMoveField?: (fieldId: string, direction: "up" | "down") => void;
   onRemoveField: (fieldId: string) => void;
   onRemovePage: (pageId: string) => void;
   onSave: () => void;
@@ -40,6 +42,8 @@ export function SchemaBuilder({
   onAddField,
   onAddPage,
   onApplySchemaText,
+  onDuplicateField,
+  onMoveField,
   onRemoveField,
   onRemovePage,
   onSave,
@@ -113,6 +117,8 @@ export function SchemaBuilder({
         slugify={slugify}
         uiLanguage={uiLanguage}
         onAddField={onAddField}
+        onDuplicateField={onDuplicateField}
+        onMoveField={onMoveField}
         onRemoveField={onRemoveField}
         onUpdateField={onUpdateField}
         onUpdateValidation={onUpdateValidation}
@@ -139,8 +145,8 @@ export function SchemaBuilder({
 const copy = {
   en: {
     description: "Description",
-    error: "Could not save. Check that the schema is valid JSON.",
-    eyebrow: "Schema editor",
+    error: "Could not save. Check that the form structure is valid.",
+    eyebrow: "Form editor",
     formTitle: "Form title",
     save: "Save changes",
     saved: "Saved.",
@@ -148,9 +154,9 @@ const copy = {
     title: "Build the form visually",
   },
   zh: {
-    description: "描述",
-    error: "无法保存。请检查 schema 是否是有效 JSON。",
-    eyebrow: "Schema 编辑器",
+    description: "说明",
+    error: "无法保存。请检查问卷结构是否有效。",
+    eyebrow: "问卷编辑器",
     formTitle: "表单标题",
     save: "保存修改",
     saved: "已保存。",

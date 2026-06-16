@@ -12,34 +12,34 @@ export const dynamic = "force-dynamic";
 const copy = {
   en: {
     eyebrow: "Atpio projects",
-    title: "Data gathering workspace",
+    title: "Project workspace",
     home: "Atpio home",
     newProject: "New project",
-    workspaceKey: "Your workspace embed key",
+    workspaceKey: "Your public embed key",
     workspaceText:
       "Customer sites can load your active Atpio project with this public key. If no project is marked active, Atpio uses your newest project.",
-    openMock: "Open mock product",
-    testApi: "Test latest API",
+    openMock: "Open demo product",
+    testApi: "Preview active project data",
     emptyTitle: "No projects yet",
     emptyText:
-      "Generate your first Atpio form, then mark it active so connected mock products and customer sites can load it.",
+      "Generate your first Atpio form, then mark it active so connected demo products and customer sites can load it.",
     responses: "Responses",
     fields: "Fields",
     pages: "Pages",
   },
   zh: {
     eyebrow: "Atpio 项目",
-    title: "数据收集 workspace",
+    title: "项目空间",
     home: "Atpio 首页",
     newProject: "新建项目",
-    workspaceKey: "你的 workspace 嵌入 key",
+    workspaceKey: "你的公开接入密钥",
     workspaceText:
-      "客户网站可以用这个 public key 加载你的 active Atpio 项目。如果还没有手动设置 active project，Atpio 会使用你的最新项目。",
-    openMock: "打开 mock product",
-    testApi: "测试 latest API",
+      "外部网站可以用这个公开密钥加载你选中的 Atpio 项目。如果还没有手动选择，Atpio 会使用你最新保存的项目。",
+    openMock: "打开示例产品",
+    testApi: "预览当前项目数据",
     emptyTitle: "还没有项目",
     emptyText:
-      "先生成第一个 Atpio 表单，然后把它设为 active，这样 mock product 和客户网站就能加载它。",
+      "先生成第一个 Atpio 问卷，然后把它设为外部展示项目，这样示例产品和客户网站就能加载它。",
     responses: "回答",
     fields: "问题",
     pages: "页面",
@@ -66,6 +66,7 @@ export default async function ProjectsPage({
   const mockProductUrl =
     process.env.NEXT_PUBLIC_MOCK_PRODUCT_URL ?? "https://mock-product.vercel.app";
   const workspaceKey = account?.publicKey;
+  const nextLang = lang === "zh" ? "en" : "zh";
 
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-slate-950">
@@ -90,7 +91,17 @@ export default async function ProjectsPage({
             >
               {t.newProject}
             </Link>
-            <SignOutButton />
+            <Link
+              className={`inline-flex h-10 items-center justify-center rounded-full px-5 text-sm font-medium ${
+                lang === "zh"
+                  ? "border border-stone-300 bg-white/70 text-slate-700"
+                  : "bg-slate-950 text-white"
+              }`}
+              href={langPath("/projects", nextLang)}
+            >
+              {lang === "zh" ? "EN" : "中"}
+            </Link>
+            <SignOutButton label={lang === "zh" ? "退出登录" : "Sign out"} />
           </div>
         </div>
 

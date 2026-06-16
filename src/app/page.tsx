@@ -4,7 +4,7 @@ import { SignOutButton } from "@/components/sign-out-button";
 import { getUiLanguageFromParams, langPath, type UiLanguage } from "@/lib/i18n";
 import { sampleProject } from "@/lib/mock-data";
 import { listProjects, listResponses } from "@/lib/store";
-import type { FormField } from "@/lib/types";
+import type { DataProject, FormField } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -92,9 +92,75 @@ const statusLabels = {
   },
 };
 
+const zhSampleProject: DataProject = {
+  ...sampleProject,
+  name: "新手引导反馈",
+  brief: "了解用户为什么没有完成新手引导，以及哪一步让用户感到困惑。",
+  schema: {
+    title: "新手引导反馈",
+    description: "面向暂停或退出新手引导用户的简短反馈问卷。",
+    pages: [
+      {
+        id: "experience",
+        title: "使用体验",
+        description: "了解用户卡在哪一步。",
+      },
+      {
+        id: "follow_up",
+        title: "后续沟通",
+        description: "确认是否可以继续了解细节。",
+      },
+    ],
+    fields: [
+      {
+        id: "dropoff_reason",
+        type: "long_text",
+        label: "是什么让你没有完成新手引导？",
+        required: true,
+        pageId: "experience",
+        placeholder: "请描述哪里不清楚、太慢或让你卡住。",
+        validation: { minLength: 8, maxLength: 600 },
+      },
+      {
+        id: "stuck_step",
+        type: "single_select",
+        label: "你卡在哪一步？",
+        options: ["账号设置", "权限授权", "产品介绍", "其他"],
+        pageId: "experience",
+      },
+      {
+        id: "confidence",
+        type: "rating",
+        label: "你对下一步操作有多确定？",
+        pageId: "follow_up",
+        validation: { min: 1, max: 5 },
+      },
+    ],
+  },
+};
+
 function getText(lang: UiLanguage, key: keyof (typeof copy)["en"]) {
   return copy[lang][key] as string;
 }
+
+const fieldTypeLabels = {
+  en: {
+    boolean: "Yes / no",
+    long_text: "Long text",
+    multi_select: "Multiple choice",
+    rating: "Rating",
+    short_text: "Short text",
+    single_select: "Single choice",
+  },
+  zh: {
+    boolean: "是或否",
+    long_text: "长文本",
+    multi_select: "多选",
+    rating: "评分",
+    short_text: "短文本",
+    single_select: "单选",
+  },
+} satisfies Record<UiLanguage, Record<FormField["type"], string>>;
 
 function FieldPreview({
   field,
@@ -108,7 +174,9 @@ function FieldPreview({
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-slate-950">{field.label}</p>
-          <p className="mt-1 text-xs uppercase text-slate-500">{field.type}</p>
+          <p className="mt-1 text-xs text-slate-500">
+            {fieldTypeLabels[lang][field.type]}
+          </p>
         </div>
         {field.required ? (
           <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
@@ -131,7 +199,7 @@ export default async function Home({
   const projects = session?.user
     ? await listProjects(session.user.email ?? undefined)
     : [];
-  const project = projects[0] ?? sampleProject;
+  const project = projects[0] ?? (lang === "zh" ? zhSampleProject : sampleProject);
   const responses = await listResponses(project.id);
   const activeStatus = statusLabels[lang][project.status];
   const nextLang: UiLanguage = lang === "zh" ? "en" : "zh";

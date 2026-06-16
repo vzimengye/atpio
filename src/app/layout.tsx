@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Atpio",
-  description: "Generate and embed data gathering gadgets from natural-language briefs.",
+  description: "Create embedded feedback forms from natural-language product questions.",
 };
 
 export default function RootLayout({

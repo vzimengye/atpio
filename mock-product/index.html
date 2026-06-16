@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Mock Product using Atpio</title>
+    <title>Demo Product using Atpio</title>
     <style>
       :root {
         color: #0f172a;
@@ -100,22 +100,21 @@
   <body>
     <main>
       <div class="shell">
-        <p class="eyebrow">Separate mock product</p>
-        <h1>This page is not the Atpio app.</h1>
+        <p class="eyebrow">Separate demo product</p>
+        <h1>This is a host product example.</h1>
         <p>
-          It simulates another product with its own URL. The feedback button is
-          injected by Atpio running on
+          It shows how another website or product can load an Atpio feedback
+          form. The feedback button is injected by Atpio running on
           <code id="atpio-origin-label">localhost:3000</code>.
         </p>
         <section class="panel">
-          <strong>Local integration test</strong>
+          <strong>Integration preview</strong>
           <p>
             Click the feedback button in the bottom-right corner. It should open
-            the active Atpio project for the connected workspace. If no
-            workspace key is provided, it falls back to the newest public
-            project.
+            the Atpio project selected for this account. If no workspace key is
+            provided, the page uses a sample project.
           </p>
-          <p class="status" id="atpio-status">Loading latest Atpio project...</p>
+          <p class="status" id="atpio-status">Loading Atpio project...</p>
           <div class="actions">
             <a
               class="button-link primary"
@@ -181,7 +180,7 @@
         script.setAttribute("data-atpio-position", "bottom-right");
         script.setAttribute("data-atpio-theme", "light");
         script.setAttribute("data-atpio-label", "Share feedback");
-        script.setAttribute("data-atpio-meta-page", "mock-product");
+        script.setAttribute("data-atpio-meta-page", "demo-product");
         script.setAttribute("data-atpio-meta-user-segment", "trial");
         script.setAttribute("data-atpio-meta-experiment-id", "latest-project");
         script.setAttribute("data-atpio-success-callback", "onAtpioSuccess");
@@ -208,15 +207,15 @@
           if (status) {
             status.textContent = latestProject
               ? "Loaded Atpio project: " + latestProject.name
-              : "Loaded fallback sample project.";
+              : "Loaded sample project.";
           }
           loadAtpioGadget(projectId);
         })
         .catch(function (error) {
-          console.warn("Atpio mock product: falling back to sample project.", error);
+          console.warn("Atpio demo product: falling back to sample project.", error);
           var status = document.getElementById("atpio-status");
           if (status) {
-            status.textContent = "Could not load latest project. Using fallback sample.";
+            status.textContent = "Could not load an Atpio project. Using sample project.";
           }
           loadAtpioGadget("project_onboarding_feedback");
         });

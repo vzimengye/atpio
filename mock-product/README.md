@@ -1,7 +1,8 @@
-# Mock Product
+# Demo Product
 
-This is a separate host product used to test Atpio integration. It can run
-locally on port 4000 or as its own Vercel static project.
+This folder is a separate host product used to test Atpio integration. It does not run any Atpio backend code. It only loads Atpio's public `gadget.js` script, just like a customer's website would.
+
+## Local Test
 
 Run Atpio in one terminal:
 
@@ -9,7 +10,7 @@ Run Atpio in one terminal:
 npm run dev
 ```
 
-Run this mock product in a second terminal:
+Run the demo product in a second terminal:
 
 ```bash
 npm run mock-product
@@ -21,30 +22,27 @@ Open:
 http://127.0.0.1:4000
 ```
 
-The page loads Atpio from:
-
-```html
-<script
-  src="http://127.0.0.1:3000/gadget.js"
-  data-project-id="project_onboarding_feedback">
-</script>
-```
-
-That verifies the intended local experiment:
+To test a specific Atpio account workspace, open:
 
 ```text
-Mock product on localhost:4000
+http://127.0.0.1:4000?workspaceKey=YOUR_WORKSPACE_KEY
+```
+
+## How It Connects
+
+```text
+Demo product on localhost:4000
         |
-        | calls script API
+        | loads script
         v
 Atpio on localhost:3000/gadget.js
         |
         | opens iframe
         v
-Atpio form on localhost:3000/embed/project_onboarding_feedback
+Atpio form on localhost:3000/embed/[projectId]
 ```
 
-## Deploy This Mock Product to Vercel
+## Deploy This Demo Product to Vercel
 
 Create a second Vercel project from the same GitHub repo:
 
@@ -57,16 +55,14 @@ Output Directory: leave blank
 Install Command: npm install
 ```
 
-The deployed mock product defaults to loading Atpio from:
+The deployed demo product defaults to loading Atpio from:
 
 ```text
 https://atpio.vercel.app
 ```
 
-No Atpio backend code runs inside this mock project. It only loads:
+For production customer sites, use the full integration guide:
 
 ```text
-https://atpio.vercel.app/gadget.js
+https://atpio.vercel.app/resources/mock-product-integration-skill
 ```
-
-and injects the latest saved Atpio project into an iframe.

@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Could not revise schema with PPIO." },
+      { error: "Atpio could not revise the form right now." },
       { status: 502 },
     );
   }
