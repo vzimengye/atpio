@@ -3,6 +3,7 @@ import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { sampleProject } from "@/lib/mock-data";
+import { withGadgetDefaults } from "@/lib/gadget-defaults";
 import { getDatabaseUrl } from "@/prisma/database-url";
 import { getPrisma } from "@/prisma/prisma";
 import type {
@@ -10,7 +11,6 @@ import type {
   AppStore,
   AuditEvent,
   DataProject,
-  GadgetSettings,
   ProjectResponse,
 } from "./types";
 import { hashPassword, verifyPassword } from "./password";
@@ -25,25 +25,10 @@ const initialStore: AppStore = {
   auditEvents: [],
 };
 
-const defaultGadget: GadgetSettings = {
-  position: "bottom-right",
-  theme: "light",
-  buttonLabel: "Feedback",
-  successMessage: "Thanks. Your feedback was saved.",
-  brandColor: "#020617",
-  accentColor: "#10b981",
-  buttonShape: "pill",
-  fontFamily: "Inter, Arial, sans-serif",
-  allowedDomains: [],
-};
-
 function withProjectDefaults(project: DataProject): DataProject {
   return {
     ...project,
-    gadget: {
-      ...defaultGadget,
-      ...(project.gadget ?? {}),
-    },
+    gadget: withGadgetDefaults(project.gadget),
   };
 }
 

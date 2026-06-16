@@ -1,4 +1,5 @@
 import type { DataProject } from "./types";
+import { defaultGadgetSettings } from "@/lib/gadget-defaults";
 
 export const sampleProject: DataProject = {
   id: "project_onboarding_feedback",
@@ -50,14 +51,5 @@ export const sampleProject: DataProject = {
       },
     ],
   },
-  gadget: {
-    position: "bottom-right",
-    theme: "light",
-    buttonLabel: "Feedback",
-    successMessage: "Thanks. Your feedback was saved.",
-    brandColor: "#020617",
-    accentColor: "#10b981",
-    buttonShape: "pill",
-    fontFamily: "Inter, Arial, sans-serif",
-  },
+  gadget: defaultGadgetSettings,
 };

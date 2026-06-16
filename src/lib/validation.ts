@@ -49,9 +49,25 @@ export const gadgetSettingsSchema = z.object({
   successMessage: z.string().min(1).max(240).optional(),
   brandColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   accentColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  backgroundColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  borderColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   buttonShape: z.enum(["pill", "rounded", "square"]).optional(),
+  buttonStyle: z.enum(["filled", "outline", "soft"]).optional(),
+  density: z.enum(["compact", "comfortable", "spacious"]).optional(),
   fontFamily: z.string().min(1).max(160).optional(),
+  inputStyle: z.enum(["outlined", "filled", "underline"]).optional(),
+  shadow: z.enum(["none", "soft", "strong"]).optional(),
+  styleReferenceFileName: z.string().min(1).max(160).optional(),
+  styleSource: z.enum(["default", "prompt", "upload"]).optional(),
+  textColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   allowedDomains: z.array(z.string().min(1).max(240)).max(20).optional(),
+});
+
+export const styleGenerationRequestSchema = z.object({
+  currentGadget: gadgetSettingsSchema.optional(),
+  fileName: z.string().trim().max(160).optional(),
+  instructions: z.string().trim().min(1).max(8000),
+  source: z.enum(["prompt", "upload"]),
 });
 
 export const generateSchemaRequestSchema = z.object({

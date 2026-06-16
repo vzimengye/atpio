@@ -1,13 +1,19 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { type CSSProperties, FormEvent, useMemo, useState } from "react";
 import type { UiLanguage } from "@/lib/i18n";
-import type { FormField, FormPage, ProjectSchema } from "@/lib/types";
+import type {
+  FormField,
+  FormPage,
+  GadgetSettings,
+  ProjectSchema,
+} from "@/lib/types";
 
 type DynamicFormProps = {
   projectId: string;
   schema: ProjectSchema;
   compact?: boolean;
+  gadget?: GadgetSettings;
   metadata?: Record<string, string>;
   previewMode?: boolean;
   successMessage?: string;
@@ -16,16 +22,36 @@ type DynamicFormProps = {
 
 type FormState = Record<string, string | string[] | boolean>;
 
+type ExperienceTheme = {
+  accentColor: string;
+  borderColor: string;
+  chipStyle: CSSProperties;
+  fieldGap: string;
+  fontFamily: string;
+  inputStyle: CSSProperties;
+  mutedBackground: string;
+  padding: string;
+  primaryButtonStyle: CSSProperties;
+  secondaryButtonStyle: CSSProperties;
+  selectedChipStyle: CSSProperties;
+  shadow: string;
+  successBackground: string;
+  surfaceColor: string;
+  textColor: string;
+};
+
 export function DynamicForm({
   projectId,
   schema,
   compact,
+  gadget,
   metadata,
   previewMode = false,
   successMessage = "This response is saved and ready for the project dashboard.",
   uiLanguage = "en",
 }: DynamicFormProps) {
   const t = formCopy[uiLanguage];
+  const theme = useMemo(() => getExperienceTheme(gadget), [gadget]);
   const pages = useMemo(() => getPages(schema), [schema]);
   const initialState = useMemo(
     () =>
@@ -100,11 +126,19 @@ export function DynamicForm({
 
   if (status === "submitted") {
     return (
-      <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-5">
-        <h2 className="text-lg font-semibold text-emerald-950">
+      <div
+        className="rounded-2xl border p-5"
+        style={{
+          background: theme.successBackground,
+          borderColor: theme.accentColor,
+          color: theme.textColor,
+          fontFamily: theme.fontFamily,
+        }}
+      >
+        <h2 className="text-lg font-semibold">
           {t.thanks}
         </h2>
-        <p className="mt-2 text-sm leading-6 text-emerald-800">
+        <p className="mt-2 text-sm leading-6 opacity-80">
           {successMessage}
         </p>
       </div>
@@ -113,7 +147,11 @@ export function DynamicForm({
 
   return (
     <form
-      className={compact ? "relative space-y-4" : "relative space-y-5"}
+      className={compact ? "relative" : "relative"}
+      style={{
+        color: theme.textColor,
+        fontFamily: theme.fontFamily,
+      }}
       onSubmit={handleSubmit}
     >
       {status === "submitting" ? (
@@ -134,7 +172,15 @@ export function DynamicForm({
           </div>
         </div>
       ) : null}
-      <div>
+      <div
+        className="rounded-2xl border"
+        style={{
+          background: theme.surfaceColor,
+          borderColor: theme.borderColor,
+          boxShadow: theme.shadow,
+          padding: theme.padding,
+        }}
+      >
         <h1 className={compact ? "text-xl font-semibold" : "text-2xl font-semibold"}>
           {schema.title}
         </h1>
@@ -142,15 +188,24 @@ export function DynamicForm({
           {schema.description}
         </p>
         {pages.length > 1 && activePage ? (
-          <div className="mt-4 rounded-lg bg-stone-50 p-3">
-            <p className="text-xs font-medium uppercase tracking-wide text-emerald-700">
+          <div
+            className="mt-4 rounded-xl border p-3"
+            style={{
+              background: theme.mutedBackground,
+              borderColor: theme.borderColor,
+            }}
+          >
+            <p
+              className="text-xs font-medium uppercase tracking-wide"
+              style={{ color: theme.accentColor }}
+            >
               {t.step} {pageIndex + 1} {t.of} {pages.length}
             </p>
-            <h2 className="mt-1 text-base font-semibold text-slate-950">
+            <h2 className="mt-1 text-base font-semibold">
               {activePage.title}
             </h2>
             {activePage.description ? (
-              <p className="mt-1 text-sm leading-6 text-slate-600">
+              <p className="mt-1 text-sm leading-6 opacity-75">
                 {activePage.description}
               </p>
             ) : null}
@@ -158,22 +213,26 @@ export function DynamicForm({
         ) : null}
       </div>
 
-      {activeFields.map((field) => (
-        <FieldInput
-          key={field.id}
-          answers={answers}
-          field={field}
-          onToggleMultiSelect={toggleMultiSelect}
-          onUpdateAnswer={updateAnswer}
-          previewMode={previewMode}
-          uiLanguage={uiLanguage}
-        />
-      ))}
+      <div className="mt-5 grid" style={{ gap: theme.fieldGap }}>
+        {activeFields.map((field) => (
+          <FieldInput
+            key={field.id}
+            answers={answers}
+            field={field}
+            theme={theme}
+            onToggleMultiSelect={toggleMultiSelect}
+            onUpdateAnswer={updateAnswer}
+            previewMode={previewMode}
+            uiLanguage={uiLanguage}
+          />
+        ))}
+      </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="mt-5 flex flex-wrap items-center gap-3">
         {pageIndex > 0 ? (
           <button
-            className="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 px-4 text-sm font-medium text-slate-800"
+            className="inline-flex h-10 items-center justify-center border px-4 text-sm font-medium"
+            style={theme.secondaryButtonStyle}
             type="button"
             onClick={() => setPageIndex((current) => Math.max(current - 1, 0))}
           >
@@ -182,7 +241,8 @@ export function DynamicForm({
         ) : null}
         {previewMode && !isLastPage ? (
           <button
-            className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-medium text-white"
+            className="inline-flex h-10 items-center justify-center px-4 text-sm font-medium"
+            style={theme.primaryButtonStyle}
             onClick={advancePreview}
             type="button"
           >
@@ -191,7 +251,8 @@ export function DynamicForm({
         ) : null}
         {!previewMode ? (
           <button
-            className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-medium text-white"
+            className="inline-flex h-10 items-center justify-center px-4 text-sm font-medium"
+            style={theme.primaryButtonStyle}
             disabled={status === "submitting"}
             type="submit"
           >
@@ -242,9 +303,97 @@ const formCopy = {
   },
 } satisfies Record<UiLanguage, Record<string, string>>;
 
+function getExperienceTheme(gadget?: GadgetSettings): ExperienceTheme {
+  const isDark = gadget?.theme === "dark";
+  const accentColor = gadget?.accentColor ?? "#10b981";
+  const brandColor = gadget?.brandColor ?? (isDark ? "#f7f1e8" : "#020617");
+  const textColor = gadget?.textColor ?? (isDark ? "#f8fafc" : "#020617");
+  const backgroundColor = gadget?.backgroundColor ?? (isDark ? "#020617" : "#ffffff");
+  const borderColor = gadget?.borderColor ?? (isDark ? "#334155" : "#dbe3ef");
+  const radius =
+    gadget?.buttonShape === "square"
+      ? "6px"
+      : gadget?.buttonShape === "rounded"
+        ? "12px"
+        : "999px";
+  const inputRadius = gadget?.buttonShape === "square" ? "6px" : "12px";
+  const density = gadget?.density ?? "comfortable";
+  const padding =
+    density === "compact" ? "18px" : density === "spacious" ? "30px" : "24px";
+  const fieldGap =
+    density === "compact" ? "14px" : density === "spacious" ? "24px" : "18px";
+  const shadow =
+    gadget?.shadow === "none"
+      ? "none"
+      : gadget?.shadow === "strong"
+        ? "0 26px 70px rgba(15, 23, 42, 0.22)"
+        : "0 16px 45px rgba(15, 23, 42, 0.10)";
+  const inputBackground =
+    gadget?.inputStyle === "filled" ? (isDark ? "#0f172a" : "#f8fafc") : backgroundColor;
+  const inputBorder =
+    gadget?.inputStyle === "underline" ? "transparent transparent " + borderColor : borderColor;
+  const primaryButtonStyle: CSSProperties = {
+    background:
+      gadget?.buttonStyle === "outline"
+        ? "transparent"
+        : gadget?.buttonStyle === "soft"
+          ? `${accentColor}1A`
+          : brandColor,
+    border: `1px solid ${
+      gadget?.buttonStyle === "filled" ? brandColor : accentColor
+    }`,
+    borderRadius: radius,
+    color:
+      gadget?.buttonStyle === "filled"
+        ? isDark
+          ? "#020617"
+          : "#ffffff"
+        : textColor,
+  };
+
+  return {
+    accentColor,
+    borderColor,
+    chipStyle: {
+      background: "transparent",
+      borderColor,
+      borderRadius: inputRadius,
+      color: textColor,
+    },
+    fieldGap,
+    fontFamily: gadget?.fontFamily ?? "Inter, Arial, sans-serif",
+    inputStyle: {
+      background: inputBackground,
+      borderColor: inputBorder,
+      borderRadius: inputRadius,
+      color: textColor,
+    },
+    mutedBackground: isDark ? "#0f172a" : "#f8fafc",
+    padding,
+    primaryButtonStyle,
+    secondaryButtonStyle: {
+      background: "transparent",
+      borderColor,
+      borderRadius: radius,
+      color: textColor,
+    },
+    selectedChipStyle: {
+      background: `${accentColor}1A`,
+      borderColor: accentColor,
+      borderRadius: inputRadius,
+      color: textColor,
+    },
+    shadow,
+    successBackground: `${accentColor}14`,
+    surfaceColor: backgroundColor,
+    textColor,
+  };
+}
+
 function FieldInput({
   answers,
   field,
+  theme,
   onToggleMultiSelect,
   onUpdateAnswer,
   previewMode,
@@ -252,6 +401,7 @@ function FieldInput({
 }: {
   answers: FormState;
   field: FormField;
+  theme: ExperienceTheme;
   onToggleMultiSelect: (fieldId: string, option: string) => void;
   onUpdateAnswer: (fieldId: string, value: string | string[] | boolean) => void;
   previewMode: boolean;
@@ -261,14 +411,15 @@ function FieldInput({
 
   return (
     <label className="block">
-      <span className="text-sm font-medium text-slate-900">
+      <span className="text-sm font-medium" style={{ color: theme.textColor }}>
         {field.label}
         {field.required ? " *" : ""}
       </span>
 
       {field.type === "short_text" ? (
         <input
-          className="mt-2 h-10 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-emerald-600"
+          className="mt-2 h-10 w-full border px-3 text-sm outline-none"
+          style={theme.inputStyle}
           maxLength={field.validation?.maxLength}
           minLength={field.validation?.minLength}
           placeholder={field.placeholder}
@@ -280,7 +431,8 @@ function FieldInput({
 
       {field.type === "long_text" ? (
         <textarea
-          className="mt-2 min-h-28 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+          className="mt-2 min-h-28 w-full border px-3 py-2 text-sm outline-none"
+          style={theme.inputStyle}
           maxLength={field.validation?.maxLength}
           minLength={field.validation?.minLength}
           placeholder={field.placeholder}
@@ -292,7 +444,8 @@ function FieldInput({
 
       {field.type === "single_select" ? (
         <select
-          className="mt-2 h-10 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-emerald-600"
+          className="mt-2 h-10 w-full border px-3 text-sm outline-none"
+          style={theme.inputStyle}
           required={previewMode ? false : field.required}
           value={String(answers[field.id] ?? "")}
           onChange={(event) => onUpdateAnswer(field.id, event.target.value)}
@@ -317,9 +470,10 @@ function FieldInput({
                 key={option}
                 className={
                   selected
-                    ? "rounded-md border border-emerald-600 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
-                    : "rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700"
+                    ? "border px-3 py-2 text-sm"
+                    : "border px-3 py-2 text-sm"
                 }
+                style={selected ? theme.selectedChipStyle : theme.chipStyle}
                 type="button"
                 onClick={() => onToggleMultiSelect(field.id, option)}
               >
@@ -337,8 +491,13 @@ function FieldInput({
               key={rating}
               className={
                 String(answers[field.id]) === String(rating)
-                  ? "h-10 w-10 rounded-md bg-slate-950 text-sm font-medium text-white"
-                  : "h-10 w-10 rounded-md border border-slate-300 text-sm font-medium text-slate-700"
+                  ? "h-10 w-10 text-sm font-medium"
+                  : "h-10 w-10 border text-sm font-medium"
+              }
+              style={
+                String(answers[field.id]) === String(rating)
+                  ? theme.primaryButtonStyle
+                  : theme.secondaryButtonStyle
               }
               type="button"
               onClick={() => onUpdateAnswer(field.id, String(rating))}
@@ -351,7 +510,8 @@ function FieldInput({
 
       {field.type === "boolean" ? (
         <input
-          className="mt-3 h-4 w-4 rounded border-slate-300"
+          className="mt-3 h-4 w-4"
+          style={{ accentColor: theme.accentColor }}
           type="checkbox"
           checked={Boolean(answers[field.id])}
           onChange={(event) => onUpdateAnswer(field.id, event.target.checked)}

@@ -42,8 +42,17 @@ export type GadgetSettings = {
   successMessage: string;
   brandColor: string;
   accentColor: string;
+  backgroundColor?: string;
+  borderColor?: string;
   buttonShape: "pill" | "rounded" | "square";
+  buttonStyle?: "filled" | "outline" | "soft";
+  density?: "compact" | "comfortable" | "spacious";
   fontFamily: string;
+  inputStyle?: "outlined" | "filled" | "underline";
+  shadow?: "none" | "soft" | "strong";
+  styleReferenceFileName?: string;
+  styleSource?: "default" | "prompt" | "upload";
+  textColor?: string;
   allowedDomains?: string[];
 };
 

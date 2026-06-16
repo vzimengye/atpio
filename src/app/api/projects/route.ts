@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { SchemaGenerationError } from "@/ai/generate-schema";
 import { requireAdmin } from "@/lib/auth-guard";
+import { defaultGadgetSettings } from "@/lib/gadget-defaults";
 import { getOutputLanguage, getUiLanguage } from "@/lib/i18n";
 import { logger } from "@/lib/logger";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
@@ -67,16 +68,7 @@ export async function POST(request: Request) {
     name,
     brief,
     schema: generated.schema,
-    gadget: {
-      position: "bottom-right",
-      theme: "light",
-      buttonLabel: "Feedback",
-      successMessage: "Thanks. Your feedback was saved.",
-      brandColor: "#020617",
-      accentColor: "#10b981",
-      buttonShape: "pill",
-      fontFamily: "Inter, Arial, sans-serif",
-    },
+    gadget: defaultGadgetSettings,
     responseCount: 0,
     status: "draft",
     updatedAt: now.slice(0, 10),

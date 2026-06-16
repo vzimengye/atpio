@@ -3,6 +3,7 @@
 import { logger } from "@/lib/logger";
 import { SchemaGenerationError } from "@/ai/generate-schema";
 import { requireAdmin } from "@/lib/auth-guard";
+import { defaultGadgetSettings } from "@/lib/gadget-defaults";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 import { projectIdFromName, projectNameFromBrief } from "@/lib/schema-generator";
 import { getProject, saveProject, setActiveProjectForUser } from "@/lib/store";
@@ -45,16 +46,7 @@ export async function createProjectAction(input: unknown) {
     name,
     brief,
     schema: generated.schema,
-    gadget: {
-      position: "bottom-right",
-      theme: "light",
-      buttonLabel: "Feedback",
-      successMessage: "Thanks. Your feedback was saved.",
-      brandColor: "#020617",
-      accentColor: "#10b981",
-      buttonShape: "pill",
-      fontFamily: "Inter, Arial, sans-serif",
-    },
+    gadget: defaultGadgetSettings,
     responseCount: 0,
     status: "draft",
     updatedAt: now.slice(0, 10),

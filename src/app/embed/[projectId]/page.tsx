@@ -22,21 +22,42 @@ export default async function EmbedPage({
         Array.isArray(value) ? value.join(",") : String(value ?? ""),
       ]),
   );
+  const isDark = project.gadget.theme === "dark";
+  const background =
+    project.gadget.backgroundColor ?? (isDark ? "#020617" : "#f8fafc");
+  const textColor = project.gadget.textColor ?? (isDark ? "#f8fafc" : "#020617");
+  const borderColor = project.gadget.borderColor ?? (isDark ? "#334155" : "#dbe3ef");
+  const shadow =
+    project.gadget.shadow === "none"
+      ? "none"
+      : project.gadget.shadow === "strong"
+        ? "0 28px 80px rgba(15, 23, 42, 0.26)"
+        : "0 18px 50px rgba(15, 23, 42, 0.12)";
 
   return (
     <main
-      className={
-        project.gadget.theme === "dark"
-          ? "min-h-screen bg-slate-950 p-4 text-slate-50"
-          : "min-h-screen bg-white p-4 text-slate-950"
-      }
+      className="min-h-screen p-4"
+      style={{
+        background,
+        color: textColor,
+        fontFamily: project.gadget.fontFamily,
+      }}
     >
-      <div className="mx-auto max-w-xl rounded-lg border border-slate-200 bg-white p-5 text-slate-950 shadow-sm">
-        <p className="mb-4 text-xs font-medium uppercase text-slate-500">
+      <div
+        className="mx-auto max-w-xl rounded-3xl border p-4"
+        style={{
+          background,
+          borderColor,
+          boxShadow: shadow,
+          color: textColor,
+        }}
+      >
+        <p className="mb-4 text-xs font-medium uppercase opacity-60">
           Embedded gadget preview: {projectId}
         </p>
         <DynamicForm
           compact
+          gadget={project.gadget}
           metadata={metadata}
           projectId={projectId}
           schema={project.schema}
