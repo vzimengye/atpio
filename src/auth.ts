@@ -39,25 +39,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           };
         }
 
-        const adminEmail = process.env.ATPIO_ADMIN_EMAIL;
-        const adminPassword = process.env.ATPIO_ADMIN_PASSWORD;
-
-        if (!adminEmail || !adminPassword) {
-          return null;
-        }
-
-        if (
-          parsed.data.email !== adminEmail ||
-          parsed.data.password !== adminPassword
-        ) {
-          return null;
-        }
-
-        return {
-          id: "atpio-admin",
-          email: parsed.data.email,
-          name: "Atpio Admin",
-        };
+        return null;
       },
     }),
   ],

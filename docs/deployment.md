@@ -35,13 +35,6 @@ PPIO_MODEL=deepseek/deepseek-v3-turbo
 PPIO_TIMEOUT_MS=30000
 ```
 
-Optional migration fallback credentials:
-
-```text
-ATPIO_ADMIN_EMAIL=admin@example.com
-ATPIO_ADMIN_PASSWORD=...
-```
-
 Optional for local/demo environments:
 
 ```text
@@ -71,8 +64,8 @@ Set:
 
 - `AUTH_SECRET`
 
-`ATPIO_ADMIN_EMAIL` and `ATPIO_ADMIN_PASSWORD` are optional migration fallback
-credentials. They are not required for normal self-serve accounts.
+Users register their own accounts at `/register`; there is no shared admin
+fallback account.
 
 Public routes intentionally remain open:
 

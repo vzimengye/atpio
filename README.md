@@ -131,14 +131,7 @@ PPIO_MODEL=deepseek/deepseek-v3-turbo
 PPIO_TIMEOUT_MS=30000
 ```
 
-可选迁移兜底账号：
-
-```text
-ATPIO_ADMIN_EMAIL=...
-ATPIO_ADMIN_PASSWORD=...
-```
-
-正常客户使用时不需要提前配置管理员账号，用户可以在 `/register` 自行注册。
+客户使用时不需要提前配置共享账号，用户可以在 `/register` 自行注册自己的 Atpio 账号。
 
 ## 数据与部署
 
