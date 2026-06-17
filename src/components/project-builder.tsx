@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
 import { createProjectAction } from "@/app/projects/actions";
 import { DynamicForm } from "@/components/dynamic-form";
@@ -145,6 +146,7 @@ export function ProjectBuilder({
   savedProjectId,
   uiLanguage = "en",
 }: ProjectBuilderProps) {
+  const router = useRouter();
   const t = builderCopy[uiLanguage];
   const emptyPreviewSchema: ProjectSchema = {
     title: t.emptyPreviewTitle,
@@ -269,7 +271,7 @@ export function ProjectBuilder({
       setProjectId(result.project.id);
       updateSchemaState(result.project.schema);
       setStatus("saved");
-      setShowSavedToast(true);
+      router.push(langPath(`/projects/${result.project.id}`, uiLanguage));
     } catch {
       setErrorMessage(
         t.saveError,

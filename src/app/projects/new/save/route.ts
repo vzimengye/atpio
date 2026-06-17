@@ -88,10 +88,7 @@ export async function POST(request: Request) {
 
   await saveProject(project);
 
-  const nextUrl = new URL("/projects/new", request.url);
+  const nextUrl = new URL(`/projects/${project.id}`, request.url);
   if (lang === "zh") nextUrl.searchParams.set("lang", "zh");
-  nextUrl.searchParams.set("name", name);
-  nextUrl.searchParams.set("brief", brief);
-  nextUrl.searchParams.set("saved", project.id);
   return NextResponse.redirect(nextUrl, { status: 303 });
 }
