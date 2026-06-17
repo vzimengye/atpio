@@ -1,4 +1,5 @@
 import { DynamicForm } from "@/components/dynamic-form";
+import { getUiLanguageFromParams } from "@/lib/i18n";
 import { sampleProject } from "@/lib/mock-data";
 import { getProject } from "@/lib/store";
 
@@ -13,6 +14,7 @@ export default async function EmbedPage({
 }) {
   const { projectId } = await params;
   const query = await searchParams;
+  const uiLanguage = getUiLanguageFromParams(query);
   const project = (await getProject(projectId)) ?? sampleProject;
   const metadata = Object.fromEntries(
     Object.entries(query)
@@ -62,6 +64,7 @@ export default async function EmbedPage({
           projectId={projectId}
           schema={project.schema}
           successMessage={project.gadget.successMessage}
+          uiLanguage={uiLanguage}
         />
       </div>
     </main>

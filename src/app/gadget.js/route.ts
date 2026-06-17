@@ -9,6 +9,7 @@ export async function GET() {
   var theme = currentScript && currentScript.getAttribute("data-atpio-theme") || "light";
   var labelAttr = currentScript && currentScript.getAttribute("data-atpio-label");
   var defaultLabel = language === "zh" ? "提交反馈" : "Feedback";
+  var closeLabel = language === "zh" ? "关闭" : "Close";
   var label = labelAttr || defaultLabel;
   var brandColor = currentScript && currentScript.getAttribute("data-atpio-brand-color") || (theme === "dark" ? "#f7f1e8" : "#020617");
   var accentColor = currentScript && currentScript.getAttribute("data-atpio-accent-color") || "#10b981";
@@ -97,6 +98,7 @@ export async function GET() {
   var iframe = document.createElement("iframe");
   iframe.title = "Atpio feedback form";
   var iframeUrl = new URL(origin + "/embed/" + encodeURIComponent(projectId));
+  iframeUrl.searchParams.set("lang", language);
   Object.keys(metadata).forEach(function (key) {
     iframeUrl.searchParams.set("meta_" + key, metadata[key]);
   });
@@ -112,7 +114,7 @@ export async function GET() {
 
   button.addEventListener("click", function () {
     panel.hidden = !panel.hidden;
-    button.textContent = panel.hidden ? label : "Close";
+    button.textContent = panel.hidden ? label : closeLabel;
     window.dispatchEvent(new CustomEvent(panel.hidden ? "atpio:close" : "atpio:open", {
       detail: { projectId: projectId, metadata: metadata }
     }));
