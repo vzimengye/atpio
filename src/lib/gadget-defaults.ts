@@ -28,6 +28,7 @@ export const defaultGadgetSettings: GadgetSettings = {
   fontFamily: "Inter, Arial, sans-serif",
   inputStyle: "outlined",
   shadow: "soft",
+  visualPreset: "clean-saas",
   backgroundPattern: "none",
   decorativeIntensity: "subtle",
   surfaceStyle: "solid",

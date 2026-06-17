@@ -50,6 +50,15 @@ export type GadgetSettings = {
   fontFamily: string;
   inputStyle?: "outlined" | "filled" | "underline";
   shadow?: "none" | "soft" | "strong";
+  visualPreset?:
+    | "clean-saas"
+    | "rainy-glass"
+    | "editorial-paper"
+    | "soft-botanical"
+    | "neo-tech"
+    | "luxury-beauty"
+    | "finance-minimal"
+    | "warm-consumer";
   backgroundPattern?:
     | "none"
     | "dots"

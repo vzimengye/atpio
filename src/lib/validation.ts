@@ -57,6 +57,18 @@ export const gadgetSettingsSchema = z.object({
   fontFamily: z.string().min(1).max(160).optional(),
   inputStyle: z.enum(["outlined", "filled", "underline"]).optional(),
   shadow: z.enum(["none", "soft", "strong"]).optional(),
+  visualPreset: z
+    .enum([
+      "clean-saas",
+      "rainy-glass",
+      "editorial-paper",
+      "soft-botanical",
+      "neo-tech",
+      "luxury-beauty",
+      "finance-minimal",
+      "warm-consumer",
+    ])
+    .optional(),
   backgroundPattern: z
     .enum([
       "none",

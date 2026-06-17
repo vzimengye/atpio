@@ -91,6 +91,7 @@ Return only valid JSON:
     "fontFamily": "CSS font stack",
     "inputStyle": "outlined | filled | underline",
     "shadow": "none | soft | strong",
+    "visualPreset": "clean-saas | rainy-glass | editorial-paper | soft-botanical | neo-tech | luxury-beauty | finance-minimal | warm-consumer",
     "backgroundPattern": "none | dots | grid | waves | botanical | sparkles | circuit | paper | bubbles",
     "decorativeIntensity": "none | subtle | medium | bold",
     "surfaceStyle": "solid | glass | paper | neon | editorial",
@@ -106,8 +107,8 @@ Rules:
 - Prefer hex colors.
 - If the guidance is vague, choose a polished modern SaaS style.
 - Make the visual style more expressive when the user asks for a specific direction such as Y2K, tech, botanical, beauty, finance, climate, editorial, playful, or luxury.
-- Use backgroundPattern, decorativeIntensity, and surfaceStyle to create an elevated website-like visual surface with vector motifs, texture, and layered backgrounds without changing the form flow.
-- For rainy, water, soft lifestyle, or fresh styles, prefer bubbles or waves with glass. For botanical or skincare, prefer botanical with paper. For technology, prefer circuit with neon. For Y2K or beauty, prefer sparkles with glass.
+- Prefer visualPreset as the main design decision. Use backgroundPattern only as a very subtle supporting texture.
+- For rainy, water, soft lifestyle, or fresh styles, prefer rainy-glass. For botanical or skincare, prefer soft-botanical. For technology, prefer neo-tech. For Y2K or beauty, prefer luxury-beauty. For finance, prefer finance-minimal. For editorial content, prefer editorial-paper.
 - Match buttonLabel and successMessage to the likely language of the guidance.
 - Never include CSS classes, scripts, markdown, or prose outside JSON.`,
       temperature: 0.25,
@@ -149,67 +150,73 @@ function createFallbackStyle({
   const isChinese = /[\u3400-\u9fff]/.test(instructions);
   const base = withGadgetDefaults(currentGadget);
   const style: Partial<GadgetSettings> = {
-    backgroundPattern: "dots",
+    backgroundPattern: "none",
     decorativeIntensity: "subtle",
     surfaceStyle: "glass",
     theme: "light",
+    visualPreset: "clean-saas",
   };
 
   if (/(rain|rainy|雨|雨滴|drizzle|water|清新|fresh)/i.test(instructions)) {
     Object.assign(style, {
       accentColor: "#38bdf8",
       backgroundColor: "#f0f9ff",
-      backgroundPattern: "bubbles",
+      backgroundPattern: "none",
       borderColor: "#bae6fd",
       brandColor: "#075985",
       decorativeIntensity: "medium",
       surfaceStyle: "glass",
       textColor: "#0f172a",
+      visualPreset: "rainy-glass",
     });
   } else if (/(y2k|candy|chrome|糖果|千禧|金属)/i.test(instructions)) {
     Object.assign(style, {
       accentColor: "#f472b6",
       backgroundColor: "#fff1f8",
-      backgroundPattern: "sparkles",
+      backgroundPattern: "none",
       borderColor: "#f9a8d4",
       brandColor: "#831843",
       decorativeIntensity: "bold",
       surfaceStyle: "glass",
       textColor: "#1f1020",
+      visualPreset: "luxury-beauty",
     });
   } else if (/(tech|future|circuit|科技|未来|数据|dashboard)/i.test(instructions)) {
     Object.assign(style, {
       accentColor: "#22d3ee",
       backgroundColor: "#020617",
-      backgroundPattern: "circuit",
+      backgroundPattern: "none",
       borderColor: "#155e75",
       brandColor: "#e0f2fe",
       decorativeIntensity: "medium",
       surfaceStyle: "neon",
       textColor: "#f8fafc",
       theme: "dark",
+      visualPreset: "neo-tech",
     });
   } else if (/(plant|botanical|green|植物|自然|环保|护肤)/i.test(instructions)) {
     Object.assign(style, {
       accentColor: "#22c55e",
       backgroundColor: "#f0fdf4",
-      backgroundPattern: "botanical",
+      backgroundPattern: "none",
       borderColor: "#bbf7d0",
       brandColor: "#14532d",
       decorativeIntensity: "medium",
       surfaceStyle: "paper",
       textColor: "#052e16",
+      visualPreset: "soft-botanical",
     });
   } else if (/(finance|bank|金融|银行|专业|enterprise)/i.test(instructions)) {
     Object.assign(style, {
       accentColor: "#2563eb",
       backgroundColor: "#f8fafc",
-      backgroundPattern: "grid",
+      backgroundPattern: "none",
       borderColor: "#cbd5e1",
       brandColor: "#0f172a",
       decorativeIntensity: "subtle",
       surfaceStyle: "solid",
       textColor: "#0f172a",
+      visualPreset: "finance-minimal",
     });
   }
 

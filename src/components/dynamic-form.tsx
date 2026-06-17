@@ -331,6 +331,7 @@ function getExperienceTheme(gadget?: GadgetSettings): ExperienceTheme {
   const inputBorder =
     gadget?.inputStyle === "underline" ? `transparent transparent ${borderColor}` : borderColor;
   const surfaceStyle = gadget?.surfaceStyle ?? "solid";
+  const visualPreset = gadget?.visualPreset ?? "clean-saas";
   const primaryButtonStyle: CSSProperties = {
     background:
       gadget?.buttonStyle === "outline"
@@ -358,21 +359,32 @@ function getExperienceTheme(gadget?: GadgetSettings): ExperienceTheme {
       color: textColor,
     },
     fieldGap,
-    formStyle: getPatternStyle({
-      accentColor,
-      backgroundColor,
-      borderColor,
-      brandColor,
-      decorativeIntensity: gadget?.decorativeIntensity ?? "subtle",
-      pattern: gadget?.backgroundPattern ?? "none",
-    }),
+    formStyle: {
+      ...getPatternStyle({
+        accentColor,
+        backgroundColor,
+        borderColor,
+        brandColor,
+        decorativeIntensity: gadget?.decorativeIntensity ?? "subtle",
+        pattern: gadget?.backgroundPattern ?? "none",
+      }),
+      ...getPresetBackgroundStyle({
+        accentColor,
+        backgroundColor,
+        brandColor,
+        visualPreset,
+      }),
+    },
     fontFamily: gadget?.fontFamily ?? "Inter, Arial, sans-serif",
-    headerStyle: getHeaderStyle({
-      accentColor,
-      borderColor,
-      isDark,
-      surfaceStyle,
-    }),
+    headerStyle: {
+      ...getHeaderStyle({
+        accentColor,
+        borderColor,
+        isDark,
+        surfaceStyle,
+      }),
+      ...getPresetHeaderStyle({ accentColor, brandColor, visualPreset }),
+    },
     inputStyle: {
       background: inputBackground,
       borderColor: inputBorder,
@@ -472,6 +484,109 @@ function getHeaderStyle({
   return {};
 }
 
+function getPresetBackgroundStyle({
+  accentColor,
+  backgroundColor,
+  brandColor,
+  visualPreset,
+}: {
+  accentColor: string;
+  backgroundColor: string;
+  brandColor: string;
+  visualPreset: NonNullable<GadgetSettings["visualPreset"]>;
+}): CSSProperties {
+  if (visualPreset === "rainy-glass") {
+    return {
+      backgroundColor,
+      backgroundImage: `radial-gradient(ellipse at 18% 0%, ${withAlpha(accentColor, 0.2)}, transparent 38%), radial-gradient(ellipse at 90% 18%, ${withAlpha(brandColor, 0.1)}, transparent 34%), linear-gradient(180deg, ${withAlpha("#ffffff", 0.42)}, transparent 44%)`,
+    };
+  }
+
+  if (visualPreset === "editorial-paper") {
+    return {
+      backgroundColor,
+      backgroundImage: `linear-gradient(135deg, ${withAlpha(brandColor, 0.05)}, transparent 34%), radial-gradient(circle at 82% 12%, ${withAlpha(accentColor, 0.1)}, transparent 30%)`,
+    };
+  }
+
+  if (visualPreset === "soft-botanical") {
+    return {
+      backgroundColor,
+      backgroundImage: `radial-gradient(ellipse at 12% 18%, ${withAlpha(accentColor, 0.16)}, transparent 32%), radial-gradient(ellipse at 88% 84%, ${withAlpha(brandColor, 0.08)}, transparent 36%)`,
+    };
+  }
+
+  if (visualPreset === "neo-tech") {
+    return {
+      backgroundColor,
+      backgroundImage: `radial-gradient(ellipse at 16% 0%, ${withAlpha(accentColor, 0.22)}, transparent 36%), radial-gradient(ellipse at 90% 12%, ${withAlpha(brandColor, 0.12)}, transparent 34%)`,
+    };
+  }
+
+  if (visualPreset === "luxury-beauty") {
+    return {
+      backgroundColor,
+      backgroundImage: `radial-gradient(ellipse at 78% 0%, ${withAlpha(accentColor, 0.2)}, transparent 36%), radial-gradient(ellipse at 14% 86%, ${withAlpha(brandColor, 0.1)}, transparent 34%)`,
+    };
+  }
+
+  if (visualPreset === "finance-minimal") {
+    return {
+      backgroundColor,
+      backgroundImage: `linear-gradient(180deg, ${withAlpha(accentColor, 0.06)}, transparent 48%)`,
+    };
+  }
+
+  if (visualPreset === "warm-consumer") {
+    return {
+      backgroundColor,
+      backgroundImage: `radial-gradient(ellipse at 12% 4%, ${withAlpha(accentColor, 0.16)}, transparent 34%), radial-gradient(ellipse at 88% 10%, ${withAlpha(brandColor, 0.08)}, transparent 32%)`,
+    };
+  }
+
+  return {
+    backgroundColor,
+    backgroundImage: `linear-gradient(180deg, ${withAlpha(accentColor, 0.06)}, transparent 42%)`,
+  };
+}
+
+function getPresetHeaderStyle({
+  accentColor,
+  brandColor,
+  visualPreset,
+}: {
+  accentColor: string;
+  brandColor: string;
+  visualPreset: NonNullable<GadgetSettings["visualPreset"]>;
+}): CSSProperties {
+  if (visualPreset === "rainy-glass") {
+    return {
+      boxShadow: `0 24px 70px ${withAlpha(accentColor, 0.16)}`,
+    };
+  }
+
+  if (visualPreset === "editorial-paper") {
+    return {
+      borderRadius: "10px",
+      boxShadow: `0 18px 54px ${withAlpha(brandColor, 0.08)}`,
+    };
+  }
+
+  if (visualPreset === "neo-tech") {
+    return {
+      boxShadow: `0 0 0 1px ${withAlpha(accentColor, 0.32)}, 0 24px 70px ${withAlpha(accentColor, 0.18)}`,
+    };
+  }
+
+  if (visualPreset === "luxury-beauty") {
+    return {
+      boxShadow: `0 24px 80px ${withAlpha(accentColor, 0.18)}`,
+    };
+  }
+
+  return {};
+}
+
 function getPatternStyle({
   accentColor,
   backgroundColor,
@@ -497,92 +612,65 @@ function getPatternStyle({
       : decorativeIntensity === "medium"
         ? 0.17
         : 0.1;
-  const motifOpacity =
-    decorativeIntensity === "bold"
-      ? 0.42
-      : decorativeIntensity === "medium"
-        ? 0.3
-        : 0.18;
   const accent = withAlpha(accentColor, opacity);
   const brand = withAlpha(brandColor, opacity * 0.8);
+  const line = withAlpha(borderColor, opacity);
 
   if (pattern === "dots") {
     return {
       backgroundColor,
-      backgroundImage: `radial-gradient(circle at 12% 18%, ${accent}, transparent 26%), url("${svgDataUri(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96"><circle cx="18" cy="22" r="2.2" fill="${accentColor}" fill-opacity="${motifOpacity}"/><circle cx="56" cy="14" r="1.4" fill="${brandColor}" fill-opacity="${motifOpacity * 0.72}"/><circle cx="78" cy="50" r="2.8" fill="${accentColor}" fill-opacity="${motifOpacity * 0.8}"/><circle cx="30" cy="74" r="1.7" fill="${brandColor}" fill-opacity="${motifOpacity * 0.65}"/></svg>`,
-      )}")`,
-      backgroundSize: "auto, 96px 96px",
+      backgroundImage: `radial-gradient(circle at 12% 18%, ${accent}, transparent 30%), radial-gradient(circle at 88% 8%, ${brand}, transparent 32%)`,
     };
   }
 
   if (pattern === "grid") {
     return {
       backgroundColor,
-      backgroundImage: `radial-gradient(ellipse at 88% 12%, ${accent}, transparent 32%), url("${svgDataUri(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="112" height="112" viewBox="0 0 112 112"><path d="M0 28H112M0 56H112M0 84H112M28 0V112M56 0V112M84 0V112" stroke="${borderColor}" stroke-opacity="${motifOpacity * 0.7}" stroke-width="1"/><path d="M12 12h20v20h-20zM72 72h28v28h-28z" fill="none" stroke="${accentColor}" stroke-opacity="${motifOpacity}" stroke-width="1.2"/></svg>`,
-      )}")`,
-      backgroundSize: "auto, 112px 112px",
+      backgroundImage: `linear-gradient(${line} 1px, transparent 1px), linear-gradient(90deg, ${line} 1px, transparent 1px), radial-gradient(ellipse at 88% 12%, ${accent}, transparent 34%)`,
+      backgroundSize: "42px 42px, 42px 42px, auto",
     };
   }
 
   if (pattern === "waves") {
     return {
       backgroundColor,
-      backgroundImage: `radial-gradient(ellipse at 12% 18%, ${accent}, transparent 34%), radial-gradient(ellipse at 88% 10%, ${brand}, transparent 32%), url("${svgDataUri(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="160" height="96" viewBox="0 0 160 96"><path d="M-10 28c28-24 52 24 80 0s52 24 80 0 52 24 80 0" fill="none" stroke="${accentColor}" stroke-opacity="${motifOpacity}" stroke-width="2.4"/><path d="M-10 58c28-24 52 24 80 0s52 24 80 0 52 24 80 0" fill="none" stroke="${brandColor}" stroke-opacity="${motifOpacity * 0.55}" stroke-width="1.6"/></svg>`,
-      )}")`,
-      backgroundSize: "auto, auto, 160px 96px",
+      backgroundImage: `radial-gradient(ellipse at 12% 18%, ${accent}, transparent 34%), radial-gradient(ellipse at 88% 10%, ${brand}, transparent 32%), linear-gradient(135deg, transparent 0 45%, ${line} 45% 46%, transparent 46% 100%)`,
     };
   }
 
   if (pattern === "botanical") {
     return {
       backgroundColor,
-      backgroundImage: `radial-gradient(ellipse at 82% 12%, ${accent}, transparent 30%), url("${svgDataUri(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="132" height="116" viewBox="0 0 132 116"><path d="M28 92C36 50 54 30 90 18" fill="none" stroke="${brandColor}" stroke-opacity="${motifOpacity}" stroke-width="2" stroke-linecap="round"/><path d="M48 62c-18-20-34-14-40 2 16 10 30 8 40-2ZM66 44c-8-24-24-26-38-16 8 18 22 24 38 16ZM82 30c4-24 20-30 36-24-2 20-14 30-36 24Z" fill="${accentColor}" fill-opacity="${motifOpacity}" stroke="${brandColor}" stroke-opacity="${motifOpacity * 0.7}" stroke-width="1"/></svg>`,
-      )}")`,
-      backgroundSize: "auto, 132px 116px",
+      backgroundImage: `radial-gradient(ellipse at 82% 12%, ${accent}, transparent 32%), radial-gradient(ellipse at 10% 90%, ${brand}, transparent 34%)`,
     };
   }
 
   if (pattern === "sparkles") {
     return {
       backgroundColor,
-      backgroundImage: `radial-gradient(ellipse at 75% 8%, ${accent}, transparent 34%), url("${svgDataUri(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="118" height="118" viewBox="0 0 118 118"><path d="M26 10l4 12 12 4-12 4-4 12-4-12-12-4 12-4 4-12ZM86 56l6 18 18 6-18 6-6 18-6-18-18-6 18-6 6-18Z" fill="${accentColor}" fill-opacity="${motifOpacity}"/><circle cx="74" cy="24" r="2.5" fill="${brandColor}" fill-opacity="${motifOpacity * 0.8}"/><circle cx="28" cy="88" r="2" fill="${accentColor}" fill-opacity="${motifOpacity * 0.75}"/></svg>`,
-      )}")`,
-      backgroundSize: "auto, 118px 118px",
+      backgroundImage: `radial-gradient(ellipse at 75% 8%, ${accent}, transparent 34%), radial-gradient(circle at 20% 88%, ${brand}, transparent 28%)`,
     };
   }
 
   if (pattern === "circuit") {
     return {
       backgroundColor,
-      backgroundImage: `radial-gradient(ellipse at 20% 0%, ${accent}, transparent 30%), url("${svgDataUri(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="150" height="120" viewBox="0 0 150 120"><path d="M20 24h42v24h36v28h34M44 96h36V72h30M22 58h30M96 22v26" fill="none" stroke="${accentColor}" stroke-opacity="${motifOpacity}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="24" r="4" fill="${brandColor}" fill-opacity="${motifOpacity}"/><circle cx="98" cy="48" r="4" fill="${accentColor}" fill-opacity="${motifOpacity}"/><circle cx="132" cy="76" r="4" fill="${brandColor}" fill-opacity="${motifOpacity}"/></svg>`,
-      )}")`,
-      backgroundSize: "auto, 150px 120px",
+      backgroundImage: `radial-gradient(ellipse at 20% 0%, ${accent}, transparent 30%), linear-gradient(${line} 1px, transparent 1px), linear-gradient(90deg, ${line} 1px, transparent 1px)`,
+      backgroundSize: "auto, 36px 36px, 36px 36px",
     };
   }
 
   if (pattern === "paper") {
     return {
       backgroundColor,
-      backgroundImage: `radial-gradient(circle at 20% 20%, ${accent}, transparent 28%), url("${svgDataUri(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" viewBox="0 0 130 130"><path d="M0 22h130M0 64h130M0 106h130" stroke="${borderColor}" stroke-opacity="${motifOpacity * 0.6}" stroke-width="1"/><path d="M20 30c18-8 28 8 44 0s28 8 46 0M12 86c18-8 30 8 48 0s34 8 54 0" fill="none" stroke="${brandColor}" stroke-opacity="${motifOpacity * 0.35}" stroke-width="1.2"/></svg>`,
-      )}")`,
-      backgroundSize: "auto, 130px 130px",
+      backgroundImage: `radial-gradient(circle at 20% 20%, ${accent}, transparent 28%), repeating-linear-gradient(0deg, transparent 0 18px, ${line} 19px)`,
     };
   }
 
   if (pattern === "bubbles") {
     return {
       backgroundColor,
-      backgroundImage: `radial-gradient(circle at 18% 20%, ${accent} 0 16px, transparent 17px), radial-gradient(circle at 82% 16%, ${brand} 0 22px, transparent 23px), url("${svgDataUri(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="112" height="128" viewBox="0 0 112 128"><path d="M28 8C18 24 12 34 12 48c0 14 10 24 24 24s24-10 24-24C60 34 48 22 28 8Z" fill="${accentColor}" fill-opacity="${motifOpacity}" stroke="${brandColor}" stroke-opacity="${motifOpacity * 0.6}" stroke-width="1.5"/><path d="M78 58c-8 13-12 22-12 32 0 12 9 20 20 20s20-8 20-20c0-10-10-20-28-32Z" fill="${brandColor}" fill-opacity="${motifOpacity * 0.55}" stroke="${accentColor}" stroke-opacity="${motifOpacity * 0.8}" stroke-width="1.5"/></svg>`,
-      )}")`,
-      backgroundSize: "auto, auto, 112px 128px",
+      backgroundImage: `radial-gradient(circle at 18% 20%, ${accent} 0 14px, transparent 16px), radial-gradient(circle at 82% 16%, ${brand} 0 20px, transparent 22px), radial-gradient(ellipse at 50% 105%, ${accent}, transparent 42%)`,
     };
   }
 
@@ -601,12 +689,6 @@ function withAlpha(color: string, alpha: number) {
   const rgb = hexToRgb(color);
   if (!rgb) return color;
   return `rgba(${rgb.red}, ${rgb.green}, ${rgb.blue}, ${alpha})`;
-}
-
-function svgDataUri(svg: string) {
-  return `data:image/svg+xml,${encodeURIComponent(svg)
-    .replace(/'/g, "%27")
-    .replace(/"/g, "%22")}`;
 }
 
 function hexToRgb(color: string) {

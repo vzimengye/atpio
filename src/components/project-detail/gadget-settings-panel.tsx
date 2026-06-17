@@ -81,6 +81,23 @@ export function GadgetSettingsPanel({
           onChange={(value) => onUpdate("borderColor", value)}
         />
         <SelectInput
+          label={t.visualPreset}
+          value={gadget.visualPreset ?? "clean-saas"}
+          options={[
+            ["clean-saas", t.cleanSaas],
+            ["rainy-glass", t.rainyGlass],
+            ["editorial-paper", t.editorialPaper],
+            ["soft-botanical", t.softBotanical],
+            ["neo-tech", t.neoTech],
+            ["luxury-beauty", t.luxuryBeauty],
+            ["finance-minimal", t.financeMinimal],
+            ["warm-consumer", t.warmConsumer],
+          ]}
+          onChange={(value) =>
+            onUpdate("visualPreset", value as GadgetSettings["visualPreset"])
+          }
+        />
+        <SelectInput
           label={t.backgroundPattern}
           value={gadget.backgroundPattern ?? "none"}
           options={[
@@ -240,6 +257,7 @@ const copy = {
     buttonShape: "Button shape",
     buttonStyle: "Button style",
     circuit: "Circuit",
+    cleanSaas: "Clean SaaS",
     comfortable: "Comfortable",
     compact: "Compact",
     dark: "Dark",
@@ -247,14 +265,18 @@ const copy = {
     density: "Density",
     dots: "Dots",
     editorial: "Editorial",
+    editorialPaper: "Editorial paper",
     filled: "Filled",
     fontFamily: "Font family",
+    financeMinimal: "Finance minimal",
     glass: "Glass",
     grid: "Grid",
     inputStyle: "Input style",
     light: "Light",
+    luxuryBeauty: "Luxury beauty",
     medium: "Medium",
     neon: "Neon",
+    neoTech: "Neo tech",
     none: "None",
     outline: "Outline",
     outlined: "Outlined",
@@ -266,6 +288,7 @@ const copy = {
     shadow: "Shadow",
     soft: "Soft",
     solid: "Solid",
+    softBotanical: "Soft botanical",
     sparkles: "Sparkles",
     spacious: "Spacious",
     square: "Square",
@@ -279,6 +302,9 @@ const copy = {
     topLeft: "Top left",
     topRight: "Top right",
     underline: "Underline",
+    visualPreset: "Visual preset",
+    rainyGlass: "Rainy glass",
+    warmConsumer: "Warm consumer",
     waves: "Waves",
   },
   zh: {
@@ -301,6 +327,7 @@ const copy = {
     buttonShape: "按钮形状",
     buttonStyle: "按钮样式",
     circuit: "科技线",
+    cleanSaas: "干净商务",
     comfortable: "舒适",
     compact: "紧凑",
     dark: "深色",
@@ -308,14 +335,18 @@ const copy = {
     density: "密度",
     dots: "点阵",
     editorial: "杂志感",
+    editorialPaper: "杂志纸感",
     filled: "填充",
     fontFamily: "字体",
+    financeMinimal: "金融极简",
     glass: "玻璃",
     grid: "网格",
     inputStyle: "输入框样式",
     light: "浅色",
+    luxuryBeauty: "轻奢美妆",
     medium: "中等",
     neon: "霓虹",
+    neoTech: "科技感",
     none: "无",
     outline: "描边",
     outlined: "描边",
@@ -327,6 +358,7 @@ const copy = {
     shadow: "阴影",
     soft: "柔和",
     solid: "实色",
+    softBotanical: "柔和植物",
     sparkles: "星光",
     spacious: "宽松",
     square: "直角",
@@ -340,6 +372,9 @@ const copy = {
     topLeft: "左上角",
     topRight: "右上角",
     underline: "下划线",
+    visualPreset: "视觉预设",
+    rainyGlass: "雨天玻璃",
+    warmConsumer: "温暖消费品",
     waves: "波浪",
   },
 } satisfies Record<UiLanguage, Record<string, string>>;
