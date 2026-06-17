@@ -1,6 +1,6 @@
 import "server-only";
 
-import { generateObject } from "ai";
+import { generateText } from "ai";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
 import { generateSchemaFromBrief, projectNameFromBrief } from "@/lib/schema-generator";
@@ -96,6 +96,19 @@ function normalizeSchema(schema: ProjectSchema): ProjectSchema {
   };
 }
 
+function extractJsonObject(text: string) {
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidate = fenced?.[1] ?? text;
+  const start = candidate.indexOf("{");
+  const end = candidate.lastIndexOf("}");
+
+  if (start === -1 || end === -1 || end <= start) {
+    throw new SchemaGenerationError("PPIO returned text without a JSON object.");
+  }
+
+  return JSON.parse(candidate.slice(start, end + 1));
+}
+
 export async function generateSchema({
   allowLocalFallback = false,
   brief,
@@ -115,16 +128,17 @@ export async function generateSchema({
 
   try {
     const model = process.env.PPIO_MODEL ?? "deepseek/deepseek-v3-turbo";
-    const { object } = await generateObject({
+    const { text } = await generateText({
       model: ppio.chat(model),
-      schema: projectSchemaOutput,
       system: schemaGenerationPrompt,
       prompt: `Create a data gathering form for this brief. Make the questions rich, specific, and varied while still usable inside an embedded gadget. Split into pages when helpful.
 
 Questionnaire language:
 ${languageInstruction(outputLanguage)}
 
-Return an object with this shape:
+Return only valid JSON. Do not include markdown, explanation, or text outside the JSON object.
+
+Return a JSON object with this shape:
 {
   "name": "short project name",
   "schema": {
@@ -159,6 +173,7 @@ Brief:
 ${brief}`,
       temperature: 0.35,
     });
+    const object = projectSchemaOutput.parse(extractJsonObject(text));
     const result: GeneratedSchemaResult = {
       name: object.name || projectNameFromBrief(brief),
       schema: normalizeSchema(object.schema),
@@ -209,9 +224,8 @@ export async function reviseSchema({
 
   try {
     const model = process.env.PPIO_MODEL ?? "deepseek/deepseek-v3-turbo";
-    const { object } = await generateObject({
+    const { text } = await generateText({
       model: ppio.chat(model),
-      schema: projectSchemaOutput,
       system: schemaGenerationPrompt,
       prompt: `Revise this existing Atpio questionnaire based on the user's instructions.
 
@@ -220,7 +234,9 @@ Preserve useful existing questions and manual edits. Make targeted improvements 
 Questionnaire language:
 ${languageInstruction(outputLanguage)}
 
-Return an object with this shape:
+Return only valid JSON. Do not include markdown, explanation, or text outside the JSON object.
+
+Return a JSON object with this shape:
 {
   "name": "short project name",
   "schema": {
@@ -261,6 +277,7 @@ User revision instructions:
 ${instructions}`,
       temperature: 0.3,
     });
+    const object = projectSchemaOutput.parse(extractJsonObject(text));
     const result: GeneratedSchemaResult = {
       name: object.name || projectNameFromBrief(brief),
       schema: normalizeSchema(object.schema),
