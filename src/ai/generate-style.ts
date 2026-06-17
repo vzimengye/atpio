@@ -106,7 +106,8 @@ Rules:
 - Prefer hex colors.
 - If the guidance is vague, choose a polished modern SaaS style.
 - Make the visual style more expressive when the user asks for a specific direction such as Y2K, tech, botanical, beauty, finance, climate, editorial, playful, or luxury.
-- Use backgroundPattern, decorativeIntensity, and surfaceStyle to create variety without changing the form flow.
+- Use backgroundPattern, decorativeIntensity, and surfaceStyle to create an elevated website-like visual surface with vector motifs, texture, and layered backgrounds without changing the form flow.
+- For rainy, water, soft lifestyle, or fresh styles, prefer bubbles or waves with glass. For botanical or skincare, prefer botanical with paper. For technology, prefer circuit with neon. For Y2K or beauty, prefer sparkles with glass.
 - Match buttonLabel and successMessage to the likely language of the guidance.
 - Never include CSS classes, scripts, markdown, or prose outside JSON.`,
       temperature: 0.25,
