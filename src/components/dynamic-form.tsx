@@ -345,9 +345,7 @@ function getExperienceTheme(gadget?: GadgetSettings): ExperienceTheme {
     borderRadius: radius,
     color:
       gadget?.buttonStyle === "filled"
-        ? isDark
-          ? "#020617"
-          : "#ffffff"
+        ? getReadableTextColor(brandColor)
         : textColor,
   };
 
@@ -388,6 +386,26 @@ function getExperienceTheme(gadget?: GadgetSettings): ExperienceTheme {
     surfaceColor: backgroundColor,
     textColor,
   };
+}
+
+function getReadableTextColor(backgroundColor: string) {
+  const hex = backgroundColor.trim().replace("#", "");
+  const normalized =
+    hex.length === 3
+      ? hex
+          .split("")
+          .map((character) => character + character)
+          .join("")
+      : hex;
+
+  if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return "#ffffff";
+
+  const red = parseInt(normalized.slice(0, 2), 16);
+  const green = parseInt(normalized.slice(2, 4), 16);
+  const blue = parseInt(normalized.slice(4, 6), 16);
+  const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
+
+  return luminance > 0.58 ? "#020617" : "#ffffff";
 }
 
 function FieldInput({
