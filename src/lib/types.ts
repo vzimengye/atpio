@@ -50,6 +50,18 @@ export type GadgetSettings = {
   fontFamily: string;
   inputStyle?: "outlined" | "filled" | "underline";
   shadow?: "none" | "soft" | "strong";
+  backgroundPattern?:
+    | "none"
+    | "dots"
+    | "grid"
+    | "waves"
+    | "botanical"
+    | "sparkles"
+    | "circuit"
+    | "paper"
+    | "bubbles";
+  decorativeIntensity?: "none" | "subtle" | "medium" | "bold";
+  surfaceStyle?: "solid" | "glass" | "paper" | "neon" | "editorial";
   styleReferenceFileName?: string;
   styleSource?: "default" | "prompt" | "upload";
   textColor?: string;

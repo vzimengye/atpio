@@ -137,40 +137,40 @@ export function AiStylePanel({
 const copy = {
   en: {
     applied: "Style applied to the preview. Save changes to keep it.",
-    button: "Apply AI style",
+    button: "Apply style",
     description:
-      "Describe the look you want. Atpio converts it into safe theme tokens for the HTML feedback experience.",
+      "Describe the visual style you want. Atpio turns it into colors, textures, card style, spacing, and controls for the embedded form.",
     empty: "Describe the style you want first.",
     error: "Could not generate that style.",
     emptyFile: "That file is empty.",
     loadedFile: "Loaded file:",
     placeholder:
-      "Example: Make it match a calm enterprise analytics product: compact spacing, soft blue accents, white cards, subtle borders, no heavy shadows.",
+      "Examples: Y2K candy with chrome bubbles. Calm finance product with quiet grids. Botanical skincare style with soft green paper texture. Futuristic dashboard with circuit lines.",
     running: "Designing...",
-    title: "Customize style with AI",
+    title: "Adjust visual style",
     unsupported: "Upload a .md, .txt, .json, or .css file.",
     uploadApplied: "Style applied from the uploaded file. Save changes to keep it.",
     uploadHint:
-      "Upload a brand guideline, token file, CSS snippet, or design notes. Atpio reads it and updates the preview.",
-    uploadTitle: "Upload company design file",
+      "Upload brand guidelines, design tokens, CSS, or product style notes. Atpio reads the file and updates the preview.",
+    uploadTitle: "Upload a design file",
   },
   zh: {
-    applied: "样式已应用到预览。点击保存修改后会正式生效。",
-    button: "应用 AI 样式",
+    applied: "样式已应用到预览。保存修改后会正式生效。",
+    button: "应用样式",
     description:
-      "描述你想要的视觉风格，Atpio 会把它转换成安全的 HTML feedback theme tokens。",
+      "描述你想要的视觉风格，Atpio 会把它转换成颜色、纹理、卡片质感、间距和控件样式。",
     empty: "请先描述你想要的风格。",
-    error: "无法生成这个样式。",
+    error: "暂时无法生成这个样式。",
     emptyFile: "这个文件是空的。",
     loadedFile: "已读取文件：",
     placeholder:
-      "例如：让它像一个干净的 B2B 数据分析产品，紧凑间距、柔和蓝色强调、白色卡片、细边框、不要重阴影。",
+      "例如：糖果感的千禧风，带金属气泡。安静的金融产品风格，带轻微网格。植物护肤品牌风格，柔和绿色和纸张纹理。未来感数据面板，带科技线条。",
     running: "设计中...",
-    title: "用 AI 调整样式",
+    title: "调整视觉风格",
     unsupported: "请上传 .md、.txt、.json 或 .css 文件。",
-    uploadApplied: "已根据上传文件应用样式。点击保存修改后会正式生效。",
+    uploadApplied: "已根据上传文件应用样式。保存修改后会正式生效。",
     uploadHint:
-      "上传品牌规范、设计 token、CSS 片段或设计说明，Atpio 会读取内容并更新预览。",
-    uploadTitle: "上传公司设计文件",
+      "上传品牌规范、设计变量、样式表或产品风格说明，Atpio 会读取内容并更新预览。",
+    uploadTitle: "上传设计文件",
   },
 } satisfies Record<UiLanguage, Record<string, string>>;

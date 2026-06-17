@@ -57,6 +57,21 @@ export const gadgetSettingsSchema = z.object({
   fontFamily: z.string().min(1).max(160).optional(),
   inputStyle: z.enum(["outlined", "filled", "underline"]).optional(),
   shadow: z.enum(["none", "soft", "strong"]).optional(),
+  backgroundPattern: z
+    .enum([
+      "none",
+      "dots",
+      "grid",
+      "waves",
+      "botanical",
+      "sparkles",
+      "circuit",
+      "paper",
+      "bubbles",
+    ])
+    .optional(),
+  decorativeIntensity: z.enum(["none", "subtle", "medium", "bold"]).optional(),
+  surfaceStyle: z.enum(["solid", "glass", "paper", "neon", "editorial"]).optional(),
   styleReferenceFileName: z.string().min(1).max(160).optional(),
   styleSource: z.enum(["default", "prompt", "upload"]).optional(),
   textColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),

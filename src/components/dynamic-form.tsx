@@ -27,7 +27,9 @@ type ExperienceTheme = {
   borderColor: string;
   chipStyle: CSSProperties;
   fieldGap: string;
+  formStyle: CSSProperties;
   fontFamily: string;
+  headerStyle: CSSProperties;
   inputStyle: CSSProperties;
   mutedBackground: string;
   padding: string;
@@ -135,22 +137,19 @@ export function DynamicForm({
           fontFamily: theme.fontFamily,
         }}
       >
-        <h2 className="text-lg font-semibold">
-          {t.thanks}
-        </h2>
-        <p className="mt-2 text-sm leading-6 opacity-80">
-          {successMessage}
-        </p>
+        <h2 className="text-lg font-semibold">{t.thanks}</h2>
+        <p className="mt-2 text-sm leading-6 opacity-80">{successMessage}</p>
       </div>
     );
   }
 
   return (
     <form
-      className={compact ? "relative" : "relative"}
+      className="relative"
       style={{
         color: theme.textColor,
         fontFamily: theme.fontFamily,
+        ...theme.formStyle,
       }}
       onSubmit={handleSubmit}
     >
@@ -179,12 +178,13 @@ export function DynamicForm({
           borderColor: theme.borderColor,
           boxShadow: theme.shadow,
           padding: theme.padding,
+          ...theme.headerStyle,
         }}
       >
         <h1 className={compact ? "text-xl font-semibold" : "text-2xl font-semibold"}>
           {schema.title}
         </h1>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
+        <p className="mt-2 text-sm leading-6 opacity-75">
           {schema.description}
         </p>
         {pages.length > 1 && activePage ? (
@@ -201,9 +201,7 @@ export function DynamicForm({
             >
               {t.step} {pageIndex + 1} {t.of} {pages.length}
             </p>
-            <h2 className="mt-1 text-base font-semibold">
-              {activePage.title}
-            </h2>
+            <h2 className="mt-1 text-base font-semibold">{activePage.title}</h2>
             {activePage.description ? (
               <p className="mt-1 text-sm leading-6 opacity-75">
                 {activePage.description}
@@ -285,7 +283,7 @@ const formCopy = {
     step: "Step",
     submit: "Submit feedback",
     submitting: "Submitting...",
-    submittingText: "Saving your response to Atpio.",
+    submittingText: "Saving your response.",
     submittingTitle: "Submitting feedback",
     thanks: "Thanks for the feedback.",
   },
@@ -297,7 +295,7 @@ const formCopy = {
     step: "第",
     submit: "提交反馈",
     submitting: "提交中...",
-    submittingText: "正在把你的回答保存到 Atpio。",
+    submittingText: "正在保存你的反馈。",
     submittingTitle: "正在提交反馈",
     thanks: "感谢你的反馈。",
   },
@@ -331,7 +329,8 @@ function getExperienceTheme(gadget?: GadgetSettings): ExperienceTheme {
   const inputBackground =
     gadget?.inputStyle === "filled" ? (isDark ? "#0f172a" : "#f8fafc") : backgroundColor;
   const inputBorder =
-    gadget?.inputStyle === "underline" ? "transparent transparent " + borderColor : borderColor;
+    gadget?.inputStyle === "underline" ? `transparent transparent ${borderColor}` : borderColor;
+  const surfaceStyle = gadget?.surfaceStyle ?? "solid";
   const primaryButtonStyle: CSSProperties = {
     background:
       gadget?.buttonStyle === "outline"
@@ -359,7 +358,21 @@ function getExperienceTheme(gadget?: GadgetSettings): ExperienceTheme {
       color: textColor,
     },
     fieldGap,
+    formStyle: getPatternStyle({
+      accentColor,
+      backgroundColor,
+      borderColor,
+      brandColor,
+      decorativeIntensity: gadget?.decorativeIntensity ?? "subtle",
+      pattern: gadget?.backgroundPattern ?? "none",
+    }),
     fontFamily: gadget?.fontFamily ?? "Inter, Arial, sans-serif",
+    headerStyle: getHeaderStyle({
+      accentColor,
+      borderColor,
+      isDark,
+      surfaceStyle,
+    }),
     inputStyle: {
       background: inputBackground,
       borderColor: inputBorder,
@@ -383,13 +396,191 @@ function getExperienceTheme(gadget?: GadgetSettings): ExperienceTheme {
     },
     shadow,
     successBackground: `${accentColor}14`,
-    surfaceColor: backgroundColor,
+    surfaceColor: getSurfaceColor({ backgroundColor, isDark, surfaceStyle }),
     textColor,
   };
 }
 
+function getSurfaceColor({
+  backgroundColor,
+  isDark,
+  surfaceStyle,
+}: {
+  backgroundColor: string;
+  isDark: boolean;
+  surfaceStyle: GadgetSettings["surfaceStyle"];
+}) {
+  if (surfaceStyle === "glass") {
+    return withAlpha(isDark ? "#020617" : "#ffffff", 0.78);
+  }
+
+  if (surfaceStyle === "paper") {
+    return isDark ? "#111827" : "#fffdf8";
+  }
+
+  if (surfaceStyle === "neon") {
+    return isDark ? "#020617" : "#fbfdff";
+  }
+
+  if (surfaceStyle === "editorial") {
+    return isDark ? "#0f172a" : "#fffaf2";
+  }
+
+  return backgroundColor;
+}
+
+function getHeaderStyle({
+  accentColor,
+  borderColor,
+  isDark,
+  surfaceStyle,
+}: {
+  accentColor: string;
+  borderColor: string;
+  isDark: boolean;
+  surfaceStyle: GadgetSettings["surfaceStyle"];
+}): CSSProperties {
+  if (surfaceStyle === "glass") {
+    return {
+      backdropFilter: "blur(18px)",
+      borderColor: withAlpha(borderColor, 0.75),
+    };
+  }
+
+  if (surfaceStyle === "paper") {
+    return {
+      backgroundImage:
+        "linear-gradient(135deg, rgba(255,255,255,0.36) 25%, transparent 25%), linear-gradient(315deg, rgba(15,23,42,0.03) 25%, transparent 25%)",
+      backgroundSize: "18px 18px",
+    };
+  }
+
+  if (surfaceStyle === "neon") {
+    return {
+      borderColor: accentColor,
+      boxShadow: `0 0 0 1px ${withAlpha(accentColor, 0.35)}, 0 24px 70px ${withAlpha(accentColor, isDark ? 0.25 : 0.16)}`,
+    };
+  }
+
+  if (surfaceStyle === "editorial") {
+    return {
+      borderRadius: "10px",
+      borderColor: withAlpha(borderColor, 0.9),
+    };
+  }
+
+  return {};
+}
+
+function getPatternStyle({
+  accentColor,
+  backgroundColor,
+  borderColor,
+  brandColor,
+  decorativeIntensity,
+  pattern,
+}: {
+  accentColor: string;
+  backgroundColor: string;
+  borderColor: string;
+  brandColor: string;
+  decorativeIntensity: GadgetSettings["decorativeIntensity"];
+  pattern: GadgetSettings["backgroundPattern"];
+}): CSSProperties {
+  if (!pattern || pattern === "none" || decorativeIntensity === "none") {
+    return {};
+  }
+
+  const opacity =
+    decorativeIntensity === "bold"
+      ? 0.26
+      : decorativeIntensity === "medium"
+        ? 0.17
+        : 0.1;
+  const accent = withAlpha(accentColor, opacity);
+  const brand = withAlpha(brandColor, opacity * 0.8);
+  const line = withAlpha(borderColor, opacity);
+
+  if (pattern === "dots") {
+    return {
+      backgroundColor,
+      backgroundImage: `radial-gradient(circle at 1px 1px, ${accent} 1.2px, transparent 0)`,
+      backgroundSize: "18px 18px",
+    };
+  }
+
+  if (pattern === "grid") {
+    return {
+      backgroundColor,
+      backgroundImage: `linear-gradient(${line} 1px, transparent 1px), linear-gradient(90deg, ${line} 1px, transparent 1px)`,
+      backgroundSize: "28px 28px",
+    };
+  }
+
+  if (pattern === "waves") {
+    return {
+      backgroundColor,
+      backgroundImage: `radial-gradient(ellipse at 12% 18%, ${accent}, transparent 34%), radial-gradient(ellipse at 88% 10%, ${brand}, transparent 32%), radial-gradient(ellipse at 50% 100%, ${line}, transparent 38%)`,
+    };
+  }
+
+  if (pattern === "botanical") {
+    return {
+      backgroundColor,
+      backgroundImage: `radial-gradient(ellipse 28px 12px at 20px 20px, ${accent}, transparent 70%), radial-gradient(ellipse 20px 9px at 56px 42px, ${brand}, transparent 72%)`,
+      backgroundSize: "96px 72px",
+    };
+  }
+
+  if (pattern === "sparkles") {
+    return {
+      backgroundColor,
+      backgroundImage: `radial-gradient(circle at 16px 18px, ${accent} 1.5px, transparent 2px), radial-gradient(circle at 46px 34px, ${brand} 1px, transparent 2px), radial-gradient(circle at 70px 12px, ${line} 1px, transparent 2px)`,
+      backgroundSize: "88px 64px",
+    };
+  }
+
+  if (pattern === "circuit") {
+    return {
+      backgroundColor,
+      backgroundImage: `linear-gradient(${line} 1px, transparent 1px), linear-gradient(90deg, ${line} 1px, transparent 1px), linear-gradient(90deg, transparent 46%, ${accent} 46% 48%, transparent 48%)`,
+      backgroundSize: "34px 34px, 34px 34px, 128px 128px",
+    };
+  }
+
+  if (pattern === "paper") {
+    return {
+      backgroundColor,
+      backgroundImage: `repeating-linear-gradient(0deg, transparent 0 11px, ${line} 12px), radial-gradient(circle at 20% 20%, ${accent}, transparent 28%)`,
+    };
+  }
+
+  if (pattern === "bubbles") {
+    return {
+      backgroundColor,
+      backgroundImage: `radial-gradient(circle at 18% 20%, ${accent} 0 16px, transparent 17px), radial-gradient(circle at 82% 16%, ${brand} 0 22px, transparent 23px), radial-gradient(circle at 52% 88%, ${line} 0 28px, transparent 29px)`,
+    };
+  }
+
+  return {};
+}
+
 function getReadableTextColor(backgroundColor: string) {
-  const hex = backgroundColor.trim().replace("#", "");
+  const rgb = hexToRgb(backgroundColor);
+  if (!rgb) return "#ffffff";
+
+  const luminance = (0.299 * rgb.red + 0.587 * rgb.green + 0.114 * rgb.blue) / 255;
+  return luminance > 0.58 ? "#020617" : "#ffffff";
+}
+
+function withAlpha(color: string, alpha: number) {
+  const rgb = hexToRgb(color);
+  if (!rgb) return color;
+  return `rgba(${rgb.red}, ${rgb.green}, ${rgb.blue}, ${alpha})`;
+}
+
+function hexToRgb(color: string) {
+  const hex = color.trim().replace("#", "");
   const normalized =
     hex.length === 3
       ? hex
@@ -398,14 +589,13 @@ function getReadableTextColor(backgroundColor: string) {
           .join("")
       : hex;
 
-  if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return "#ffffff";
+  if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return null;
 
-  const red = parseInt(normalized.slice(0, 2), 16);
-  const green = parseInt(normalized.slice(2, 4), 16);
-  const blue = parseInt(normalized.slice(4, 6), 16);
-  const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
-
-  return luminance > 0.58 ? "#020617" : "#ffffff";
+  return {
+    red: parseInt(normalized.slice(0, 2), 16),
+    green: parseInt(normalized.slice(2, 4), 16),
+    blue: parseInt(normalized.slice(4, 6), 16),
+  };
 }
 
 function FieldInput({
@@ -486,11 +676,7 @@ function FieldInput({
             return (
               <button
                 key={option}
-                className={
-                  selected
-                    ? "border px-3 py-2 text-sm"
-                    : "border px-3 py-2 text-sm"
-                }
+                className="border px-3 py-2 text-sm"
                 style={selected ? theme.selectedChipStyle : theme.chipStyle}
                 type="button"
                 onClick={() => onToggleMultiSelect(field.id, option)}

@@ -86,6 +86,9 @@ Return only valid JSON:
     "fontFamily": "CSS font stack",
     "inputStyle": "outlined | filled | underline",
     "shadow": "none | soft | strong",
+    "backgroundPattern": "none | dots | grid | waves | botanical | sparkles | circuit | paper | bubbles",
+    "decorativeIntensity": "none | subtle | medium | bold",
+    "surfaceStyle": "solid | glass | paper | neon | editorial",
     "styleSource": "${source}",
     "styleReferenceFileName": "optional uploaded file name"
   },
@@ -97,6 +100,9 @@ Rules:
 - Use accessible contrast.
 - Prefer hex colors.
 - If the guidance is vague, choose a polished modern SaaS style.
+- Make the visual style more expressive when the user asks for a specific direction such as Y2K, tech, botanical, beauty, finance, climate, editorial, playful, or luxury.
+- Use backgroundPattern, decorativeIntensity, and surfaceStyle to create variety without changing the form flow.
+- Match buttonLabel and successMessage to the likely language of the guidance.
 - Never include CSS classes, scripts, markdown, or prose outside JSON.`,
       temperature: 0.25,
     });
