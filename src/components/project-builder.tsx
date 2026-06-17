@@ -5,7 +5,7 @@ import { type FormEvent, useEffect, useState } from "react";
 import { createProjectAction } from "@/app/projects/actions";
 import { DynamicForm } from "@/components/dynamic-form";
 import { langPath, type UiLanguage } from "@/lib/i18n";
-import { publicMockProductUrl } from "@/lib/public-url";
+import { buildDemoProductUrl } from "@/lib/public-url";
 import type { ProjectSchema } from "@/lib/types";
 
 const builderCopy = {
@@ -27,6 +27,9 @@ const builderCopy = {
     save: "Save project",
     saving: "Saving...",
     preview: "Generated form preview",
+    emptyPreviewTitle: "Your generated form will appear here",
+    emptyPreviewDescription:
+      "Describe what you want to learn, then let Atpio design the best feedback flow.",
     reviseTitle: "Ask Atpio to revise",
     reviseText:
       "Give high-level feedback and Atpio will update the current form. For precise field edits, save the project and open project detail.",
@@ -56,6 +59,8 @@ const builderCopy = {
     saveDetail: "We are making this project available to your demo product.",
     saveError:
       "Could not save the project. Make sure the local Atpio server is running, then try again.",
+    generateError: "Atpio could not generate the form right now. Please try again in a moment.",
+    reviseError: "Atpio could not revise the form right now. Please try again in a moment.",
     saveToastTitle: "Project saved successfully.",
     saveToastText: "It is now available in All projects and can be tested in the demo product at",
     savedDetail:
@@ -82,6 +87,8 @@ const builderCopy = {
     save: "保存项目",
     saving: "保存中...",
     preview: "生成问卷预览",
+    emptyPreviewTitle: "生成后的问卷会显示在这里",
+    emptyPreviewDescription: "描述你想了解的问题，Atpio 会帮你设计合适的反馈流程。",
     reviseTitle: "让 Atpio 调整",
     reviseText: "写下整体修改意见，Atpio 会更新当前问卷。精确字段编辑请保存后进入项目详情。",
     reviseButton: "用 Atpio 调整",
@@ -104,6 +111,8 @@ const builderCopy = {
     reviseTitleLoading: "正在调整表单",
     saveDetail: "正在让这个项目可在示例产品中测试。",
     saveError: "无法保存项目。请确认 Atpio 服务正常运行，然后重试。",
+    generateError: "Atpio 暂时无法生成问卷。请稍后再试。",
+    reviseError: "Atpio 暂时无法调整问卷。请稍后再试。",
     saveToastTitle: "项目已保存。",
     saveToastText: "现在可以在所有项目里看到它，也可以在示例产品中测试：",
     savedDetail:
@@ -114,13 +123,6 @@ const builderCopy = {
     viewProjects: "查看所有项目",
   },
 } satisfies Record<UiLanguage, Record<string, string>>;
-const emptyPreviewSchema: ProjectSchema = {
-  title: "Your generated form will appear here",
-  description:
-    "Describe what you want to learn, then let Atpio design the best feedback flow.",
-  fields: [],
-};
-
 type ProjectBuilderProps = {
   generatedFromUrl?: boolean;
   initialBrief?: string;
@@ -138,15 +140,21 @@ export function ProjectBuilder({
   initialBrief = "",
   initialName = "",
   initialOutputLanguage = "en",
-  initialSchema = emptyPreviewSchema,
+  initialSchema,
   generationError = "",
   savedProjectId,
   uiLanguage = "en",
 }: ProjectBuilderProps) {
   const t = builderCopy[uiLanguage];
+  const emptyPreviewSchema: ProjectSchema = {
+    title: t.emptyPreviewTitle,
+    description: t.emptyPreviewDescription,
+    fields: [],
+  };
+  const startingSchema = initialSchema ?? emptyPreviewSchema;
   const [brief, setBrief] = useState(initialBrief);
   const [name, setName] = useState(initialName);
-  const [schema, setSchema] = useState<ProjectSchema>(initialSchema);
+  const [schema, setSchema] = useState<ProjectSchema>(startingSchema);
   const [outputLanguage, setOutputLanguage] = useState(initialOutputLanguage);
   const [revisionInstructions, setRevisionInstructions] = useState("");
   const [projectId, setProjectId] = useState(savedProjectId ?? "preview_project");
@@ -162,6 +170,10 @@ export function ProjectBuilder({
         ? builderCopy[uiLanguage].generatedReview
         : "",
   );
+  const demoProductUrl = buildDemoProductUrl({
+    lang: uiLanguage,
+    projectId: projectId === "preview_project" ? undefined : projectId,
+  });
 
   useEffect(() => {
     if (!showSavedToast) return;
@@ -223,9 +235,11 @@ export function ProjectBuilder({
       setStatus("idle");
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "Atpio could not generate the form right now.",
+        uiLanguage === "zh"
+          ? t.generateError
+          : error instanceof Error
+            ? error.message
+            : t.generateError,
       );
       setStatus("idle");
     }
@@ -309,9 +323,11 @@ export function ProjectBuilder({
       setStatus("idle");
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "Atpio could not revise the form right now.",
+        uiLanguage === "zh"
+          ? t.reviseError
+          : error instanceof Error
+            ? error.message
+            : t.reviseError,
       );
       setStatus("idle");
     }
@@ -369,7 +385,7 @@ export function ProjectBuilder({
             <div>
               <p className="font-semibold">{t.saveToastTitle}</p>
               <p className="mt-1 text-sm leading-6 text-slate-600">
-                {t.saveToastText} {publicMockProductUrl}.
+                {t.saveToastText} {demoProductUrl}.
               </p>
             </div>
           </div>
@@ -387,6 +403,7 @@ export function ProjectBuilder({
           readOnly
           value={JSON.stringify(schema)}
         />
+        <input name="lang" type="hidden" value={uiLanguage} />
         <div>
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-medium text-emerald-700">
@@ -578,7 +595,7 @@ export function ProjectBuilder({
               <div>
                 <p className="font-semibold">{t.saveToastTitle}</p>
                 <p className="mt-1 text-emerald-800">
-                  {t.savedDetail} {publicMockProductUrl}.
+                  {t.savedDetail} {demoProductUrl}.
                 </p>
                 <p className="mt-2 text-xs text-emerald-700">
                   {uiLanguage === "zh" ? "嵌入路径" : "Embed path"}: /embed/{projectId}
@@ -594,7 +611,7 @@ export function ProjectBuilder({
               </Link>
               <a
                 className="inline-flex h-9 items-center rounded-full border border-emerald-200 bg-white px-3 text-sm font-medium text-emerald-800"
-                href={publicMockProductUrl}
+                href={demoProductUrl}
                 rel="noreferrer"
                 target="_blank"
               >

@@ -5,7 +5,7 @@ import { ActiveProjectButton } from "@/components/active-project-button";
 import { SignOutButton } from "@/components/sign-out-button";
 import { getUiLanguageFromParams, langPath, type UiLanguage } from "@/lib/i18n";
 import { getUserByEmail, listProjects } from "@/lib/store";
-import { publicAppUrl } from "@/lib/public-url";
+import { buildDemoProductUrl, publicAppUrl } from "@/lib/public-url";
 
 export const dynamic = "force-dynamic";
 
@@ -63,8 +63,6 @@ export default async function ProjectsPage({
     ownerEmail ? getUserByEmail(ownerEmail) : null,
   ]);
   const activeProjectId = account?.activeProjectId ?? projects[0]?.id;
-  const mockProductUrl =
-    process.env.NEXT_PUBLIC_MOCK_PRODUCT_URL ?? "https://mock-product.vercel.app";
   const workspaceKey = account?.publicKey;
   const nextLang = lang === "zh" ? "en" : "zh";
 
@@ -120,7 +118,10 @@ export default async function ProjectsPage({
               <div className="flex shrink-0 flex-wrap gap-2">
                 <a
                   className="inline-flex h-10 items-center justify-center rounded-full bg-slate-950 px-5 font-medium text-white"
-                  href={`${mockProductUrl}?workspaceKey=${encodeURIComponent(workspaceKey)}`}
+                  href={buildDemoProductUrl({
+                    lang,
+                    workspaceKey,
+                  })}
                   rel="noreferrer"
                   target="_blank"
                 >

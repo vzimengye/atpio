@@ -21,14 +21,19 @@ function parseSchema(value: FormDataEntryValue | null): ProjectSchema | undefine
 }
 
 export async function POST(request: Request) {
+  const formData = await request.formData();
+  const lang = String(formData.get("lang") ?? "en") === "zh" ? "zh" : "en";
   const user = await requireAdmin();
   if (!user) {
-    return NextResponse.redirect(new URL("/login", request.url), { status: 303 });
+    return NextResponse.redirect(
+      new URL(lang === "zh" ? "/login?lang=zh" : "/login", request.url),
+      { status: 303 },
+    );
   }
 
-  const formData = await request.formData();
   const brief = String(formData.get("brief") ?? "").trim();
   const fallbackUrl = new URL("/projects/new", request.url);
+  if (lang === "zh") fallbackUrl.searchParams.set("lang", "zh");
 
   if (!brief) {
     fallbackUrl.searchParams.set("error", "brief_required");
@@ -84,6 +89,7 @@ export async function POST(request: Request) {
   await saveProject(project);
 
   const nextUrl = new URL("/projects/new", request.url);
+  if (lang === "zh") nextUrl.searchParams.set("lang", "zh");
   nextUrl.searchParams.set("name", name);
   nextUrl.searchParams.set("brief", brief);
   nextUrl.searchParams.set("saved", project.id);

@@ -1,4 +1,4 @@
-const skillMarkdown = `# Atpio 示例产品接入指南 / Mock Product Integration Guide
+const skillMarkdown = `# Atpio 示例产品接入指南 / Demo Product Integration Guide
 
 ## 中文版本
 
@@ -26,6 +26,8 @@ const skillMarkdown = `# Atpio 示例产品接入指南 / Mock Product Integrati
 5. 普通用户无需登录 Atpio，就可以在你的网站或应用里填写反馈。
 
 如果你还没有手动选择展示项目，Atpio 会默认使用该项目空间里最新保存的项目。
+
+反馈按钮的文字可以在 Atpio 项目详情页的接入设置里修改。如果某个页面需要临时覆盖按钮文字，也可以在脚本里传入 \`data-atpio-label\`。
 
 ### 固定展示某一个项目
 
@@ -93,7 +95,7 @@ Use a workspace key when you want the host product to follow whichever project i
   src="https://atpio.vercel.app/gadget.js"
   data-atpio-workspace-key="YOUR_WORKSPACE_KEY"
   data-atpio-position="bottom-right"
-  data-atpio-label="Share feedback"
+  data-atpio-label="Give feedback"
 ></script>
 \`\`\`
 
@@ -107,6 +109,8 @@ How it works:
 
 If no active project is selected, Atpio loads the newest project in that workspace.
 
+The feedback button label can be edited in the Atpio project detail page. For a page-specific override, pass \`data-atpio-label\` in the script.
+
 ### Fixed project embed
 
 Use this when the host product should always load one specific Atpio project.
@@ -116,7 +120,7 @@ Use this when the host product should always load one specific Atpio project.
   src="https://atpio.vercel.app/gadget.js"
   data-project-id="YOUR_PROJECT_ID"
   data-atpio-position="bottom-right"
-  data-atpio-label="Share feedback"
+  data-atpio-label="Give feedback"
 ></script>
 \`\`\`
 
@@ -153,8 +157,8 @@ window.addEventListener("atpio:success", function (event) {
 ### Local test
 
 1. Start Atpio on \`http://127.0.0.1:3000\`.
-2. Start the mock product on \`http://127.0.0.1:4000\`.
-3. Open the mock product with \`?workspaceKey=YOUR_WORKSPACE_KEY\`.
+2. Start the demo product on \`http://127.0.0.1:4000\`.
+3. Open the demo product with \`?workspaceKey=YOUR_WORKSPACE_KEY\`.
 4. Confirm the feedback button opens the Atpio form.
 5. Submit feedback and confirm the response appears in Atpio.
 `;
@@ -164,7 +168,7 @@ export async function GET() {
     headers: {
       "Cache-Control": "public, max-age=300",
       "Content-Disposition":
-        'attachment; filename="atpio-mock-product-integration-guide.md"',
+        'attachment; filename="atpio-demo-product-integration-guide.md"',
       "Content-Type": "text/markdown; charset=utf-8",
     },
   });

@@ -6,9 +6,7 @@ export default function DemoHostPage() {
   return (
     <main className="min-h-screen bg-[#f7f1e8] text-slate-950">
       <section className="mx-auto max-w-4xl px-6 py-16">
-        <p className="text-sm font-medium text-emerald-700">
-          Mock host product
-        </p>
+        <p className="text-sm font-medium text-emerald-700">Demo host product</p>
         <h1 className="mt-2 text-4xl font-semibold">
           This page simulates another product using Atpio.
         </h1>
@@ -22,7 +20,6 @@ export default function DemoHostPage() {
   data-project-id="${sampleProject.id}"
   data-atpio-position="bottom-right"
   data-atpio-theme="light"
-  data-atpio-label="Share feedback"
   data-atpio-meta-page="demo-host"
   data-atpio-meta-user-segment="trial"
   data-atpio-meta-experiment-id="onboarding-v1"
@@ -48,7 +45,6 @@ export default function DemoHostPage() {
       </Script>
       <Script
         src="/gadget.js"
-        data-atpio-label="Share feedback"
         data-atpio-meta-experiment-id="onboarding-v1"
         data-atpio-meta-page="demo-host"
         data-atpio-meta-user-segment="trial"

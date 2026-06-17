@@ -4,9 +4,12 @@ export async function GET() {
   var currentScript = document.currentScript;
   var projectId = currentScript && currentScript.getAttribute("data-project-id");
   var workspaceKey = currentScript && currentScript.getAttribute("data-atpio-workspace-key");
+  var language = currentScript && currentScript.getAttribute("data-atpio-language") || "en";
   var position = currentScript && currentScript.getAttribute("data-atpio-position") || "bottom-right";
   var theme = currentScript && currentScript.getAttribute("data-atpio-theme") || "light";
-  var label = currentScript && currentScript.getAttribute("data-atpio-label") || "Feedback";
+  var labelAttr = currentScript && currentScript.getAttribute("data-atpio-label");
+  var defaultLabel = language === "zh" ? "提交反馈" : "Feedback";
+  var label = labelAttr || defaultLabel;
   var brandColor = currentScript && currentScript.getAttribute("data-atpio-brand-color") || (theme === "dark" ? "#f7f1e8" : "#020617");
   var accentColor = currentScript && currentScript.getAttribute("data-atpio-accent-color") || "#10b981";
   var buttonShape = currentScript && currentScript.getAttribute("data-atpio-button-shape") || "pill";
@@ -22,7 +25,25 @@ export async function GET() {
   }
   var origin = new URL(currentScript.src).origin;
 
-  function mount(resolvedProjectId) {
+  function applyGadgetSettings(gadget) {
+    if (!gadget) return;
+    if (
+      !labelAttr &&
+      gadget.buttonLabel &&
+      !(language === "zh" && gadget.buttonLabel === "Feedback")
+    ) {
+      label = gadget.buttonLabel;
+    }
+    if (!(currentScript && currentScript.getAttribute("data-atpio-position")) && gadget.position) position = gadget.position;
+    if (!(currentScript && currentScript.getAttribute("data-atpio-theme")) && gadget.theme) theme = gadget.theme;
+    if (!(currentScript && currentScript.getAttribute("data-atpio-brand-color")) && gadget.brandColor) brandColor = gadget.brandColor;
+    if (!(currentScript && currentScript.getAttribute("data-atpio-accent-color")) && gadget.accentColor) accentColor = gadget.accentColor;
+    if (!(currentScript && currentScript.getAttribute("data-atpio-button-shape")) && gadget.buttonShape) buttonShape = gadget.buttonShape;
+    if (!(currentScript && currentScript.getAttribute("data-atpio-font-family")) && gadget.fontFamily) fontFamily = gadget.fontFamily;
+  }
+
+  function mount(resolvedProjectId, gadgetSettings) {
+  applyGadgetSettings(gadgetSettings);
   projectId = resolvedProjectId;
   if (!projectId) {
     console.warn("Atpio gadget: missing project. Add data-project-id or data-atpio-workspace-key.");
@@ -109,7 +130,17 @@ export async function GET() {
   }
 
   if (projectId) {
-    mount(projectId);
+    fetch(origin + "/api/projects/" + encodeURIComponent(projectId) + "/schema?t=" + Date.now(), { cache: "no-store" })
+      .then(function (response) {
+        if (!response.ok) throw new Error("Could not load Atpio project settings.");
+        return response.json();
+      })
+      .then(function (payload) {
+        mount(projectId, payload && payload.gadget);
+      })
+      .catch(function () {
+        mount(projectId);
+      });
     return;
   }
 
@@ -122,7 +153,10 @@ export async function GET() {
       return response.json();
     })
     .then(function (payload) {
-      mount(payload && payload.project && payload.project.id);
+      mount(
+        payload && payload.project && payload.project.id,
+        payload && payload.project && payload.project.gadget
+      );
     })
     .catch(function (error) {
       console.warn("Atpio gadget: " + error.message);

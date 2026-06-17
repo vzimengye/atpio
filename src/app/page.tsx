@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { SignOutButton } from "@/components/sign-out-button";
 import { getUiLanguageFromParams, langPath, type UiLanguage } from "@/lib/i18n";
 import { sampleProject } from "@/lib/mock-data";
+import { buildDemoProductUrl } from "@/lib/public-url";
 import { listProjects, listResponses } from "@/lib/store";
 import type { DataProject, FormField } from "@/lib/types";
 
@@ -29,12 +30,12 @@ const copy = {
     responses: "Responses",
     status: "Status",
     required: "Required",
-    integrationTitle: "Mock Product Integration skill",
+    integrationTitle: "Demo product integration guide",
     integrationText:
       "Give this markdown guide to partners or customers so they can install the Atpio gadget in their own product. It covers workspace keys, fixed project IDs, metadata, events, and local testing.",
     download: "Download integration guide",
-    mock: "Open mock product",
-    flowTitle: "How customers use it",
+    mock: "Open demo product",
+    flowTitle: "How it works",
     flow: [
       "Register or sign in to Atpio.",
       "Create a project by describing the product question you want to answer.",
@@ -68,7 +69,7 @@ const copy = {
       "这个文档可以给合作方或客户使用，说明如何把 Atpio 的反馈入口装进他们自己的产品里，包括项目空间密钥、固定项目编号、附加信息、事件通知和本地测试。",
     download: "下载接入指南",
     mock: "打开示例产品",
-    flowTitle: "客户使用流程",
+    flowTitle: "使用流程",
     flow: [
       "注册或登录 Atpio。",
       "用自然语言描述想了解的产品问题，创建一个反馈项目。",
@@ -326,7 +327,7 @@ export default async function Home({
                 </a>
                 <a
                   className="inline-flex h-10 items-center justify-center rounded-full border border-stone-300 bg-white/70 px-4 text-sm font-medium text-slate-700"
-                  href="https://mock-product.vercel.app"
+                  href={buildDemoProductUrl({ lang })}
                   rel="noreferrer"
                   target="_blank"
                 >

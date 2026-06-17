@@ -16,11 +16,11 @@ function firstParam(value: string | string[] | undefined) {
 export default async function NewProjectPage({
   searchParams,
 }: NewProjectPageProps) {
-  const session = await auth();
-  if (!session?.user) redirect("/login");
-
   const params = await searchParams;
   const uiLanguage = getUiLanguageFromParams(params);
+  const session = await auth();
+  if (!session?.user) redirect(uiLanguage === "zh" ? "/login?lang=zh" : "/login");
+
   const brief = firstParam(params.brief);
   const outputLanguage = getOutputLanguage(
     params.outputLanguage ?? params.questionnaireLanguage ?? params.language,
@@ -34,9 +34,11 @@ export default async function NewProjectPage({
       aiResult = await generateSchemaWithPpio(brief, outputLanguage);
     } catch (error) {
       generationError =
-        error instanceof SchemaGenerationError
-          ? error.message
-          : "Atpio could not generate the form right now.";
+        uiLanguage === "zh"
+          ? "Atpio 暂时无法生成问卷。请稍后再试。"
+          : error instanceof SchemaGenerationError
+            ? error.message
+            : "Atpio could not generate the form right now.";
     }
   }
   const initialBrief = brief ?? undefined;

@@ -27,18 +27,41 @@
         margin: 0 auto;
       }
 
+      .topbar {
+        align-items: center;
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+      }
+
       .eyebrow {
         color: #047857;
         font-size: 14px;
         font-weight: 700;
-        margin: 0 0 12px;
+        margin: 0;
+      }
+
+      .language-toggle {
+        align-items: center;
+        background: #020617;
+        border: 1px solid #020617;
+        border-radius: 999px;
+        color: #fff;
+        cursor: pointer;
+        display: inline-flex;
+        font-size: 14px;
+        font-weight: 700;
+        height: 40px;
+        justify-content: center;
+        min-width: 72px;
+        padding: 0 16px;
       }
 
       h1 {
         font-size: clamp(36px, 6vw, 64px);
         line-height: 1;
         letter-spacing: 0;
-        margin: 0;
+        margin: 28px 0 0;
         max-width: 760px;
       }
 
@@ -46,7 +69,7 @@
         color: #475569;
         font-size: 18px;
         line-height: 1.7;
-        max-width: 680px;
+        max-width: 720px;
       }
 
       .panel {
@@ -100,16 +123,25 @@
   <body>
     <main>
       <div class="shell">
-        <p class="eyebrow">Separate demo product</p>
-        <h1>This is a host product example.</h1>
+        <div class="topbar">
+          <p class="eyebrow" data-copy="eyebrow">Demo product</p>
+          <button class="language-toggle" id="language-toggle" type="button">
+            中
+          </button>
+        </div>
+
+        <h1 data-copy="title">This is a host product example.</h1>
         <p>
-          It shows how another website or product can load an Atpio feedback
-          form. The feedback button is injected by Atpio running on
+          <span data-copy="introBefore">
+            It shows how another website or product can load an Atpio feedback
+            form. The feedback button is injected by Atpio running on
+          </span>
           <code id="atpio-origin-label">localhost:3000</code>.
         </p>
+
         <section class="panel">
-          <strong>Integration preview</strong>
-          <p>
+          <strong data-copy="panelTitle">Integration preview</strong>
+          <p data-copy="panelBody">
             Click the feedback button in the bottom-right corner. It should open
             the Atpio project selected for this account. If no workspace key is
             provided, the page uses a sample project.
@@ -118,11 +150,19 @@
           <div class="actions">
             <a
               class="button-link primary"
+              data-copy="guide"
               href="https://atpio.vercel.app/resources/mock-product-integration-skill"
             >
               Download integration guide
             </a>
-            <a class="button-link" href="https://atpio.vercel.app" target="_blank" rel="noreferrer">
+            <a
+              class="button-link"
+              data-copy="openAtpio"
+              href="https://atpio.vercel.app"
+              id="open-atpio-link"
+              rel="noreferrer"
+              target="_blank"
+            >
               Open Atpio
             </a>
           </div>
@@ -130,6 +170,84 @@
       </div>
     </main>
     <script>
+      var copy = {
+        en: {
+          documentTitle: "Demo Product using Atpio",
+          eyebrow: "Demo product",
+          title: "This is a host product example.",
+          introBefore:
+            "It shows how another website or product can load an Atpio feedback form. The feedback button is injected by Atpio running on",
+          panelTitle: "Integration preview",
+          panelBody:
+            "Click the feedback button in the bottom-right corner. It should open the Atpio project selected for this account. If no workspace key is provided, the page uses a sample project.",
+          loading: "Loading Atpio project...",
+          loaded: "Loaded Atpio project: ",
+          loadedFixed: "Loaded selected Atpio project: ",
+          loadedSample: "Loaded sample project.",
+          loadFailed: "Could not load an Atpio project. Using sample project.",
+          guide: "Download integration guide",
+          openAtpio: "Open Atpio",
+          languageToggle: "中",
+        },
+        zh: {
+          documentTitle: "使用 Atpio 的示例产品",
+          eyebrow: "示例产品",
+          title: "这是一个宿主产品示例。",
+          introBefore:
+            "它展示了其他网站或产品如何加载 Atpio 反馈问卷。页面右下角的反馈按钮由 Atpio 注入，当前连接到",
+          panelTitle: "接入预览",
+          panelBody:
+            "点击右下角的反馈按钮，它会打开这个账号选择的 Atpio 项目。如果没有提供项目空间密钥，页面会使用示例项目。",
+          loading: "正在加载 Atpio 项目...",
+          loaded: "已加载 Atpio 项目：",
+          loadedFixed: "已加载指定 Atpio 项目：",
+          loadedSample: "已加载示例项目。",
+          loadFailed: "无法加载 Atpio 项目，已使用示例项目。",
+          guide: "下载接入指南",
+          openAtpio: "打开 Atpio",
+          languageToggle: "EN",
+        },
+      };
+
+      var query = new URLSearchParams(window.location.search);
+      var initialLanguage =
+        query.get("lang") ||
+        query.get("language") ||
+        window.localStorage.getItem("atpioDemoLanguage") ||
+        (navigator.language && navigator.language.toLowerCase().startsWith("zh")
+          ? "zh"
+          : "en");
+      var language = initialLanguage === "zh" ? "zh" : "en";
+      var currentStatus = { state: "loading", projectName: "", fixed: false };
+
+      function withLanguage(url) {
+        var nextUrl = new URL(url, window.location.href);
+        nextUrl.searchParams.set("lang", language);
+        return nextUrl.toString();
+      }
+
+      function setLanguage(nextLanguage) {
+        language = nextLanguage === "zh" ? "zh" : "en";
+        window.localStorage.setItem("atpioDemoLanguage", language);
+        document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
+        document.title = copy[language].documentTitle;
+
+        Object.keys(copy[language]).forEach(function (key) {
+          var node = document.querySelector("[data-copy='" + key + "']");
+          if (node) node.textContent = copy[language][key];
+        });
+
+        var toggle = document.getElementById("language-toggle");
+        if (toggle) toggle.textContent = copy[language].languageToggle;
+
+        var openAtpioLink = document.getElementById("open-atpio-link");
+        if (openAtpioLink) {
+          openAtpioLink.href = withLanguage(atpioAppUrl);
+        }
+
+        renderStatus();
+      }
+
       window.onAtpioSuccess = function (detail) {
         console.log("Atpio success callback", detail);
       };
@@ -154,72 +272,117 @@
         atpioOriginLabel.textContent = atpioAppUrl.replace(/^https?:\/\//, "");
       }
 
-      var query = new URLSearchParams(window.location.search);
+      setLanguage(language);
+
+      var languageToggle = document.getElementById("language-toggle");
+      if (languageToggle) {
+        languageToggle.addEventListener("click", function () {
+          var nextLanguage = language === "zh" ? "en" : "zh";
+          var nextUrl = new URL(window.location.href);
+          nextUrl.searchParams.set("lang", nextLanguage);
+          window.history.replaceState(null, "", nextUrl.toString());
+          setLanguage(nextLanguage);
+          if (mountedProjectId) {
+            loadAtpioGadget(mountedProjectId);
+          }
+        });
+      }
+
       var workspaceKey =
         query.get("workspaceKey") ||
         window.localStorage.getItem("atpioWorkspaceKey") ||
         "";
+      var fixedProjectId = query.get("projectId") || "";
+      var customLabel = query.get("label") || "";
+      var mountedProjectId = "";
+
       if (workspaceKey) {
         window.localStorage.setItem("atpioWorkspaceKey", workspaceKey);
       }
 
+      function setStatus(state, projectName, fixed) {
+        currentStatus = {
+          state: state || "loading",
+          projectName: projectName || "",
+          fixed: Boolean(fixed),
+        };
+        renderStatus();
+      }
+
+      function renderStatus() {
+        var status = document.getElementById("atpio-status");
+        if (!status) return;
+        status.setAttribute("data-state", currentStatus.state || "");
+        if (currentStatus.state === "loaded") {
+          status.textContent = currentStatus.projectName
+            ? (currentStatus.fixed ? copy[language].loadedFixed : copy[language].loaded) +
+              currentStatus.projectName
+            : copy[language].loadedSample;
+          return;
+        }
+        if (currentStatus.state === "error") {
+          status.textContent = copy[language].loadFailed;
+          return;
+        }
+        status.textContent = copy[language].loading;
+      }
+
       function loadAtpioGadget(projectId) {
+        mountedProjectId = projectId;
         var oldRoot = document.querySelector("[data-atpio-root]");
         if (oldRoot) oldRoot.remove();
-        var oldScript = document.querySelector("[data-atpio-mock-script]");
+        var oldScript = document.querySelector("[data-atpio-demo-script]");
         if (oldScript) oldScript.remove();
 
         var script = document.createElement("script");
         script.src = atpioAppUrl + "/gadget.js";
-        script.setAttribute("data-atpio-mock-script", "true");
-        if (workspaceKey && projectId !== "project_onboarding_feedback") {
+        script.setAttribute("data-atpio-demo-script", "true");
+        if (workspaceKey && !fixedProjectId) {
           script.setAttribute("data-atpio-workspace-key", workspaceKey);
         } else {
           script.setAttribute("data-project-id", projectId);
         }
-        script.setAttribute("data-atpio-position", "bottom-right");
-        script.setAttribute("data-atpio-theme", "light");
-        script.setAttribute("data-atpio-label", "Share feedback");
+        script.setAttribute("data-atpio-language", language);
         script.setAttribute("data-atpio-meta-page", "demo-product");
         script.setAttribute("data-atpio-meta-user-segment", "trial");
         script.setAttribute("data-atpio-meta-experiment-id", "latest-project");
         script.setAttribute("data-atpio-success-callback", "onAtpioSuccess");
+        if (customLabel) {
+          script.setAttribute("data-atpio-label", customLabel);
+        }
         document.body.appendChild(script);
       }
 
-      var latestUrl = new URL(atpioAppUrl + "/api/projects/latest");
-      latestUrl.searchParams.set("t", String(Date.now()));
-      if (workspaceKey) latestUrl.searchParams.set("workspaceKey", workspaceKey);
+      if (fixedProjectId) {
+        setStatus("loaded", fixedProjectId, true);
+        loadAtpioGadget(fixedProjectId);
+      } else {
+        var latestUrl = new URL(atpioAppUrl + "/api/projects/latest");
+        latestUrl.searchParams.set("t", String(Date.now()));
+        if (workspaceKey) latestUrl.searchParams.set("workspaceKey", workspaceKey);
 
-      fetch(latestUrl.toString(), {
-        cache: "no-store",
-      })
-        .then(function (response) {
-          if (!response.ok) throw new Error("Could not load latest project.");
-          return response.json();
+        setStatus("loading");
+        fetch(latestUrl.toString(), {
+          cache: "no-store",
         })
-        .then(function (payload) {
-          var latestProject = payload.project;
-          var projectId = latestProject
-            ? latestProject.id
-            : "project_onboarding_feedback";
-          var status = document.getElementById("atpio-status");
-          if (status) {
-            status.textContent = latestProject
-              ? "Loaded Atpio project: " + latestProject.name
-              : "Loaded sample project.";
-          }
-          loadAtpioGadget(projectId);
-        })
-        .catch(function (error) {
-          console.warn("Atpio demo product: falling back to sample project.", error);
-          var status = document.getElementById("atpio-status");
-          if (status) {
-            status.textContent = "Could not load an Atpio project. Using sample project.";
-          }
-          loadAtpioGadget("project_onboarding_feedback");
-        });
+          .then(function (response) {
+            if (!response.ok) throw new Error("Could not load latest project.");
+            return response.json();
+          })
+          .then(function (payload) {
+            var latestProject = payload.project;
+            var projectId = latestProject
+              ? latestProject.id
+              : "project_onboarding_feedback";
+            setStatus("loaded", latestProject ? latestProject.name : "");
+            loadAtpioGadget(projectId);
+          })
+          .catch(function (error) {
+            console.warn("Atpio demo product: falling back to sample project.", error);
+            setStatus("error");
+            loadAtpioGadget("project_onboarding_feedback");
+          });
+      }
     </script>
   </body>
 </html>
-
