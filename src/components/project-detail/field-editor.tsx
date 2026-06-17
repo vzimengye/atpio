@@ -67,42 +67,54 @@ export function FieldEditor({
   const t = copy[uiLanguage];
   const isChoice =
     field.type === "single_select" || field.type === "multi_select";
+  const currentPageTitle =
+    pages.find((page) => page.id === field.pageId)?.title ?? t.noPage;
 
   return (
     <div className="grid gap-3 rounded-xl border border-stone-200 bg-white p-4">
-      <div className="flex flex-wrap gap-2">
-        <button
-          className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
-          disabled={!canMoveUp}
-          onClick={onMoveUp}
-          type="button"
-        >
-          {t.up}
-        </button>
-        <button
-          className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
-          disabled={!canMoveDown}
-          onClick={onMoveDown}
-          type="button"
-        >
-          {t.down}
-        </button>
-        {onDuplicate ? (
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-slate-950">
+            {field.label || t.untitledQuestion}
+          </p>
+          <p className="mt-1 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
+            {t.belongsToPage}: {currentPageTitle}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
           <button
-            className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700"
-            onClick={onDuplicate}
+            className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
+            disabled={!canMoveUp}
+            onClick={onMoveUp}
             type="button"
           >
-            {t.copy}
+            {t.up}
           </button>
-        ) : null}
-        <button
-          className="h-9 rounded-md border border-red-200 px-3 text-sm font-medium text-red-700"
-          onClick={onRemove}
-          type="button"
-        >
-          {t.remove}
-        </button>
+          <button
+            className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700 disabled:opacity-40"
+            disabled={!canMoveDown}
+            onClick={onMoveDown}
+            type="button"
+          >
+            {t.down}
+          </button>
+          {onDuplicate ? (
+            <button
+              className="h-9 rounded-md border border-stone-300 px-3 text-sm font-medium text-slate-700"
+              onClick={onDuplicate}
+              type="button"
+            >
+              {t.copy}
+            </button>
+          ) : null}
+          <button
+            className="h-9 rounded-md border border-red-200 px-3 text-sm font-medium text-red-700"
+            onClick={onRemove}
+            type="button"
+          >
+            {t.remove}
+          </button>
+        </div>
       </div>
       <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
         <label className="min-w-0 text-sm">
@@ -205,6 +217,7 @@ export function FieldEditor({
 
 const copy = {
   en: {
+    belongsToPage: "Page",
     copy: "Copy",
     down: "Down",
     fieldId: "Field ID",
@@ -216,20 +229,23 @@ const copy = {
     remove: "Remove",
     required: "Required",
     type: "Type",
+    untitledQuestion: "Untitled question",
     up: "Up",
   },
   zh: {
+    belongsToPage: "所属页面",
     copy: "复制",
     down: "下移",
     fieldId: "字段编号",
     label: "问题文案",
     noPage: "不分页面",
     options: "选项，用逗号分隔",
-    page: "页面",
+    page: "所属页面",
     placeholder: "填写提示",
     remove: "删除",
     required: "必填",
     type: "题型",
+    untitledQuestion: "未命名问题",
     up: "上移",
   },
 } satisfies Record<UiLanguage, Record<string, string>>;

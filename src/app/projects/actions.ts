@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 import { SchemaGenerationError } from "@/ai/generate-schema";
 import { generateStyle, StyleGenerationError } from "@/ai/generate-style";
 import { requireAdmin } from "@/lib/auth-guard";
-import { defaultGadgetSettings } from "@/lib/gadget-defaults";
+import { getLocalizedGadgetDefaults } from "@/lib/gadget-defaults";
 import { generateSchemaWithPpio } from "@/lib/ppio-schema";
 import { projectIdFromName, projectNameFromBrief } from "@/lib/schema-generator";
 import { getProject, saveProject, setActiveProjectForUser } from "@/lib/store";
@@ -48,7 +48,7 @@ export async function createProjectAction(input: unknown) {
     name,
     brief,
     schema: generated.schema,
-    gadget: defaultGadgetSettings,
+    gadget: getLocalizedGadgetDefaults(parsed.data.outputLanguage),
     responseCount: 0,
     status: "draft",
     updatedAt: now.slice(0, 10),

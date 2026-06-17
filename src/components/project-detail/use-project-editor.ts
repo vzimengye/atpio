@@ -7,6 +7,8 @@ import {
   buildWorkspaceEmbedCode,
 } from "@/components/project-detail/embed-code";
 import { cleanValidation } from "@/components/project-detail/validation-utils";
+import { localizeDefaultGadgetText } from "@/lib/gadget-defaults";
+import type { UiLanguage } from "@/lib/i18n";
 import type {
   DataProject,
   FormField,
@@ -30,10 +32,21 @@ function makeUniqueFieldId(baseId: string, fields: FormField[]) {
   return nextId;
 }
 
-export function useProjectEditor(initialProject: DataProject, workspaceKey?: string) {
-  const [project, setProject] = useState(initialProject);
+export function useProjectEditor(
+  initialProject: DataProject,
+  workspaceKey?: string,
+  uiLanguage: UiLanguage = "en",
+) {
+  const localizedInitialProject = useMemo(
+    () => ({
+      ...initialProject,
+      gadget: localizeDefaultGadgetText(initialProject.gadget, uiLanguage),
+    }),
+    [initialProject, uiLanguage],
+  );
+  const [project, setProject] = useState(localizedInitialProject);
   const [schemaText, setSchemaText] = useState(
-    JSON.stringify(initialProject.schema, null, 2),
+    JSON.stringify(localizedInitialProject.schema, null, 2),
   );
   const [status, setStatus] = useState<SaveStatus>("idle");
   const embedCode = useMemo(() => buildEmbedCode(project), [project]);
