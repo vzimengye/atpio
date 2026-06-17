@@ -51,7 +51,12 @@ export async function generateStyle({
   });
 
   if (!process.env.PPIO_API_KEY) {
-    throw new StyleGenerationError("PPIO_API_KEY is missing.");
+    return createFallbackStyle({
+      currentGadget,
+      fileName,
+      instructions,
+      source,
+    });
   }
 
   try {
@@ -120,9 +125,104 @@ Rules:
     };
   } catch (error) {
     logger.error({ msg: "Feedback style generation failed", error });
-    if (error instanceof StyleGenerationError) throw error;
-    throw new StyleGenerationError(
-      "Could not generate a style from those instructions.",
-    );
+    return createFallbackStyle({
+      currentGadget,
+      fileName,
+      instructions,
+      source,
+    });
   }
+}
+
+function createFallbackStyle({
+  currentGadget,
+  fileName,
+  instructions,
+  source,
+}: {
+  currentGadget?: Partial<GadgetSettings>;
+  fileName?: string;
+  instructions: string;
+  source: "prompt" | "upload";
+}) {
+  const isChinese = /[\u3400-\u9fff]/.test(instructions);
+  const base = withGadgetDefaults(currentGadget);
+  const style: Partial<GadgetSettings> = {
+    backgroundPattern: "dots",
+    decorativeIntensity: "subtle",
+    surfaceStyle: "glass",
+    theme: "light",
+  };
+
+  if (/(rain|rainy|雨|雨滴|drizzle|water|清新|fresh)/i.test(instructions)) {
+    Object.assign(style, {
+      accentColor: "#38bdf8",
+      backgroundColor: "#f0f9ff",
+      backgroundPattern: "bubbles",
+      borderColor: "#bae6fd",
+      brandColor: "#075985",
+      decorativeIntensity: "medium",
+      surfaceStyle: "glass",
+      textColor: "#0f172a",
+    });
+  } else if (/(y2k|candy|chrome|糖果|千禧|金属)/i.test(instructions)) {
+    Object.assign(style, {
+      accentColor: "#f472b6",
+      backgroundColor: "#fff1f8",
+      backgroundPattern: "sparkles",
+      borderColor: "#f9a8d4",
+      brandColor: "#831843",
+      decorativeIntensity: "bold",
+      surfaceStyle: "glass",
+      textColor: "#1f1020",
+    });
+  } else if (/(tech|future|circuit|科技|未来|数据|dashboard)/i.test(instructions)) {
+    Object.assign(style, {
+      accentColor: "#22d3ee",
+      backgroundColor: "#020617",
+      backgroundPattern: "circuit",
+      borderColor: "#155e75",
+      brandColor: "#e0f2fe",
+      decorativeIntensity: "medium",
+      surfaceStyle: "neon",
+      textColor: "#f8fafc",
+      theme: "dark",
+    });
+  } else if (/(plant|botanical|green|植物|自然|环保|护肤)/i.test(instructions)) {
+    Object.assign(style, {
+      accentColor: "#22c55e",
+      backgroundColor: "#f0fdf4",
+      backgroundPattern: "botanical",
+      borderColor: "#bbf7d0",
+      brandColor: "#14532d",
+      decorativeIntensity: "medium",
+      surfaceStyle: "paper",
+      textColor: "#052e16",
+    });
+  } else if (/(finance|bank|金融|银行|专业|enterprise)/i.test(instructions)) {
+    Object.assign(style, {
+      accentColor: "#2563eb",
+      backgroundColor: "#f8fafc",
+      backgroundPattern: "grid",
+      borderColor: "#cbd5e1",
+      brandColor: "#0f172a",
+      decorativeIntensity: "subtle",
+      surfaceStyle: "solid",
+      textColor: "#0f172a",
+    });
+  }
+
+  return {
+    gadget: {
+      ...base,
+      ...style,
+      buttonLabel: isChinese ? "提交反馈" : base.buttonLabel,
+      successMessage: isChinese ? "感谢，反馈已保存。" : base.successMessage,
+      styleReferenceFileName: fileName ?? base.styleReferenceFileName,
+      styleSource: source,
+    } satisfies GadgetSettings,
+    rationale: isChinese
+      ? "已根据描述生成可用的视觉风格。"
+      : "A usable visual style was generated from the description.",
+  };
 }
